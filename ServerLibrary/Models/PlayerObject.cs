@@ -2629,6 +2629,7 @@ namespace Server.Models
 
         public void TeleportRing(Point location, int MapIndex)
         {
+            if (location.X < 0 || location.Y < 0) return;
             MapInfo destInfo = SEnvir.MapInfoList.Binding.FirstOrDefault(x => x.Index == MapIndex);
 
             if (destInfo == null) return;

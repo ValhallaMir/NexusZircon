@@ -13,7 +13,7 @@ namespace LibraryEditor
 {
     public sealed class MLibraryV2
     {
-        public const int LibVersion = 2;
+        public const int LibVersion = 3;
         public static bool Load = true;
         public string FileName;
 
@@ -43,23 +43,58 @@ namespace LibraryEditor
             _stream = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite);
             _reader = new BinaryReader(_stream);
             CurrentVersion = _reader.ReadInt32();
-            if (CurrentVersion != LibVersion)
+
+            if (CurrentVersion < 2)
             {
                 MessageBox.Show("Wrong version, expecting lib version: " + LibVersion.ToString() + " found version: " + CurrentVersion.ToString() + ".", "Failed to open", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 return;
             }
+
+            if (CurrentVersion > 3)
+            {
+                MessageBox.Show($"File version is: {CurrentVersion}", "Version Check", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+            }
+
             Count = _reader.ReadInt32();
+
             Images = new List<MImage>();
             IndexList = new List<int>();
 
-            for (int i = 0; i < Count; i++)
-                IndexList.Add(_reader.ReadInt32());
+            int frameSeek = 0;
+            if (CurrentVersion >= 3)
+            {
+                frameSeek = _reader.ReadInt32();
+            }
+
+            if (CurrentVersion < 4)
+            {
+
+                for (int i = 0; i < Count; i++)
+                {
+                    IndexList.Add(_reader.ReadInt32());
+                }
+            }
+            else
+            {
+                long position = this._reader.BaseStream.Position;
+                this._reader.BaseStream.Seek((long)(-Count * 4), SeekOrigin.End);
+                for (int i = 0; i < Count; i++)
+                {
+                    IndexList.Add(_reader.ReadInt32() ^ 8);
+                }
+                this._reader.BaseStream.Seek(position, SeekOrigin.Begin);
+            }
 
             for (int i = 0; i < Count; i++)
                 Images.Add(null);
 
             for (int i = 0; i < Count; i++)
                 CheckImage(i);
+
+            if (CurrentVersion >= 3)
+            {
+
+            }
         }
 
         public void Close()

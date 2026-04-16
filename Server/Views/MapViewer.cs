@@ -2250,9 +2250,9 @@ namespace Server.Views.DirectX
                         Cells[x, y].MiddleFile = 1;
                         Cells[x, y].BackImage = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
-                        Cells[x, y].MiddleImage = (short)BitConverter.ToInt16(Bytes, offset);
+                        Cells[x, y].MiddleImage = BitConverter.ToUInt16(Bytes, offset);
                         offset += 2;
-                        Cells[x, y].FrontImage = (short)BitConverter.ToInt16(Bytes, offset);
+                        Cells[x, y].FrontImage = BitConverter.ToUInt16(Bytes, offset);
                         offset += 2;
                         Cells[x, y].DoorIndex = (byte)(Bytes[offset++] & 0x7F);
                         Cells[x, y].DoorOffset = Bytes[offset++];
@@ -2343,9 +2343,9 @@ namespace Server.Views.DirectX
                         Cells[x, y] = new Cell();
                         Cells[x, y].BackImage = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
-                        Cells[x, y].MiddleImage = (short)BitConverter.ToInt16(Bytes, offset);
+                        Cells[x, y].MiddleImage = BitConverter.ToUInt16(Bytes, offset);
                         offset += 2;
-                        Cells[x, y].FrontImage = (short)BitConverter.ToInt16(Bytes, offset);
+                        Cells[x, y].FrontImage = BitConverter.ToUInt16(Bytes, offset);
                         offset += 2;
                         Cells[x, y].DoorIndex = (byte)(Bytes[offset++] & 0x7F);
                         Cells[x, y].DoorOffset = Bytes[offset++];
@@ -2665,11 +2665,11 @@ namespace Server.Views.DirectX
                         offset += 4;
                         Cells[x, y].MiddleFile = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
-                        Cells[x, y].MiddleImage = (short)BitConverter.ToInt16(Bytes, offset);
+                        Cells[x, y].MiddleImage = BitConverter.ToUInt16(Bytes, offset);
                         offset += 2;
                         Cells[x, y].FrontFile = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
-                        Cells[x, y].FrontImage = (short)BitConverter.ToInt16(Bytes, offset);
+                        Cells[x, y].FrontImage = BitConverter.ToUInt16(Bytes, offset);
                         offset += 2;
                         Cells[x, y].DoorIndex = (byte)(Bytes[offset++] & 0x7F);
                         Cells[x, y].DoorOffset = Bytes[offset++];
@@ -2687,8 +2687,8 @@ namespace Server.Views.DirectX
                         if (Cells[x, y].Light >= 100 && Cells[x, y].Light <= 119)
                             Cells[x, y].FishingCell = true;
 
-                        if ((Cells[x, y].BackImage & 0x20000000) != 0 || (Cells[x, y].FrontImage & 0x8000) != 0)
-                            Cells[x, y].Flag = true;
+                        //if ((Cells[x, y].BackImage & 0x20000000) != 0 || (Cells[x, y].FrontImage & 0x8000) != 0)
+                            //Cells[x, y].Flag = true;
                     }
             }
             catch (Exception ex)

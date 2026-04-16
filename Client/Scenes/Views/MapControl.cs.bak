@@ -352,7 +352,7 @@ namespace Client.Scenes.Views
                         if (Libraries.KROrder.TryGetValue(cell.MiddleFile, out LibraryFile file) && file != LibraryFile.WemadeMir3_Tilesc)
                             CEnvir.LibraryList.TryGetValue(file, out cell.MiddleLibrary);
 
-                        if (Libraries.KROrder.TryGetValue(cell.FrontFile, out file) && file != LibraryFile.WemadeMir3_Tilesc)
+                            if (Libraries.KROrder.TryGetValue(cell.FrontFile, out file) && file != LibraryFile.WemadeMir3_Tilesc)
                             CEnvir.LibraryList.TryGetValue(file, out cell.FrontLibrary);
 
                         cell.LibrariesLoaded = true;
@@ -982,11 +982,11 @@ namespace Client.Scenes.Views
                         offset += 4;
                         Cells[x, y].MiddleFile = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
-                        Cells[x, y].MiddleImage = (int)BitConverter.ToUInt16(Bytes, offset);
+                        Cells[x, y].MiddleImage = BitConverter.ToUInt16(Bytes, offset);
                         offset += 2;
                         Cells[x, y].FrontFile = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
-                        Cells[x, y].FrontImage = (int)BitConverter.ToUInt16(Bytes, offset);
+                        Cells[x, y].FrontImage = BitConverter.ToUInt16(Bytes, offset);
                         offset += 2;
                         Cells[x, y].DoorIndex = (byte)(Bytes[offset++] & 0x7F);
                         Cells[x, y].DoorOffset = Bytes[offset++];
@@ -1006,16 +1006,6 @@ namespace Client.Scenes.Views
 
                         if ((Cells[x, y].BackImage & 0x20000000) != 0 || (Cells[x, y].FrontImage & 0x8000) != 0)
                             Cells[x, y].Flag = true;
-
-                        if (x == 315 && y == 268)
-                        {
-                            GameScene.Game.ReceiveChat($"Loaded Map: {MapInfo.FileName} ({MapInfo.Description}) of Size: {Width}x{Height} ({Cells.Length} Cells)", MessageType.Announcement);
-                            GameScene.Game.ReceiveChat($"Cell Info:", MessageType.Announcement);
-                            Cell cell = Cells[x, y];
-                            GameScene.Game.ReceiveChat($"BackImage: {cell.BackImage} Back Library: {cell.BackFile}", MessageType.Announcement);
-                            GameScene.Game.ReceiveChat($"MiddleImage: {cell.MiddleImage} Middle Library: {cell.MiddleFile}", MessageType.Announcement);
-                            GameScene.Game.ReceiveChat($"FrontImage: {cell.FrontImage} Front Library: {cell.FrontFile}", MessageType.Announcement);
-                        }
                     }
             }
             catch (Exception ex)
@@ -1985,7 +1975,7 @@ namespace Client.Scenes.Views
 
                         if (Libraries.KROrder.TryGetValue(cell.FrontFile, out file) && file != LibraryFile.WemadeMir3_Tilesc && CEnvir.LibraryList.TryGetValue(file, out library))
                         {
-                            int index = (cell.FrontImage & 0x7FFF) - 1;
+                            int index = cell.FrontImage - 1;
 
                             if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
                                 continue;//  index += GameScene.Game.MapControl.Animation % cell.FrontAnimationFrame;
