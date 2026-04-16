@@ -5347,8 +5347,27 @@ namespace Client.Models
                     NameLabel.Disposing += (o, e) => names.Remove(NameLabel);
                     names.Add(NameLabel);
                 }
+                if (NameColour.ToArgb() == Color.LightSalmon.ToArgb())
+                {
+                    NameLabel.PerCharColour = i =>
+                    {
+                        double time = CEnvir.Now.TimeOfDay.TotalMilliseconds * 0.005;
 
-                NameLabel.ForeColour = NameColour;
+                        float wave = i * 0.6f;
+
+                        double r = Math.Sin(wave - time) * 127 + 128;
+                        double g = Math.Sin(wave - time + 2) * 127 + 128;
+                        double b = Math.Sin(wave - time + 4) * 127 + 128;
+
+                        return Color.FromArgb(255, (int)r, (int)g, (int)b);
+                    };
+                }
+                else
+                {
+                    NameLabel.PerCharColour = null; // 🔥 IMPORTANT: reset when not rainbow
+                    NameLabel.ForeColour = NameColour;
+                }
+                NameLabel.TextureValid = false;
             }
 
             if (string.IsNullOrEmpty(Title))
@@ -5389,8 +5408,27 @@ namespace Client.Models
                     TitleNameLabel.Disposing += (o, e) => titles.Remove(TitleNameLabel);
                     titles.Add(TitleNameLabel);
                 }
+                if (NameColour.ToArgb() == Color.LightSalmon.ToArgb())
+                {
+                    TitleNameLabel.PerCharColour = i =>
+                    {
+                        double time = CEnvir.Now.TimeOfDay.TotalMilliseconds * 0.005;
 
-                TitleNameLabel.ForeColour = Race != ObjectType.Player ? Color.Orange : NameColour;
+                        float wave = i * 0.6f;
+
+                        double r = Math.Sin(wave - time) * 127 + 128;
+                        double g = Math.Sin(wave - time + 2) * 127 + 128;
+                        double b = Math.Sin(wave - time + 4) * 127 + 128;
+
+                        return Color.FromArgb(255, (int)r, (int)g, (int)b);
+                    };
+                }
+                else
+                {
+                    TitleNameLabel.PerCharColour = null; // 🔥 IMPORTANT: reset when not rainbow
+                    TitleNameLabel.ForeColour = NameColour;
+                }
+                TitleNameLabel.TextureValid = false;
             }
         }
 

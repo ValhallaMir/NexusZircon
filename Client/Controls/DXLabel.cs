@@ -11,6 +11,9 @@ namespace Client.Controls
 {
     public class DXLabel : DXControl
     {
+        public Func<int, Color> PerCharColour { get; set; }
+        public bool PerCharOutline { get; set; } = true;
+
         #region Static
         public static Size GetSize(string text, Font font, bool outline, int paddingBottom = 0)
         {
@@ -207,7 +210,6 @@ namespace Client.Controls
 
         #endregion
 
-
         #region PaddingBottom
 
         public int PaddingBottom
@@ -234,8 +236,7 @@ namespace Client.Controls
         }
 
         #endregion
-
-
+        
         public override void OnTextChanged(string oValue, string nValue)
         {
             base.OnTextChanged(oValue, nValue);
@@ -276,6 +277,8 @@ namespace Client.Controls
 
         protected override void CreateTexture()
         {
+            bool isRainbow = PerCharColour != null;
+
             int width = DisplayArea.Width;
             int height = DisplayArea.Height;
 
@@ -296,22 +299,32 @@ namespace Client.Controls
                 RenderingPipelineManager.ConfigureGraphics(graphics);
                 graphics.Clear(BackColour);
 
-                if (Outline)
+                if (PerCharColour == null)
                 {
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 0, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(0, 1, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(2, 1, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 2, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 1, width, height), ForeColour, DrawFormat);
+                    // NORMAL TEXT (fast path)
+                    if (Outline)
+                    {
+                        TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 0, width, height), OutlineColour, DrawFormat);
+                        TextRenderer.DrawText(graphics, Text, Font, new Rectangle(0, 1, width, height), OutlineColour, DrawFormat);
+                        TextRenderer.DrawText(graphics, Text, Font, new Rectangle(2, 1, width, height), OutlineColour, DrawFormat);
+                        TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 2, width, height), OutlineColour, DrawFormat);
+                        TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 1, width, height), ForeColour, DrawFormat);
+                    }
+                    else
+                    {
+                        TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 0, width, height), ForeColour, DrawFormat);
+                    }
                 }
                 else
                 {
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 0, width, height), ForeColour, DrawFormat);
+                    // 🔥 PER CHARACTER RENDER (FIXED)
+                    DrawPerCharacter(graphics);
                 }
             }
             TextureValid = true;
             ExpireTime = CEnvir.Now + Config.CacheDuration;
         }
+
         public override void DisposeTexture()
         {
             if (_labelTextureHandle.IsValid)
@@ -322,11 +335,67 @@ namespace Client.Controls
 
             base.DisposeTexture();
         }
+        private void DrawPerCharacter(Graphics graphics)
+        {
+            if (string.IsNullOrEmpty(Text)) return;
+
+            float x = Outline ? 1f : 0f;
+            float y = Outline ? 1f : 0f;
+
+            using (var sf = new StringFormat(StringFormat.GenericTypographic))
+            {
+                sf.FormatFlags |= StringFormatFlags.NoWrap;
+
+                for (int i = 0; i < Text.Length; i++)
+                {
+                    char ch = Text[i];
+
+                    if (ch == ' ')
+                    {
+                        x += MeasureCharWidth(graphics, " ");
+                        continue;
+                    }
+
+                    Color c = PerCharColour(i);
+
+                    using (var brush = new SolidBrush(c))
+                    {
+                        // Outline per character
+                        if (Outline && PerCharOutline)
+                        {
+                            using (var ob = new SolidBrush(OutlineColour))
+                            {
+                                graphics.DrawString(ch.ToString(), Font, ob, x, y - 1, sf);
+                                graphics.DrawString(ch.ToString(), Font, ob, x - 1, y, sf);
+                                graphics.DrawString(ch.ToString(), Font, ob, x + 1, y, sf);
+                                graphics.DrawString(ch.ToString(), Font, ob, x, y + 1, sf);
+                            }
+                        }
+
+                        graphics.DrawString(ch.ToString(), Font, brush, x, y, sf);
+                    }
+
+                    x += MeasureCharWidth(graphics, ch.ToString());
+                }
+            }
+        }
+        private float MeasureCharWidth(Graphics g, string s)
+        {
+            using (var sf = new StringFormat(StringFormat.GenericTypographic))
+            {
+                sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+                return g.MeasureString(s, Font, int.MaxValue, sf).Width;
+            }
+        }
         protected override void DrawControl()
         {
             if (!DrawTexture)
-            {
                 return;
+
+            // Only invalidate if we're animating
+            if (PerCharColour != null && TextureValid)
+            {
+                TextureValid = false;
             }
 
             if (!TextureValid)
@@ -338,7 +407,13 @@ namespace Client.Controls
 
             RenderingPipelineManager.SetOpacity(Opacity);
 
-            PresentTexture(ControlTexture, Parent, DisplayArea, IsEnabled ? Color.White : Color.FromArgb(75, 75, 75), this);
+            PresentTexture(
+                ControlTexture,
+                Parent,
+                DisplayArea,
+                IsEnabled ? Color.White : Color.FromArgb(75, 75, 75),
+                this
+            );
 
             RenderingPipelineManager.SetOpacity(oldOpacity);
 
