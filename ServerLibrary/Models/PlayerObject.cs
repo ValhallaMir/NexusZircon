@@ -742,17 +742,13 @@ namespace Server.Models
 
         public override void ProcessNameColour()
         {
-            NameColour = Color.White;
-
-            if (Stats[Stat.Rebirth] > 0)
-                NameColour = Color.DeepPink;
-
+            NameColour = Character.CustomNameColour;
 
             if (Stats[Stat.PKPoint] >= Config.RedPoint)
                 NameColour = Globals.RedNameColour;
             else if (Stats[Stat.Brown] > 0)
                 NameColour = Globals.BrownNameColour;
-            else if (Stats[Stat.PKPoint] >= 50)
+            else if (Stats[Stat.PKPoint] >= 100)
                 NameColour = Color.Yellow;
         }
 

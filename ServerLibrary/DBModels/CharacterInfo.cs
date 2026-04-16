@@ -149,6 +149,24 @@ namespace Server.DBModels
         }
         private Color _ArmourColour;
 
+        public Color CustomNameColour
+        {
+            get
+            {
+                return _CustomNameColour.IsEmpty ? Color.White : _CustomNameColour;
+            }
+            set
+            {
+                if (_CustomNameColour == value) return;
+
+                var oldValue = _CustomNameColour;
+                _CustomNameColour = value;
+
+                OnChanged(oldValue, value, "CustomNameColour");
+            }
+        }
+        private Color _CustomNameColour;
+
         public DateTime LastLogin
         {
             get { return _LastLogin; }
