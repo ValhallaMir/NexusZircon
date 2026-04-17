@@ -334,16 +334,22 @@ namespace Client.Scenes.Views
 
         private void DrawObjects()
         {
-            int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 4), maxX = Math.Min(Width - 1, User.CurrentLocation.X + OffSetX + 4);
-            int minY = Math.Max(0, User.CurrentLocation.Y - OffSetY - 4), maxY = Math.Min(Height - 1, User.CurrentLocation.Y + OffSetY + 25);
+            int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 4);
+            int maxX = Math.Min(Width - 1, User.CurrentLocation.X + OffSetX + 4);
+            int minY = Math.Max(0, User.CurrentLocation.Y - OffSetY - 4);
+            int maxY = Math.Min(Height - 1, User.CurrentLocation.Y + OffSetY + 25);
 
             for (int y = minY; y <= maxY; y++)
             {
-                int drawY = (y - User.CurrentLocation.Y + OffSetY + 1) * CellHeight - User.MovingOffSet.Y - User.ShakeScreenOffset.Y;
+                int drawY = (y - User.CurrentLocation.Y + OffSetY + 1) * CellHeight
+                            - User.MovingOffSet.Y
+                            - User.ShakeScreenOffset.Y;
 
                 for (int x = minX; x <= maxX; x++)
                 {
-                    int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth - User.MovingOffSet.X - User.ShakeScreenOffset.X;
+                    int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth
+                                - User.MovingOffSet.X
+                                - User.ShakeScreenOffset.X;
 
                     Cell cell = Cells[x, y];
 
@@ -358,61 +364,101 @@ namespace Client.Scenes.Views
                         cell.LibrariesLoaded = true;
                     }
 
+                    // Tile animation layer
+                    if (cell.TileAnimationImage > 0 && cell.TileAnimationFrames > 0)
+                    {
+                        if (Libraries.KROrder.TryGetValue(190, out LibraryFile animFile) &&
+                            CEnvir.LibraryList.TryGetValue(animFile, out MirLibrary animLib))
+                        {
+                            int index = cell.TileAnimationImage - 1;
+                            int animationOffset = cell.TileAnimationOffset ^ 0x2000;
+                            index += animationOffset * (Animation % cell.TileAnimationFrames);
+
+                            Size s = animLib.GetSize(index);
+                            animLib.Draw(index, drawX - (CellWidth * 4), drawY - s.Height + CellHeight, Color.White, false, 1F, ImageType.Image);
+                        }
+                    }
+
+                    // Middle layer: only draw oversized/animated here
                     if (cell.MiddleLibrary != null)
                     {
                         int index = cell.MiddleImage - 1;
-                        bool useImageOffset = cell.TileAnimationFrames > 0 || cell.TileAnimationImage != 0 || cell.TileAnimationOffset != 0;
-
-                        bool blend = false;
-                        if (cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255)
+                        if (index >= 0)
                         {
+                            bool blend = false;
                             int animationCount = cell.MiddleAnimationCount;
-                            if (animationCount > 0)
+
+                            if (cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255 && animationCount > 0)
                             {
                                 blend = cell.MiddleAnimationBlend;
                                 index += Animation % animationCount;
                             }
-                        }
 
-                        Size s = cell.MiddleLibrary.GetSize(index);
+                            Size s = cell.MiddleLibrary.GetSize(index);
 
-                        if ((s.Width != CellWidth || s.Height != CellHeight) && (s.Width != CellWidth * 2 || s.Height != CellHeight * 2))
-                        {
-                            if (!blend)
-                                cell.MiddleLibrary.Draw(index, drawX, drawY - s.Height, Color.White, useImageOffset, 1F, ImageType.Image);
-                            else
-                                cell.MiddleLibrary.DrawBlend(index, drawX, drawY - s.Height, Color.White, useImageOffset, 0.5F, ImageType.Image);
-                        }
-                        else
-                        {
-                            cell.MiddleLibrary.Draw(index, drawX, drawY - s.Height, Color.White, useImageOffset, 1F, ImageType.Image);
+                            bool isStandard =
+                                (s.Width == CellWidth && s.Height == CellHeight) ||
+                                (s.Width == CellWidth * 2 && s.Height == CellHeight * 2);
+
+                            if (!isStandard || blend)
+                            {
+                                if (blend)
+                                    cell.MiddleLibrary.DrawBlend(index, drawX, drawY - s.Height, Color.White, false, 0.5F, ImageType.Image);
+                                else
+                                    cell.MiddleLibrary.Draw(index, drawX, drawY - s.Height, Color.White, false, 1F, ImageType.Image);
+                            }
                         }
                     }
 
+                    // Front layer: only draw oversized/animated/door-adjusted here
                     if (cell.FrontLibrary != null)
                     {
                         int index = (cell.FrontImage & 0x7FFF) - 1;
-                        bool useImageOffset = cell.TileAnimationFrames > 0 || cell.TileAnimationImage != 0 || cell.TileAnimationOffset != 0;
-
-                        bool blend = false;
-                        if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
+                        if (index >= 0)
                         {
+                            bool blend = false;
                             int animationCount = cell.FrontAnimationCount;
-                            if (animationCount > 0)
+
+                            if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255 && animationCount > 0)
                             {
                                 blend = cell.FrontAnimationBlend;
                                 index += Animation % animationCount;
                             }
-                        }
 
-                        Size s = cell.FrontLibrary.GetSize(index);
+                            // door support
+                            if (cell.DoorIndex > 0 && cell.DoorOffset > 0)
+                            {
+                                // If you have door runtime state elsewhere, apply it here.
+                                // For now, keep the base index unchanged unless you already track door frame state.
+                            }
 
-                        if ((s.Width != CellWidth || s.Height != CellHeight) && (s.Width != CellWidth * 2 || s.Height != CellHeight * 2))
-                        {
-                            if (!blend)
-                                cell.FrontLibrary.Draw(index, drawX, drawY - s.Height, Color.White, useImageOffset, 1F, ImageType.Image);
-                            else
-                                cell.FrontLibrary.DrawBlend(index, drawX, drawY - s.Height, Color.White, useImageOffset || (index >= 2723 && index <= 2732), 0.5F, ImageType.Image);
+                            Size s = cell.FrontLibrary.GetSize(index);
+
+                            bool isStandard =
+                                (s.Width == CellWidth && s.Height == CellHeight) ||
+                                (s.Width == CellWidth * 2 && s.Height == CellHeight * 2);
+
+                            // Match old Mir2 behavior:
+                            // standard static fronts are handled by Floor.OnClearTexture()
+                            if (!isStandard || cell.FrontAnimationFrame > 0 || cell.DoorIndex > 0)
+                            {
+                                float frontY = drawY - s.Height;
+
+                                if (cell.FrontAnimationFrame > 0)
+                                    frontY += CellHeight * 2;
+
+                                if (blend || cell.FrontAnimationFrame > 0)
+                                {
+                                    if (blend)
+                                        cell.FrontLibrary.DrawBlend(index, drawX, frontY, Color.White, true, 0.5F, ImageType.Image);
+                                    else
+                                        cell.FrontLibrary.Draw(index, drawX, frontY, Color.White, true, 1F, ImageType.Image);
+                                }
+                                else
+                                {
+                                    cell.FrontLibrary.Draw(index, drawX, frontY, Color.White, true, 1F, ImageType.Image);
+                                }
+                            }
                         }
                     }
                 }
@@ -435,19 +481,18 @@ namespace Client.Scenes.Views
                                 ob.Draw();
                         }
                         else if (ob.MapTarget.Y == y)
+                        {
                             ob.Draw();
+                        }
                     }
                 }
-
             }
 
             if (User.Opacity == 1f)
             {
                 float oldOpacity = MapObject.User.Opacity;
                 MapObject.User.Opacity = 0.65F;
-
                 MapObject.User.DrawPlayer(false, false);
-
                 MapObject.User.Opacity = oldOpacity;
             }
 
@@ -456,15 +501,12 @@ namespace Client.Scenes.Views
                 if (Config.DrawParticles)
                 {
                     foreach (var ob in ParticleEffects)
-                    {
                         ob.Draw();
-                    }
                 }
 
                 foreach (MirEffect ob in Effects)
                 {
                     if (ob.DrawType != DrawType.Object || !ob.MapTarget.IsEmpty || ob.Target != User) continue;
-
                     ob.Draw();
                 }
             }
@@ -477,39 +519,67 @@ namespace Client.Scenes.Views
                 var path = Path.Combine(Config.MapPath, MapInfo.FileName + ".map");
 
                 if (!File.Exists(path)) return;
+                string MapType = "Unknown";
 
                 byte[] Bytes = File.ReadAllBytes(Config.MapPath + MapInfo.FileName + ".map");
                 //c# custom map format
                 if ((Bytes[2] == 0x43) && (Bytes[3] == 0x23))
+                {
                     LoadMapType100(Bytes);
+                    MapType = "Crystal - Type 100";
+                }
                 //wemade mir3 maps have no title they just start with blank bytes
                 else if (Bytes[0] == 0)
+                {
                     LoadMapType5(Bytes);
+                    MapType = "Wemade Mir3 - Type 5";
+                }
                 //shanda mir3 maps start with title: (C) SNDA, MIR3.
                 else if ((Bytes[0] == 0x0F) && (Bytes[5] == 0x53) && (Bytes[14] == 0x33))
+                {
                     LoadMapType6(Bytes);
+                    MapType = "Shanda Mir3 - Type 6";
+                }
                 //wemades antihack map (laby maps) title start with: Mir2 AntiHack
                 else if ((Bytes[0] == 0x15) && (Bytes[4] == 0x32) && (Bytes[6] == 0x41) && (Bytes[19] == 0x31))
+                {
                     LoadMapType4(Bytes);
+                    MapType = "Wemade Mir2 AntiHack - Type 4";
+                }
                 //wemades 2010 map format i guess title starts with: Map 2010 Ver 1.0
                 else if ((Bytes[0] == 0x10) && (Bytes[2] == 0x61) && (Bytes[7] == 0x31) && (Bytes[14] == 0x31))
+                {
                     LoadMapType1(Bytes);
+                    MapType = "Wemade 2010 - Type 1";
+                }
                 //shanda's 2012 format and one of shandas(wemades) older formats share same header info, only difference is the filesize
                 else if ((Bytes[4] == 0x0F) || (Bytes[4] == 0x03) && (Bytes[18] == 0x0D) && (Bytes[19] == 0x0A))
                 {
                     int W = Bytes[0] + (Bytes[1] << 8);
                     int H = Bytes[2] + (Bytes[3] << 8);
                     if (Bytes.Length > (52 + (W * H * 14)))
+                    {
                         LoadMapType3(Bytes);
+                        MapType = "Shanda 2012 - Type 3";
+                    }
                     else
+                    {
                         LoadMapType2(Bytes);
+                        MapType = "Wemade 2012 - Type 2";
+                    }
                 }
                 //3/4 heroes map format (myth/lifcos i guess)
                 else if ((Bytes[0] == 0x0D) && (Bytes[1] == 0x4C) && (Bytes[7] == 0x20) && (Bytes[11] == 0x6D))
+                {
                     LoadMapType7(Bytes);
+                    MapType = "3/4 Heroes - Type 7";
+                }
                 else
+                {
                     //if it's none of the above load the default old school format
                     LoadMapType0(Bytes);
+                    MapType = "Old School Format - Type 0";
+                }
 
             }
             catch (Exception ex)
@@ -948,6 +1018,7 @@ namespace Client.Scenes.Views
                     for (int y = 0; y < Height; y++)
                     {
                         Cells[x, y] = new Cell();
+
                         Cells[x, y].BackFile = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
                         Cells[x, y].BackImage = (int)BitConverter.ToInt32(Bytes, offset);
@@ -978,17 +1049,77 @@ namespace Client.Scenes.Views
 
                         if ((Cells[x, y].BackImage & 0x20000000) != 0 || (Cells[x, y].FrontImage & 0x8000) != 0)
                             Cells[x, y].Flag = true;
-
-                        if (x == 315 && y == 268)
-                        {
-                            GameScene.Game.ReceiveChat($"Loaded Map: {MapInfo.FileName} ({MapInfo.Description}) of Size: {Width}x{Height} ({Cells.Length} Cells)", MessageType.Announcement);
-                            GameScene.Game.ReceiveChat($"Cell Info:", MessageType.Announcement);
-                            Cell cell = Cells[x, y];
-                            GameScene.Game.ReceiveChat($"BackImage: {cell.BackImage} Back Library: {cell.BackFile}", MessageType.Announcement);
-                            GameScene.Game.ReceiveChat($"MiddleImage: {cell.MiddleImage} Middle Library: {cell.MiddleFile}", MessageType.Announcement);
-                            GameScene.Game.ReceiveChat($"FrontImage: {cell.FrontImage} Front Library: {cell.FrontFile}", MessageType.Announcement);
-                        }
                     }
+
+
+                // ✅ AFTER the loop — ALL cells exist now
+
+                var debug = new List<object>();
+
+                void DumpCell(int x, int y)
+                {
+                    var c = Cells[x, y];
+
+                    debug.Add(new
+                    {
+                        X = x,
+                        Y = y,
+
+                        c.BackFile,
+                        c.BackImage,
+
+                        c.MiddleFile,
+                        c.MiddleImage,
+
+                        c.FrontFile,
+                        c.FrontImage,
+
+                        MaskedFrontIndex = (c.FrontImage & 0x7FFF) - 1,
+
+                        c.DoorIndex,
+                        c.DoorOffset,
+
+                        c.FrontAnimationFrame,
+                        c.FrontAnimationTick,
+                        c.FrontAnimationCount,
+                        c.FrontAnimationBlend,
+
+                        c.MiddleAnimationFrame,
+                        c.MiddleAnimationTick,
+                        c.MiddleAnimationCount,
+                        c.MiddleAnimationBlend,
+
+                        c.TileAnimationImage,
+                        c.TileAnimationOffset,
+                        c.TileAnimationFrames,
+
+                        c.Light,
+                        c.Flag,
+                        c.FishingCell
+                    });
+                }
+
+                DumpCell(53, 59);
+                DumpCell(54, 59);
+
+                string json = System.Text.Json.JsonSerializer.Serialize(debug, new System.Text.Json.JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+
+                File.WriteAllText("cell_compare.json", json);
+
+
+                //DEBUG VALHALLA
+                //if (x == 315 && y == 268)
+                //{
+                //    GameScene.Game.ReceiveChat($"Loaded Map: {MapInfo.FileName} ({MapInfo.Description}) of Size: {Width}x{Height} ({Cells.Length} Cells)", MessageType.Announcement);
+                //    GameScene.Game.ReceiveChat($"Cell Info:", MessageType.Announcement);
+                //    Cell cell = Cells[x, y];
+                //    GameScene.Game.ReceiveChat($"BackImage: {cell.BackImage} Back Library: {cell.BackFile}", MessageType.Announcement);
+                //    GameScene.Game.ReceiveChat($"MiddleImage: {cell.MiddleImage} Middle Library: {cell.MiddleFile}", MessageType.Announcement);
+                //    GameScene.Game.ReceiveChat($"FrontImage: {cell.FrontImage} Front Library: {cell.FrontFile}", MessageType.Announcement);
+                //}
             }
             catch (Exception ex)
             {
@@ -2246,5 +2377,4 @@ namespace Client.Scenes.Views
             ob.CurrentCell = null;
         }
     }
-
 }
