@@ -48,6 +48,7 @@
             skinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             splitContainer1 = new System.Windows.Forms.SplitContainer();
             splitContainer2 = new System.Windows.Forms.SplitContainer();
+            label2 = new System.Windows.Forms.Label();
             ShadowTypeLabel = new System.Windows.Forms.Label();
             InsertBlankButton = new System.Windows.Forms.Button();
             AddBlankButton = new System.Windows.Forms.Button();
@@ -89,7 +90,6 @@
             radioButtonOverlay = new System.Windows.Forms.RadioButton();
             radioButtonShadow = new System.Windows.Forms.RadioButton();
             radioButtonImage = new System.Windows.Forms.RadioButton();
-            label2 = new System.Windows.Forms.Label();
             MainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -110,12 +110,13 @@
             // 
             // MainMenu
             // 
+            MainMenu.ImageScalingSize = new System.Drawing.Size(24, 24);
             MainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { fileToolStripMenuItem, functionsToolStripMenuItem, skinToolStripMenuItem });
             MainMenu.Location = new System.Drawing.Point(0, 0);
             MainMenu.Name = "MainMenu";
-            MainMenu.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
+            MainMenu.Padding = new System.Windows.Forms.Padding(10, 3, 0, 3);
             MainMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            MainMenu.Size = new System.Drawing.Size(1256, 24);
+            MainMenu.Size = new System.Drawing.Size(1794, 35);
             MainMenu.TabIndex = 0;
             MainMenu.Text = "menuStrip1";
             // 
@@ -124,14 +125,14 @@
             fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, toolStripMenuItem1, saveToolStripMenuItem, saveAsToolStripMenuItem, toolStripMenuItem2, closeToolStripMenuItem });
             fileToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("fileToolStripMenuItem.Image");
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            fileToolStripMenuItem.Size = new System.Drawing.Size(53, 20);
+            fileToolStripMenuItem.Size = new System.Drawing.Size(78, 29);
             fileToolStripMenuItem.Text = "File";
             // 
             // newToolStripMenuItem
             // 
             newToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("newToolStripMenuItem.Image");
             newToolStripMenuItem.Name = "newToolStripMenuItem";
-            newToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            newToolStripMenuItem.Size = new System.Drawing.Size(176, 34);
             newToolStripMenuItem.Text = "New";
             newToolStripMenuItem.ToolTipText = "New .Lib";
             newToolStripMenuItem.Click += newToolStripMenuItem_Click;
@@ -140,7 +141,7 @@
             // 
             openToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("openToolStripMenuItem.Image");
             openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            openToolStripMenuItem.Size = new System.Drawing.Size(176, 34);
             openToolStripMenuItem.Text = "Open";
             openToolStripMenuItem.ToolTipText = "Open Shanda or Wemade files.";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
@@ -148,13 +149,13 @@
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new System.Drawing.Size(111, 6);
+            toolStripMenuItem1.Size = new System.Drawing.Size(173, 6);
             // 
             // saveToolStripMenuItem
             // 
             saveToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("saveToolStripMenuItem.Image");
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            saveToolStripMenuItem.Size = new System.Drawing.Size(176, 34);
             saveToolStripMenuItem.Text = "Save";
             saveToolStripMenuItem.ToolTipText = "Saves currently open .Lib";
             saveToolStripMenuItem.Click += saveToolStripMenuItem_Click;
@@ -163,7 +164,7 @@
             // 
             saveAsToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("saveAsToolStripMenuItem.Image");
             saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            saveAsToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            saveAsToolStripMenuItem.Size = new System.Drawing.Size(176, 34);
             saveAsToolStripMenuItem.Text = "Save As";
             saveAsToolStripMenuItem.ToolTipText = ".Lib Only.";
             saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
@@ -171,13 +172,13 @@
             // toolStripMenuItem2
             // 
             toolStripMenuItem2.Name = "toolStripMenuItem2";
-            toolStripMenuItem2.Size = new System.Drawing.Size(111, 6);
+            toolStripMenuItem2.Size = new System.Drawing.Size(173, 6);
             // 
             // closeToolStripMenuItem
             // 
             closeToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("closeToolStripMenuItem.Image");
             closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            closeToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            closeToolStripMenuItem.Size = new System.Drawing.Size(176, 34);
             closeToolStripMenuItem.Text = "Close";
             closeToolStripMenuItem.ToolTipText = "Exit Application.";
             closeToolStripMenuItem.Click += closeToolStripMenuItem_Click;
@@ -187,14 +188,14 @@
             functionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { copyToToolStripMenuItem, countBlanksToolStripMenuItem, removeBlanksToolStripMenuItem, convertToolStripMenuItem });
             functionsToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("functionsToolStripMenuItem.Image");
             functionsToolStripMenuItem.Name = "functionsToolStripMenuItem";
-            functionsToolStripMenuItem.Size = new System.Drawing.Size(87, 20);
+            functionsToolStripMenuItem.Size = new System.Drawing.Size(128, 29);
             functionsToolStripMenuItem.Text = "Functions";
             // 
             // copyToToolStripMenuItem
             // 
             copyToToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("copyToToolStripMenuItem.Image");
             copyToToolStripMenuItem.Name = "copyToToolStripMenuItem";
-            copyToToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            copyToToolStripMenuItem.Size = new System.Drawing.Size(233, 34);
             copyToToolStripMenuItem.Text = "Copy To..";
             copyToToolStripMenuItem.ToolTipText = "Copy to a new .Lib or to the end of an exsisting one.";
             copyToToolStripMenuItem.Visible = false;
@@ -204,7 +205,7 @@
             // 
             countBlanksToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("countBlanksToolStripMenuItem.Image");
             countBlanksToolStripMenuItem.Name = "countBlanksToolStripMenuItem";
-            countBlanksToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            countBlanksToolStripMenuItem.Size = new System.Drawing.Size(233, 34);
             countBlanksToolStripMenuItem.Text = "Count Blanks";
             countBlanksToolStripMenuItem.ToolTipText = "Counts the blank images in the .Lib";
             countBlanksToolStripMenuItem.Visible = false;
@@ -215,7 +216,7 @@
             removeBlanksToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { safeToolStripMenuItem });
             removeBlanksToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("removeBlanksToolStripMenuItem.Image");
             removeBlanksToolStripMenuItem.Name = "removeBlanksToolStripMenuItem";
-            removeBlanksToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            removeBlanksToolStripMenuItem.Size = new System.Drawing.Size(233, 34);
             removeBlanksToolStripMenuItem.Text = "Remove Blanks";
             removeBlanksToolStripMenuItem.ToolTipText = "Quick removal of blanks.";
             removeBlanksToolStripMenuItem.Click += removeBlanksToolStripMenuItem_Click;
@@ -224,7 +225,7 @@
             // 
             safeToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("safeToolStripMenuItem.Image");
             safeToolStripMenuItem.Name = "safeToolStripMenuItem";
-            safeToolStripMenuItem.Size = new System.Drawing.Size(96, 22);
+            safeToolStripMenuItem.Size = new System.Drawing.Size(148, 34);
             safeToolStripMenuItem.Text = "Safe";
             safeToolStripMenuItem.ToolTipText = "Use the safe method of removing blanks.";
             safeToolStripMenuItem.Click += safeToolStripMenuItem_Click;
@@ -233,7 +234,7 @@
             // 
             convertToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("convertToolStripMenuItem.Image");
             convertToolStripMenuItem.Name = "convertToolStripMenuItem";
-            convertToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            convertToolStripMenuItem.Size = new System.Drawing.Size(233, 34);
             convertToolStripMenuItem.Text = "Converter";
             convertToolStripMenuItem.ToolTipText = "Convert Wil/Wzl/Miz to .Lib";
             convertToolStripMenuItem.Click += convertToolStripMenuItem_Click;
@@ -243,7 +244,7 @@
             skinToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             skinToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("skinToolStripMenuItem.Image");
             skinToolStripMenuItem.Name = "skinToolStripMenuItem";
-            skinToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
+            skinToolStripMenuItem.Size = new System.Drawing.Size(85, 29);
             skinToolStripMenuItem.Text = "Skin";
             skinToolStripMenuItem.Visible = false;
             // 
@@ -251,8 +252,8 @@
             // 
             splitContainer1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             splitContainer1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            splitContainer1.Location = new System.Drawing.Point(0, 67);
-            splitContainer1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            splitContainer1.Location = new System.Drawing.Point(0, 112);
+            splitContainer1.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -264,9 +265,9 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(PreviewListView);
-            splitContainer1.Size = new System.Drawing.Size(1256, 967);
-            splitContainer1.SplitterDistance = 479;
-            splitContainer1.SplitterWidth = 5;
+            splitContainer1.Size = new System.Drawing.Size(1794, 1612);
+            splitContainer1.SplitterDistance = 798;
+            splitContainer1.SplitterWidth = 8;
             splitContainer1.TabIndex = 1;
             // 
             // splitContainer2
@@ -275,8 +276,8 @@
             splitContainer2.Dock = System.Windows.Forms.DockStyle.Bottom;
             splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             splitContainer2.IsSplitterFixed = true;
-            splitContainer2.Location = new System.Drawing.Point(0, 3);
-            splitContainer2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            splitContainer2.Location = new System.Drawing.Point(0, 6);
+            splitContainer2.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel1
@@ -312,19 +313,30 @@
             // splitContainer2.Panel2
             // 
             splitContainer2.Panel2.Controls.Add(panel);
-            splitContainer2.Size = new System.Drawing.Size(1254, 474);
-            splitContainer2.SplitterDistance = 280;
-            splitContainer2.SplitterWidth = 5;
+            splitContainer2.Size = new System.Drawing.Size(1792, 790);
+            splitContainer2.SplitterDistance = 400;
+            splitContainer2.SplitterWidth = 7;
             splitContainer2.TabIndex = 0;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.ForeColor = System.Drawing.SystemColors.ControlText;
+            label2.Location = new System.Drawing.Point(73, 198);
+            label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size(122, 25);
+            label2.TabIndex = 26;
+            label2.Text = "Shadow Type:";
             // 
             // ShadowTypeLabel
             // 
             ShadowTypeLabel.AutoSize = true;
             ShadowTypeLabel.ForeColor = System.Drawing.SystemColors.ControlText;
-            ShadowTypeLabel.Location = new System.Drawing.Point(144, 119);
-            ShadowTypeLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            ShadowTypeLabel.Location = new System.Drawing.Point(206, 198);
+            ShadowTypeLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             ShadowTypeLabel.Name = "ShadowTypeLabel";
-            ShadowTypeLabel.Size = new System.Drawing.Size(75, 15);
+            ShadowTypeLabel.Size = new System.Drawing.Size(115, 25);
             ShadowTypeLabel.TabIndex = 25;
             ShadowTypeLabel.Text = "<No Image>";
             // 
@@ -333,10 +345,10 @@
             InsertBlankButton.ForeColor = System.Drawing.SystemColors.ControlText;
             InsertBlankButton.Image = (System.Drawing.Image)resources.GetObject("InsertBlankButton.Image");
             InsertBlankButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            InsertBlankButton.Location = new System.Drawing.Point(141, 307);
-            InsertBlankButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            InsertBlankButton.Location = new System.Drawing.Point(201, 512);
+            InsertBlankButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             InsertBlankButton.Name = "InsertBlankButton";
-            InsertBlankButton.Size = new System.Drawing.Size(122, 30);
+            InsertBlankButton.Size = new System.Drawing.Size(174, 50);
             InsertBlankButton.TabIndex = 24;
             InsertBlankButton.Tag = "";
             InsertBlankButton.Text = "Insert Blanks";
@@ -349,10 +361,10 @@
             AddBlankButton.ForeColor = System.Drawing.SystemColors.ControlText;
             AddBlankButton.Image = (System.Drawing.Image)resources.GetObject("AddBlankButton.Image");
             AddBlankButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            AddBlankButton.Location = new System.Drawing.Point(12, 304);
-            AddBlankButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            AddBlankButton.Location = new System.Drawing.Point(17, 507);
+            AddBlankButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             AddBlankButton.Name = "AddBlankButton";
-            AddBlankButton.Size = new System.Drawing.Size(122, 30);
+            AddBlankButton.Size = new System.Drawing.Size(174, 50);
             AddBlankButton.TabIndex = 23;
             AddBlankButton.Tag = "";
             AddBlankButton.Text = "Add Blanks";
@@ -362,11 +374,11 @@
             // 
             // nudJump
             // 
-            nudJump.Location = new System.Drawing.Point(89, 348);
-            nudJump.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            nudJump.Location = new System.Drawing.Point(127, 580);
+            nudJump.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             nudJump.Maximum = new decimal(new int[] { 650000, 0, 0, 0 });
             nudJump.Name = "nudJump";
-            nudJump.Size = new System.Drawing.Size(90, 23);
+            nudJump.Size = new System.Drawing.Size(129, 31);
             nudJump.TabIndex = 21;
             nudJump.ValueChanged += nudJump_ValueChanged;
             nudJump.KeyDown += nudJump_KeyDown;
@@ -374,10 +386,10 @@
             // checkBoxPreventAntiAliasing
             // 
             checkBoxPreventAntiAliasing.AutoSize = true;
-            checkBoxPreventAntiAliasing.Location = new System.Drawing.Point(110, 440);
-            checkBoxPreventAntiAliasing.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            checkBoxPreventAntiAliasing.Location = new System.Drawing.Point(157, 733);
+            checkBoxPreventAntiAliasing.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             checkBoxPreventAntiAliasing.Name = "checkBoxPreventAntiAliasing";
-            checkBoxPreventAntiAliasing.Size = new System.Drawing.Size(112, 19);
+            checkBoxPreventAntiAliasing.Size = new System.Drawing.Size(165, 29);
             checkBoxPreventAntiAliasing.TabIndex = 20;
             checkBoxPreventAntiAliasing.Text = "No Anti-aliasing";
             checkBoxPreventAntiAliasing.UseVisualStyleBackColor = true;
@@ -386,10 +398,10 @@
             // checkBoxQuality
             // 
             checkBoxQuality.AutoSize = true;
-            checkBoxQuality.Location = new System.Drawing.Point(12, 440);
-            checkBoxQuality.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            checkBoxQuality.Location = new System.Drawing.Point(17, 733);
+            checkBoxQuality.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             checkBoxQuality.Name = "checkBoxQuality";
-            checkBoxQuality.Size = new System.Drawing.Size(87, 19);
+            checkBoxQuality.Size = new System.Drawing.Size(128, 29);
             checkBoxQuality.TabIndex = 19;
             checkBoxQuality.Text = "No Blurring";
             checkBoxQuality.UseVisualStyleBackColor = true;
@@ -399,10 +411,10 @@
             // 
             buttonSkipPrevious.ForeColor = System.Drawing.SystemColors.ControlText;
             buttonSkipPrevious.Image = (System.Drawing.Image)resources.GetObject("buttonSkipPrevious.Image");
-            buttonSkipPrevious.Location = new System.Drawing.Point(48, 344);
-            buttonSkipPrevious.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            buttonSkipPrevious.Location = new System.Drawing.Point(69, 573);
+            buttonSkipPrevious.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             buttonSkipPrevious.Name = "buttonSkipPrevious";
-            buttonSkipPrevious.Size = new System.Drawing.Size(35, 30);
+            buttonSkipPrevious.Size = new System.Drawing.Size(50, 50);
             buttonSkipPrevious.TabIndex = 17;
             buttonSkipPrevious.Tag = "";
             buttonSkipPrevious.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -413,10 +425,10 @@
             // 
             buttonSkipNext.ForeColor = System.Drawing.SystemColors.ControlText;
             buttonSkipNext.Image = (System.Drawing.Image)resources.GetObject("buttonSkipNext.Image");
-            buttonSkipNext.Location = new System.Drawing.Point(184, 344);
-            buttonSkipNext.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            buttonSkipNext.Location = new System.Drawing.Point(263, 573);
+            buttonSkipNext.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             buttonSkipNext.Name = "buttonSkipNext";
-            buttonSkipNext.Size = new System.Drawing.Size(35, 30);
+            buttonSkipNext.Size = new System.Drawing.Size(50, 50);
             buttonSkipNext.TabIndex = 16;
             buttonSkipNext.Tag = "";
             buttonSkipNext.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -428,10 +440,10 @@
             buttonReplace.ForeColor = System.Drawing.SystemColors.ControlText;
             buttonReplace.Image = (System.Drawing.Image)resources.GetObject("buttonReplace.Image");
             buttonReplace.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            buttonReplace.Location = new System.Drawing.Point(12, 230);
-            buttonReplace.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            buttonReplace.Location = new System.Drawing.Point(17, 383);
+            buttonReplace.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             buttonReplace.Name = "buttonReplace";
-            buttonReplace.Size = new System.Drawing.Size(122, 30);
+            buttonReplace.Size = new System.Drawing.Size(174, 50);
             buttonReplace.TabIndex = 15;
             buttonReplace.Tag = "";
             buttonReplace.Text = "Replace Image";
@@ -442,8 +454,8 @@
             // pictureBox
             // 
             pictureBox.Image = (System.Drawing.Image)resources.GetObject("pictureBox.Image");
-            pictureBox.Location = new System.Drawing.Point(12, 10);
-            pictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            pictureBox.Location = new System.Drawing.Point(17, 17);
+            pictureBox.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             pictureBox.Name = "pictureBox";
             pictureBox.Size = new System.Drawing.Size(16, 16);
             pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -455,11 +467,11 @@
             // ZoomTrackBar
             // 
             ZoomTrackBar.LargeChange = 1;
-            ZoomTrackBar.Location = new System.Drawing.Point(48, 381);
-            ZoomTrackBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            ZoomTrackBar.Location = new System.Drawing.Point(69, 635);
+            ZoomTrackBar.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             ZoomTrackBar.Minimum = 1;
             ZoomTrackBar.Name = "ZoomTrackBar";
-            ZoomTrackBar.Size = new System.Drawing.Size(172, 45);
+            ZoomTrackBar.Size = new System.Drawing.Size(246, 69);
             ZoomTrackBar.TabIndex = 4;
             ZoomTrackBar.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
             ZoomTrackBar.Value = 1;
@@ -470,10 +482,10 @@
             ExportButton.ForeColor = System.Drawing.SystemColors.ControlText;
             ExportButton.Image = (System.Drawing.Image)resources.GetObject("ExportButton.Image");
             ExportButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            ExportButton.Location = new System.Drawing.Point(141, 267);
-            ExportButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            ExportButton.Location = new System.Drawing.Point(201, 445);
+            ExportButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             ExportButton.Name = "ExportButton";
-            ExportButton.Size = new System.Drawing.Size(122, 30);
+            ExportButton.Size = new System.Drawing.Size(174, 50);
             ExportButton.TabIndex = 3;
             ExportButton.Tag = "";
             ExportButton.Text = "Export Images";
@@ -486,10 +498,10 @@
             mergeBtn.ForeColor = System.Drawing.SystemColors.ControlText;
             mergeBtn.Image = (System.Drawing.Image)resources.GetObject("mergeBtn.Image");
             mergeBtn.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            mergeBtn.Location = new System.Drawing.Point(12, 267);
-            mergeBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            mergeBtn.Location = new System.Drawing.Point(17, 445);
+            mergeBtn.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             mergeBtn.Name = "mergeBtn";
-            mergeBtn.Size = new System.Drawing.Size(122, 30);
+            mergeBtn.Size = new System.Drawing.Size(174, 50);
             mergeBtn.TabIndex = 22;
             mergeBtn.Tag = "";
             mergeBtn.Text = "Merge Libraries";
@@ -502,10 +514,10 @@
             InsertImageButton.ForeColor = System.Drawing.SystemColors.ControlText;
             InsertImageButton.Image = (System.Drawing.Image)resources.GetObject("InsertImageButton.Image");
             InsertImageButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            InsertImageButton.Location = new System.Drawing.Point(141, 230);
-            InsertImageButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            InsertImageButton.Location = new System.Drawing.Point(201, 383);
+            InsertImageButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             InsertImageButton.Name = "InsertImageButton";
-            InsertImageButton.Size = new System.Drawing.Size(122, 30);
+            InsertImageButton.Size = new System.Drawing.Size(174, 50);
             InsertImageButton.TabIndex = 1;
             InsertImageButton.Tag = "";
             InsertImageButton.Text = "Insert Images";
@@ -515,19 +527,19 @@
             // 
             // OffSetYTextBox
             // 
-            OffSetYTextBox.Location = new System.Drawing.Point(144, 88);
-            OffSetYTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            OffSetYTextBox.Location = new System.Drawing.Point(206, 147);
+            OffSetYTextBox.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             OffSetYTextBox.Name = "OffSetYTextBox";
-            OffSetYTextBox.Size = new System.Drawing.Size(75, 23);
+            OffSetYTextBox.Size = new System.Drawing.Size(105, 31);
             OffSetYTextBox.TabIndex = 6;
             OffSetYTextBox.TextChanged += OffSetYTextBox_TextChanged;
             // 
             // OffSetXTextBox
             // 
-            OffSetXTextBox.Location = new System.Drawing.Point(144, 58);
-            OffSetXTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            OffSetXTextBox.Location = new System.Drawing.Point(206, 97);
+            OffSetXTextBox.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             OffSetXTextBox.Name = "OffSetXTextBox";
-            OffSetXTextBox.Size = new System.Drawing.Size(75, 23);
+            OffSetXTextBox.Size = new System.Drawing.Size(105, 31);
             OffSetXTextBox.TabIndex = 5;
             OffSetXTextBox.TextChanged += OffSetXTextBox_TextChanged;
             // 
@@ -536,10 +548,10 @@
             DeleteButton.ForeColor = System.Drawing.SystemColors.ControlText;
             DeleteButton.Image = (System.Drawing.Image)resources.GetObject("DeleteButton.Image");
             DeleteButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            DeleteButton.Location = new System.Drawing.Point(141, 193);
-            DeleteButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            DeleteButton.Location = new System.Drawing.Point(201, 322);
+            DeleteButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             DeleteButton.Name = "DeleteButton";
-            DeleteButton.Size = new System.Drawing.Size(122, 30);
+            DeleteButton.Size = new System.Drawing.Size(174, 50);
             DeleteButton.TabIndex = 2;
             DeleteButton.Tag = "";
             DeleteButton.Text = "Delete Images";
@@ -552,10 +564,10 @@
             AddButton.ForeColor = System.Drawing.SystemColors.ControlText;
             AddButton.Image = (System.Drawing.Image)resources.GetObject("AddButton.Image");
             AddButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            AddButton.Location = new System.Drawing.Point(12, 193);
-            AddButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            AddButton.Location = new System.Drawing.Point(17, 322);
+            AddButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             AddButton.Name = "AddButton";
-            AddButton.Size = new System.Drawing.Size(122, 30);
+            AddButton.Size = new System.Drawing.Size(174, 50);
             AddButton.TabIndex = 0;
             AddButton.Tag = "";
             AddButton.Text = "Add Images";
@@ -567,10 +579,10 @@
             // 
             label10.AutoSize = true;
             label10.ForeColor = System.Drawing.SystemColors.ControlText;
-            label10.Location = new System.Drawing.Point(78, 91);
-            label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label10.Location = new System.Drawing.Point(111, 152);
+            label10.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             label10.Name = "label10";
-            label10.Size = new System.Drawing.Size(53, 15);
+            label10.Size = new System.Drawing.Size(82, 25);
             label10.TabIndex = 12;
             label10.Text = "OffSet Y:";
             // 
@@ -578,10 +590,10 @@
             // 
             label8.AutoSize = true;
             label8.ForeColor = System.Drawing.SystemColors.ControlText;
-            label8.Location = new System.Drawing.Point(78, 61);
-            label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label8.Location = new System.Drawing.Point(111, 102);
+            label8.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             label8.Name = "label8";
-            label8.Size = new System.Drawing.Size(53, 15);
+            label8.Size = new System.Drawing.Size(83, 25);
             label8.TabIndex = 11;
             label8.Text = "OffSet X:";
             // 
@@ -589,10 +601,10 @@
             // 
             HeightLabel.AutoSize = true;
             HeightLabel.ForeColor = System.Drawing.SystemColors.ControlText;
-            HeightLabel.Location = new System.Drawing.Point(144, 35);
-            HeightLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            HeightLabel.Location = new System.Drawing.Point(206, 58);
+            HeightLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             HeightLabel.Name = "HeightLabel";
-            HeightLabel.Size = new System.Drawing.Size(75, 15);
+            HeightLabel.Size = new System.Drawing.Size(115, 25);
             HeightLabel.TabIndex = 10;
             HeightLabel.Text = "<No Image>";
             // 
@@ -600,10 +612,10 @@
             // 
             label6.AutoSize = true;
             label6.ForeColor = System.Drawing.SystemColors.ControlText;
-            label6.Location = new System.Drawing.Point(89, 35);
-            label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label6.Location = new System.Drawing.Point(127, 58);
+            label6.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             label6.Name = "label6";
-            label6.Size = new System.Drawing.Size(46, 15);
+            label6.Size = new System.Drawing.Size(69, 25);
             label6.TabIndex = 9;
             label6.Text = "Height:";
             // 
@@ -611,10 +623,10 @@
             // 
             WidthLabel.AutoSize = true;
             WidthLabel.ForeColor = System.Drawing.SystemColors.ControlText;
-            WidthLabel.Location = new System.Drawing.Point(144, 14);
-            WidthLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            WidthLabel.Location = new System.Drawing.Point(206, 23);
+            WidthLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             WidthLabel.Name = "WidthLabel";
-            WidthLabel.Size = new System.Drawing.Size(75, 15);
+            WidthLabel.Size = new System.Drawing.Size(115, 25);
             WidthLabel.TabIndex = 8;
             WidthLabel.Text = "<No Image>";
             // 
@@ -622,10 +634,10 @@
             // 
             label1.AutoSize = true;
             label1.ForeColor = System.Drawing.SystemColors.ControlText;
-            label1.Location = new System.Drawing.Point(92, 14);
-            label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label1.Location = new System.Drawing.Point(131, 23);
+            label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(42, 15);
+            label1.Size = new System.Drawing.Size(64, 25);
             label1.TabIndex = 7;
             label1.Text = "Width:";
             // 
@@ -637,16 +649,16 @@
             panel.Controls.Add(ImageBox);
             panel.Dock = System.Windows.Forms.DockStyle.Fill;
             panel.Location = new System.Drawing.Point(0, 0);
-            panel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            panel.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             panel.Name = "panel";
-            panel.Size = new System.Drawing.Size(967, 472);
+            panel.Size = new System.Drawing.Size(1383, 788);
             panel.TabIndex = 1;
             // 
             // ImageBox
             // 
             ImageBox.BackColor = System.Drawing.Color.Transparent;
             ImageBox.Location = new System.Drawing.Point(0, 0);
-            ImageBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            ImageBox.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             ImageBox.Name = "ImageBox";
             ImageBox.Size = new System.Drawing.Size(64, 64);
             ImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -656,14 +668,14 @@
             // PreviewListView
             // 
             PreviewListView.Activation = System.Windows.Forms.ItemActivation.OneClick;
-            PreviewListView.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             PreviewListView.BackColor = System.Drawing.Color.GhostWhite;
+            PreviewListView.Dock = System.Windows.Forms.DockStyle.Fill;
             PreviewListView.ForeColor = System.Drawing.Color.FromArgb(142, 152, 156);
             PreviewListView.LargeImageList = ImageList;
             PreviewListView.Location = new System.Drawing.Point(0, 0);
-            PreviewListView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            PreviewListView.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             PreviewListView.Name = "PreviewListView";
-            PreviewListView.Size = new System.Drawing.Size(1253, 384);
+            PreviewListView.Size = new System.Drawing.Size(1792, 804);
             PreviewListView.TabIndex = 0;
             PreviewListView.UseCompatibleStateImageBehavior = false;
             PreviewListView.VirtualMode = true;
@@ -703,26 +715,27 @@
             // 
             // statusStrip
             // 
+            statusStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
             statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripStatusLabel, toolStripProgressBar });
             statusStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            statusStrip.Location = new System.Drawing.Point(0, 915);
+            statusStrip.Location = new System.Drawing.Point(0, 1530);
             statusStrip.Name = "statusStrip";
-            statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
-            statusStrip.Size = new System.Drawing.Size(1256, 24);
+            statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 23, 0);
+            statusStrip.Size = new System.Drawing.Size(1794, 35);
             statusStrip.TabIndex = 2;
             statusStrip.Text = "statusStrip";
             // 
             // toolStripStatusLabel
             // 
             toolStripStatusLabel.Name = "toolStripStatusLabel";
-            toolStripStatusLabel.Size = new System.Drawing.Size(90, 19);
+            toolStripStatusLabel.Size = new System.Drawing.Size(137, 28);
             toolStripStatusLabel.Text = "Selected Image:";
             // 
             // toolStripProgressBar
             // 
             toolStripProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             toolStripProgressBar.Name = "toolStripProgressBar";
-            toolStripProgressBar.Size = new System.Drawing.Size(233, 18);
+            toolStripProgressBar.Size = new System.Drawing.Size(333, 27);
             toolStripProgressBar.Step = 1;
             toolStripProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             // 
@@ -732,20 +745,20 @@
             panel1.Controls.Add(radioButtonShadow);
             panel1.Controls.Add(radioButtonImage);
             panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            panel1.Location = new System.Drawing.Point(0, 24);
-            panel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            panel1.Location = new System.Drawing.Point(0, 35);
+            panel1.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             panel1.Name = "panel1";
-            panel1.Size = new System.Drawing.Size(1256, 32);
+            panel1.Size = new System.Drawing.Size(1794, 53);
             panel1.TabIndex = 3;
             // 
             // radioButtonOverlay
             // 
             radioButtonOverlay.AutoSize = true;
             radioButtonOverlay.Enabled = false;
-            radioButtonOverlay.Location = new System.Drawing.Point(166, 6);
-            radioButtonOverlay.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            radioButtonOverlay.Location = new System.Drawing.Point(237, 10);
+            radioButtonOverlay.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             radioButtonOverlay.Name = "radioButtonOverlay";
-            radioButtonOverlay.Size = new System.Drawing.Size(65, 19);
+            radioButtonOverlay.Size = new System.Drawing.Size(97, 29);
             radioButtonOverlay.TabIndex = 2;
             radioButtonOverlay.Text = "Overlay";
             radioButtonOverlay.UseVisualStyleBackColor = true;
@@ -755,10 +768,10 @@
             // 
             radioButtonShadow.AutoSize = true;
             radioButtonShadow.Enabled = false;
-            radioButtonShadow.Location = new System.Drawing.Point(84, 6);
-            radioButtonShadow.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            radioButtonShadow.Location = new System.Drawing.Point(120, 10);
+            radioButtonShadow.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             radioButtonShadow.Name = "radioButtonShadow";
-            radioButtonShadow.Size = new System.Drawing.Size(67, 19);
+            radioButtonShadow.Size = new System.Drawing.Size(101, 29);
             radioButtonShadow.TabIndex = 1;
             radioButtonShadow.Text = "Shadow";
             radioButtonShadow.UseVisualStyleBackColor = true;
@@ -769,32 +782,21 @@
             radioButtonImage.AutoSize = true;
             radioButtonImage.Checked = true;
             radioButtonImage.Enabled = false;
-            radioButtonImage.Location = new System.Drawing.Point(15, 6);
-            radioButtonImage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            radioButtonImage.Location = new System.Drawing.Point(21, 10);
+            radioButtonImage.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             radioButtonImage.Name = "radioButtonImage";
-            radioButtonImage.Size = new System.Drawing.Size(58, 19);
+            radioButtonImage.Size = new System.Drawing.Size(87, 29);
             radioButtonImage.TabIndex = 0;
             radioButtonImage.TabStop = true;
             radioButtonImage.Text = "Image";
             radioButtonImage.UseVisualStyleBackColor = true;
             radioButtonImage.CheckedChanged += radioButtonImage_CheckedChanged;
             // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.ForeColor = System.Drawing.SystemColors.ControlText;
-            label2.Location = new System.Drawing.Point(51, 119);
-            label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(80, 15);
-            label2.TabIndex = 26;
-            label2.Text = "Shadow Type:";
-            // 
             // LMain
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1256, 939);
+            ClientSize = new System.Drawing.Size(1794, 1565);
             Controls.Add(panel1);
             Controls.Add(splitContainer1);
             Controls.Add(statusStrip);
@@ -802,8 +804,8 @@
             DoubleBuffered = true;
             Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = MainMenu;
-            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            MinimumSize = new System.Drawing.Size(756, 513);
+            Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            MinimumSize = new System.Drawing.Size(1071, 818);
             Name = "LMain";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             Text = "Zircon Library Editor";

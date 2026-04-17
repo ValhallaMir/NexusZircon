@@ -26,7 +26,7 @@ namespace LibraryEditor
         {
             InitializeComponent();
 
-            SendMessage(PreviewListView.Handle, 4149, 0, 5242946); //80 x 66
+            SendMessage(PreviewListView.Handle, 4149, 0, MakeLong(80, 90));
 
             this.AllowDrop = true;
             this.DragEnter += new DragEventHandler(Form1_DragEnter);
@@ -51,7 +51,10 @@ namespace LibraryEditor
                 radioButtonOverlay.Enabled = true;
             }
         }
-
+        private static int MakeLong(int low, int high)
+        {
+            return (high << 16) | (low & 0xFFFF);
+        }
         private void Form1_DragDrop(object sender, DragEventArgs e)
         {
             return; //Not added yet
@@ -288,7 +291,7 @@ namespace LibraryEditor
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (OpenLibraryDialog.ShowDialog() != DialogResult.OK) return;
-            MessageBox.Show(OpenLibraryDialog.FileName);
+            //MessageBox.Show(OpenLibraryDialog.FileName);
             ClearInterface();
             ImageList.Images.Clear();
             PreviewListView.Items.Clear();
