@@ -1929,13 +1929,13 @@ namespace Server.Views.DirectX
                     MirLibrary library;
                     LibraryFile file;
 
-                    if (!Libraries.KROrder.TryGetValue(tile.BackFile, out file)) continue;
+                    if (!Libraries.TryGetKROrder(tile.BackFile, out file)) continue;
 
                     if (!Manager.LibraryList.TryGetValue(file, out library)) continue;
 
                     Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY, 0), scale);
 
-                    library.Draw((tile.BackImage & 0x1FFFF) - 1, 0, 0, Color.White, false, 1F, ImageType.Image);
+                    library.Draw((tile.BackImage & 0x1FFFF) - 1, 0, 0, Color.White, true, 1F, ImageType.Image);
                 }
             }
 
@@ -1952,12 +1952,16 @@ namespace Server.Views.DirectX
                     MirLibrary library;
                     LibraryFile file;
 
-                    if (Libraries.KROrder.TryGetValue(cell.MiddleFile, out file) && file != LibraryFile.WemadeMir3_Tilesc && Manager.LibraryList.TryGetValue(file, out library))
+                    if (Libraries.TryGetKROrder(cell.MiddleFile, out file) && Manager.LibraryList.TryGetValue(file, out library))
                     {
                         int index = cell.MiddleImage - 1;
+                        bool blend = false;
 
                         if (cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255)
-                            continue; //   index += GameScene.Game.MapControl.Animation % cell.MiddleAnimationFrame;
+                        {
+                            index += Animation % (cell.MiddleAnimationFrame & 0x4F);
+                            blend = (cell.MiddleAnimationFrame & 0x50) > 0;
+                        }
 
                         Size s = library.GetSize(index);
 
@@ -1965,17 +1969,28 @@ namespace Server.Views.DirectX
                         {
                             Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - BaseCellHeight, 0), scale);
 
-                            library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
+                            if (!blend)
+                                library.Draw(index, 0, 0, Color.White, true, 1F, ImageType.Image);
+                            else
+                                library.DrawBlend(index, 0, 0, Color.White, true, 0.5F, ImageType.Image);
                         }
+                        else if (!blend)
+                            library.Draw(index, drawX, drawY - s.Height, Color.White, true, 1F, ImageType.Image);
+                        else
+                            library.DrawBlend(index, drawX, drawY - s.Height, Color.White, true, 0.5F, ImageType.Image);
                     }
 
 
-                    if (Libraries.KROrder.TryGetValue(cell.FrontFile, out file) && file != LibraryFile.WemadeMir3_Tilesc && Manager.LibraryList.TryGetValue(file, out library))
+                    if (Libraries.TryGetKROrder(cell.FrontFile, out file) && Manager.LibraryList.TryGetValue(file, out library))
                     {
                         int index = (cell.FrontImage & 0x7FFF) - 1;
+                        bool blend = false;
 
                         if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
-                            continue; //  index += GameScene.Game.MapControl.Animation % cell.FrontAnimationFrame;
+                        {
+                            index += Animation % (cell.FrontAnimationFrame & 0x4F);
+                            blend = (cell.FrontAnimationFrame & 0x50) > 0;
+                        }
 
                         Size s = library.GetSize(index);
 
@@ -1983,8 +1998,15 @@ namespace Server.Views.DirectX
                         {
                             Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - BaseCellHeight, 0), scale);
 
-                            library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
+                            if (!blend)
+                                library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
+                            else
+                                library.DrawBlend(index, 0, 0, Color.White, false, 0.5F, ImageType.Image);
                         }
+                        else if (!blend)
+                            library.Draw(index, drawX, drawY - s.Height, Color.White, false, 1F, ImageType.Image);
+                        else
+                            library.DrawBlend(index, drawX, drawY - s.Height, Color.White, false, 0.5F, ImageType.Image);
                     }
                 }
             }
@@ -2003,7 +2025,7 @@ namespace Server.Views.DirectX
                     MirLibrary library;
                     LibraryFile file;
 
-                    if (Libraries.KROrder.TryGetValue(cell.MiddleFile, out file) && file != LibraryFile.WemadeMir3_Tilesc && Manager.LibraryList.TryGetValue(file, out library))
+                    if (Libraries.TryGetKROrder(cell.MiddleFile, out file) && Manager.LibraryList.TryGetValue(file, out library))
                     {
                         int index = cell.MiddleImage - 1;
 
@@ -2021,14 +2043,14 @@ namespace Server.Views.DirectX
                             Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - s.Height, 0), scale);
 
                             if (!blend)
-                                library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
+                                library.Draw(index, 0, 0, Color.White, true, 1F, ImageType.Image);
                             else
-                                library.DrawBlend(index, 0, 0, Color.White, false, 0.5F, ImageType.Image);
+                                library.DrawBlend(index, 0, 0, Color.White, true, 0.5F, ImageType.Image);
                         }
                     }
 
 
-                    if (Libraries.KROrder.TryGetValue(cell.FrontFile, out file) && file != LibraryFile.WemadeMir3_Tilesc && Manager.LibraryList.TryGetValue(file, out library))
+                    if (Libraries.TryGetKROrder(cell.FrontFile, out file) && Manager.LibraryList.TryGetValue(file, out library))
                     {
                         int index = cell.FrontImage - 1;
 

@@ -764,94 +764,66 @@ namespace Client.Scenes.Views
         {
             try
             {
+                byte flag = 0;
                 int offset = 20;
-
-                short attribute = BitConverter.ToInt16(Bytes, offset);
-                Width = BitConverter.ToInt16(Bytes, offset += 2);
-                Height = BitConverter.ToInt16(Bytes, offset += 2);
-
+                short Attribute = (short)(BitConverter.ToInt16(Bytes, offset));
+                Width = (int)(BitConverter.ToInt16(Bytes, offset += 2));
+                Height = (int)(BitConverter.ToInt16(Bytes, offset += 2));
+                //ignoring eventfile and fogcolor for now (seems unused in maps i checked)
                 offset = 28;
-
-                // Init cells
+                //initiate all cells
                 Cells = new Cell[Width, Height];
                 for (int x = 0; x < Width; x++)
                     for (int y = 0; y < Height; y++)
                         Cells[x, y] = new Cell();
-
-                // =========================
-                // BACK TILES (UNCHANGED)
-                // =========================
-                for (int x = 0; x < Width / 2; x++)
-                {
-                    for (int y = 0; y < Height / 2; y++)
-                    {
-                        byte file = Bytes[offset++];
-                        ushort image = BitConverter.ToUInt16(Bytes, offset);
-                        offset += 2;
-
-                        var cell = Cells[x * 2, y * 2];
-
-                        cell.BackFile = file != 255 ? (short)(file + 200) : (short)-1;
-                        cell.BackImage = image + 1;
+                //read all back tiles
+                for (int x = 0; x < (Width / 2); x++)
+                    for (int y = 0; y < (Height / 2); y++)                     {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            Cells[(x * 2) + (i % 2), (y * 2) + (i / 2)].BackFile = (short)(Bytes[offset] != 255 ? Bytes[offset] + 200 : -1);
+                            Cells[(x * 2) + (i % 2), (y * 2) + (i / 2)].BackImage = (int)(BitConverter.ToUInt16(Bytes, offset + 1) + 1);
+                        }
+                        offset += 3;
                     }
-                }
-
-                offset = 28 + (3 * (Width / 2) * (Height / 2));
-
-                // =========================
-                // CELL DATA
-                // =========================
+                //read rest of data
+                offset = 28 + (3 * ((Width / 2) + (Width % 2)) * (Height / 2));
                 for (int x = 0; x < Width; x++)
-                {
                     for (int y = 0; y < Height; y++)
                     {
-                        Cell cell = Cells[x, y];
 
-                        byte flag = Bytes[offset++];
+                        flag = Bytes[offset++];
+                        Cells[x, y].MiddleAnimationFrame = Bytes[offset++];
 
-                        // --- Animation Frames ---
-                        cell.MiddleAnimationFrame = Bytes[offset++];
-
-                        byte frontAnim = Bytes[offset++];
-                        cell.FrontAnimationFrame = frontAnim == 255 ? (byte)0 : frontAnim;
-                        cell.FrontAnimationFrame &= 0x8F;
-
-                        // --- Files ---
-                        byte frontFile = Bytes[offset++];
-                        cell.FrontFile = frontFile != 255 ? (short)(frontFile + 200) : (short)-1;
-
-                        byte middleFile = Bytes[offset++];
-                        cell.MiddleFile = middleFile != 255 ? (short)(middleFile + 200) : (short)-1;
-
-                        // --- Images ---
-                        cell.MiddleImage = BitConverter.ToUInt16(Bytes, offset) + 1;
-                        offset += 2;
-
-                        cell.FrontImage = BitConverter.ToUInt16(Bytes, offset) + 1;
-                        offset += 2;
-
-                        // --- Doors (you now HAVE fields for this) ---
-                        cell.DoorIndex = Bytes[offset++];
-                        cell.DoorOffset = Bytes[offset++];
-                        offset++; // unused third byte (matches old Seek(3))
-
-                        // --- Lighting ---
-                        cell.Light = (byte)((Bytes[offset] & 0x0F) * 2);
+                        Cells[x, y].FrontAnimationFrame = Bytes[offset] == 255 ? (byte)0 : Bytes[offset];
+                        Cells[x, y].FrontAnimationFrame &= 0x8F;
                         offset++;
+                        Cells[x, y].MiddleAnimationTick = 0;
+                        Cells[x, y].FrontAnimationTick = 0;
+                        Cells[x, y].FrontFile = (short)(Bytes[offset] != 255 ? Bytes[offset] + 200 : -1);
+                        offset++;
+                        Cells[x, y].MiddleFile = (short)(Bytes[offset] != 255 ? Bytes[offset] + 200 : -1);
+                        offset++;
+                        Cells[x, y].MiddleImage = (ushort)(BitConverter.ToUInt16(Bytes, offset) + 1);
+                        offset += 2;
+                        Cells[x, y].FrontImage = (ushort)(BitConverter.ToUInt16(Bytes, offset) + 1);
+                        if ((Cells[x, y].FrontImage == 1) && (Cells[x, y].FrontFile == 200))
+                            Cells[x, y].FrontFile = -1;
+                        offset += 2;
+                        offset += 3;//mir3 maps dont have doors so dont bother reading the info
+                        Cells[x, y].Light = (byte)(Bytes[offset] & 0x0F);
+                        offset += 2;
+                        if ((flag & 0x01) != 1) Cells[x, y].BackImage |= 0x20000000;
+                        if ((flag & 0x02) != 2) Cells[x, y].FrontImage = (ushort)((UInt16)Cells[x, y].FrontImage | 0x8000);
 
-                        cell.Unknown = Bytes[offset++];
+                        if (Cells[x, y].Light >= 100 && Cells[x, y].Light <= 119)
+                            Cells[x, y].FishingCell = true;
+                        else
+                            Cells[x, y].Light *= 2;//expand general mir3 lighting as default range is small. Might break new colour lights.
 
-                        // --- Flags ---
-                        cell.Flag = ((flag & 0x01) != 1) || ((flag & 0x02) != 2);
-
-                        // --- Optional (safe defaults) ---
-                        cell.MiddleAnimationTick = 0;
-                        cell.FrontAnimationTick = 0;
-
-                        // DO NOT invent new logic yet (FishingCell etc.)
-                        cell.FishingCell = false;
+                        if ((Cells[x, y].BackImage & 0x20000000) != 0 || (Cells[x, y].FrontImage & 0x8000) != 0)
+                            Cells[x, y].Flag = true;
                     }
-                }
             }
             catch (Exception ex)
             {

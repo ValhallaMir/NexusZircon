@@ -931,6 +931,42 @@ namespace Library
             [ShandaMir3OffSet + 70] = LibraryFile.ShandaMir3_Forest_SmObjectsc,
             [ShandaMir3OffSet + 71] = LibraryFile.ShandaMir3_Forest_Animationsc,
         };
+
+        public static bool TryGetKROrder(int value, out LibraryFile file)
+        {
+            if (KROrder.TryGetValue(value, out file))
+                return true;
+
+            value &= 0x3F;
+
+            if (KROrder.TryGetValue(value, out file))
+                return true;
+
+            switch (value)
+            {
+                case 14:
+                case 27:
+                case 42:
+                case 57:
+                    file = LibraryFile.WemadeMir3_SmObjectsc;
+                    return true;
+
+                case 28:
+                case 43:
+                case 58:
+                    file = LibraryFile.WemadeMir3_Object1c;
+                    return true;
+
+                case 29:
+                case 44:
+                case 59:
+                    file = LibraryFile.WemadeMir3_Object2c;
+                    return true;
+            }
+
+            file = LibraryFile.None;
+            return false;
+        }
     }
 
     public enum LibraryFile
