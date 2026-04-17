@@ -1912,33 +1912,37 @@ namespace Server.Views.DirectX
 
             Matrix scale = Matrix.Scaling(Zoom, Zoom, 1);
 
+            // =========================
+            // Back layer
+            // =========================
             for (int y = minY; y <= maxY; y++)
             {
-                if (y % 2 != 0) continue;
+                if ((y & 1) != 0) continue;
 
                 float drawY = (y - StartY) * BaseCellHeight;
 
                 for (int x = minX; x <= maxX; x++)
                 {
-                    if (x % 2 != 0) continue;
+                    if ((x & 1) != 0) continue;
 
                     float drawX = (x - StartX) * BaseCellWidth;
 
                     Cell tile = Cells[x, y];
 
-                    MirLibrary library;
-                    LibraryFile file;
+                    if (!Libraries.KROrder.TryGetValue(tile.BackFile, out LibraryFile file)) continue;
+                    if (!Manager.LibraryList.TryGetValue(file, out MirLibrary library)) continue;
 
-                    if (!Libraries.TryGetKROrder(tile.BackFile, out file)) continue;
-
-                    if (!Manager.LibraryList.TryGetValue(file, out library)) continue;
+                    int index = (tile.BackImage & 0x1FFFF) - 1;
+                    if (index < 0) continue;
 
                     Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY, 0), scale);
-
-                    library.Draw((tile.BackImage & 0x1FFFF) - 1, 0, 0, Color.White, true, 1F, ImageType.Image);
+                    library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
                 }
             }
 
+            // =========================
+            // Standard middle/front layer
+            // =========================
             for (int y = minY; y <= maxY; y++)
             {
                 float drawY = (y - StartY + 1) * BaseCellHeight;
@@ -1952,66 +1956,90 @@ namespace Server.Views.DirectX
                     MirLibrary library;
                     LibraryFile file;
 
-                    if (Libraries.TryGetKROrder(cell.MiddleFile, out file) && Manager.LibraryList.TryGetValue(file, out library))
+                    // ----- Middle standard -----
+                    if (Libraries.KROrder.TryGetValue(cell.MiddleFile, out file) &&
+                        file != LibraryFile.WemadeMir3_Tilesc &&
+                        Manager.LibraryList.TryGetValue(file, out library))
                     {
                         int index = cell.MiddleImage - 1;
-                        bool blend = false;
-
-                        if (cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255)
+                        if (index >= 0)
                         {
-                            index += Animation % (cell.MiddleAnimationFrame & 0x4F);
-                            blend = (cell.MiddleAnimationFrame & 0x50) > 0;
+                            bool blend = false;
+
+                            if (cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255)
+                            {
+                                int animationCount = cell.MiddleAnimationCount;
+                                if (animationCount > 0)
+                                {
+                                    blend = cell.MiddleAnimationBlend;
+                                    index += Animation % animationCount;
+                                }
+                            }
+
+                            Size s = library.GetSize(index);
+
+                            bool isStandard =
+                                (s.Width == BaseCellWidth && s.Height == BaseCellHeight) ||
+                                (s.Width == BaseCellWidth * 2 && s.Height == BaseCellHeight * 2);
+
+                            if (isStandard)
+                            {
+                                Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - BaseCellHeight, 0), scale);
+
+                                if (!blend)
+                                    library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
+                                else
+                                    library.DrawBlend(index, 0, 0, Color.White, false, 0.5F, ImageType.Image);
+                            }
                         }
-
-                        Size s = library.GetSize(index);
-
-                        if ((s.Width == CellWidth && s.Height == CellHeight) || (s.Width == CellWidth * 2 && s.Height == CellHeight * 2))
-                        {
-                            Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - BaseCellHeight, 0), scale);
-
-                            if (!blend)
-                                library.Draw(index, 0, 0, Color.White, true, 1F, ImageType.Image);
-                            else
-                                library.DrawBlend(index, 0, 0, Color.White, true, 0.5F, ImageType.Image);
-                        }
-                        else if (!blend)
-                            library.Draw(index, drawX, drawY - s.Height, Color.White, true, 1F, ImageType.Image);
-                        else
-                            library.DrawBlend(index, drawX, drawY - s.Height, Color.White, true, 0.5F, ImageType.Image);
                     }
 
-
-                    if (Libraries.TryGetKROrder(cell.FrontFile, out file) && Manager.LibraryList.TryGetValue(file, out library))
+                    // ----- Front standard -----
+                    if (Libraries.KROrder.TryGetValue(cell.FrontFile, out file) &&
+                        file != LibraryFile.WemadeMir3_Tilesc &&
+                        Manager.LibraryList.TryGetValue(file, out library))
                     {
                         int index = (cell.FrontImage & 0x7FFF) - 1;
-                        bool blend = false;
-
-                        if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
+                        if (index >= 0)
                         {
-                            index += Animation % (cell.FrontAnimationFrame & 0x4F);
-                            blend = (cell.FrontAnimationFrame & 0x50) > 0;
+                            bool blend = false;
+
+                            if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
+                            {
+                                int animationCount = cell.FrontAnimationCount;
+                                if (animationCount > 0)
+                                {
+                                    blend = cell.FrontAnimationBlend;
+                                    index += Animation % animationCount;
+                                }
+                            }
+
+                            Size s = library.GetSize(index);
+
+                            bool isStandard =
+                                (s.Width == BaseCellWidth && s.Height == BaseCellHeight) ||
+                                (s.Width == BaseCellWidth * 2 && s.Height == BaseCellHeight * 2);
+
+                            // Static standard fronts stay here
+                            if (isStandard && cell.FrontAnimationFrame <= 1)
+                            {
+                                Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - BaseCellHeight, 0), scale);
+
+                                if (!blend)
+                                    library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
+                                else
+                                    library.DrawBlend(index, 0, 0, Color.White, false, 0.5F, ImageType.Image);
+                            }
                         }
-
-                        Size s = library.GetSize(index);
-
-                        if ((s.Width == CellWidth && s.Height == CellHeight) || (s.Width == CellWidth * 2 && s.Height == CellHeight * 2))
-                        {
-                            Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - BaseCellHeight, 0), scale);
-
-                            if (!blend)
-                                library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
-                            else
-                                library.DrawBlend(index, 0, 0, Color.White, false, 0.5F, ImageType.Image);
-                        }
-                        else if (!blend)
-                            library.Draw(index, drawX, drawY - s.Height, Color.White, false, 1F, ImageType.Image);
-                        else
-                            library.DrawBlend(index, drawX, drawY - s.Height, Color.White, false, 0.5F, ImageType.Image);
                     }
                 }
             }
 
+            // =========================
+            // Oversized / animated lower pass
+            // =========================
             maxY = Math.Min(Height - 1, StartY + 20 + (int)Math.Ceiling(Size.Height / CellHeight));
+
             for (int y = minY; y <= maxY; y++)
             {
                 float drawY = (y - StartY + 1) * BaseCellHeight;
@@ -2025,66 +2053,101 @@ namespace Server.Views.DirectX
                     MirLibrary library;
                     LibraryFile file;
 
-                    if (Libraries.TryGetKROrder(cell.MiddleFile, out file) && Manager.LibraryList.TryGetValue(file, out library))
+                    // ----- Middle oversized / animated -----
+                    if (Libraries.KROrder.TryGetValue(cell.MiddleFile, out file) &&
+                        file != LibraryFile.WemadeMir3_Tilesc &&
+                        Manager.LibraryList.TryGetValue(file, out library))
                     {
                         int index = cell.MiddleImage - 1;
-
-                        bool blend = false;
-                        if (cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255)
+                        if (index >= 0)
                         {
-                            index += Animation % (cell.MiddleAnimationFrame & 0x4F);
-                            blend = (cell.MiddleAnimationFrame & 0x50) > 0;
-                        }
+                            bool blend = false;
 
-                        Size s = library.GetSize(index);
+                            if (cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255)
+                            {
+                                int animationCount = cell.MiddleAnimationCount;
+                                if (animationCount > 0)
+                                {
+                                    blend = cell.MiddleAnimationBlend;
+                                    index += Animation % animationCount;
+                                }
+                            }
 
-                        if ((s.Width != CellWidth || s.Height != CellHeight) && (s.Width != CellWidth * 2 || s.Height != CellHeight * 2))
-                        {
-                            Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - s.Height, 0), scale);
+                            Size s = library.GetSize(index);
 
-                            if (!blend)
-                                library.Draw(index, 0, 0, Color.White, true, 1F, ImageType.Image);
-                            else
-                                library.DrawBlend(index, 0, 0, Color.White, true, 0.5F, ImageType.Image);
+                            bool isStandard =
+                                (s.Width == BaseCellWidth && s.Height == BaseCellHeight) ||
+                                (s.Width == BaseCellWidth * 2 && s.Height == BaseCellHeight * 2);
+
+                            if (!isStandard || blend)
+                            {
+                                Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - s.Height, 0), scale);
+
+                                if (!blend)
+                                    library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
+                                else
+                                    library.DrawBlend(index, 0, 0, Color.White, false, 0.5F, ImageType.Image);
+                            }
                         }
                     }
 
-
-                    if (Libraries.TryGetKROrder(cell.FrontFile, out file) && Manager.LibraryList.TryGetValue(file, out library))
+                    // ----- Front oversized / animated -----
+                    if (Libraries.KROrder.TryGetValue(cell.FrontFile, out file) &&
+                        file != LibraryFile.WemadeMir3_Tilesc &&
+                        Manager.LibraryList.TryGetValue(file, out library))
                     {
-                        int index = cell.FrontImage - 1;
-
-                        bool blend = false;
-                        if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
+                        int index = (cell.FrontImage & 0x7FFF) - 1;
+                        if (index >= 0)
                         {
-                            index += Animation % (cell.FrontAnimationFrame & 0x4F);
-                            blend = (cell.MiddleAnimationFrame & 0x50) > 0;
-                        }
+                            bool blend = false;
 
-                        Size s = library.GetSize(index);
+                            if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
+                            {
+                                int animationCount = cell.FrontAnimationCount;
+                                if (animationCount > 0)
+                                {
+                                    blend = cell.FrontAnimationBlend;
+                                    index += Animation % animationCount;
+                                }
+                            }
 
+                            Size s = library.GetSize(index);
 
-                        if ((s.Width != CellWidth || s.Height != CellHeight) && (s.Width != CellWidth * 2 || s.Height != CellHeight * 2))
-                        {
-                            Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY - s.Height, 0), scale);
+                            bool isStandard =
+                                (s.Width == BaseCellWidth && s.Height == BaseCellHeight) ||
+                                (s.Width == BaseCellWidth * 2 && s.Height == BaseCellHeight * 2);
 
-                            if (!blend)
-                                library.Draw(index, 0, 0, Color.White, false, 1F, ImageType.Image);
-                            else
-                                library.DrawBlend(index, 0, 0, Color.White, false, 0.5F, ImageType.Image);
+                            if (!isStandard || cell.FrontAnimationFrame > 0)
+                            {
+                                float frontY = drawY - s.Height;
+                                bool useOffset = false;
+
+                                // This is the fix from yesterday:
+                                if (cell.FrontAnimationFrame > 0)
+                                {
+                                    frontY += BaseCellHeight * 2;
+                                    useOffset = true;
+                                }
+
+                                Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, frontY, 0), scale);
+
+                                if (!blend)
+                                    library.Draw(index, 0, 0, Color.White, useOffset, 1F, ImageType.Image);
+                                else
+                                    library.DrawBlend(index, 0, 0, Color.White, useOffset, 0.5F, ImageType.Image);
+                            }
                         }
                     }
                 }
             }
 
-            //Invalid Tile = 59
-            //Selected Tile = 58
-
-
+            // =========================
+            // Attributes / selection overlay
+            // =========================
             maxY = Math.Min(Height - 1, StartY + (int)Math.Ceiling(Size.Height / CellHeight));
 
-
             Manager.SetOpacity(0.35F);
+
             for (int y = minY; y <= maxY; y++)
             {
                 float drawY = (y - StartY) * BaseCellHeight;
@@ -2100,8 +2163,6 @@ namespace Server.Views.DirectX
                         if (!DrawAttributes) continue;
 
                         Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY, 0), scale);
-
-                        //markLibrary.Draw(59, 0, 0, Color.White, false, 1F, ImageType.Image);
                         Manager.Sprite.Draw(Manager.AttributeTexture, Vector3.Zero, Vector3.Zero, Color.Red);
                     }
                     else
@@ -2110,43 +2171,37 @@ namespace Server.Views.DirectX
                         if (!Selection.Contains(new Point(x, y))) continue;
 
                         Manager.Sprite.Transform = Matrix.Multiply(Matrix.Translation(drawX, drawY, 0), scale);
-
                         Manager.Sprite.Draw(Manager.AttributeTexture, Vector3.Zero, Vector3.Zero, Color.Yellow);
-
-                        //markLibrary.Draw(58, 0, 0, Color.Lime, false, 1F, ImageType.Image);
-                        //If Selected.
                     }
                 }
             }
-            Manager.Sprite.Flush();
 
+            Manager.Sprite.Flush();
             Manager.SetOpacity(1F);
+
             if (Border)
             {
                 Manager.Line.Draw(new[]
                 {
-                    new Vector2((MouseLocation.X - StartX)*CellWidth, (MouseLocation.Y - StartY)*CellHeight),
-                    new Vector2((MouseLocation.X - StartX)*CellWidth + CellWidth, (MouseLocation.Y - StartY)*CellHeight),
-                    new Vector2((MouseLocation.X - StartX)*CellWidth + CellWidth, (MouseLocation.Y - StartY)*CellHeight + CellHeight),
-                    new Vector2((MouseLocation.X - StartX)*CellWidth, (MouseLocation.Y - StartY)*CellHeight + CellHeight),
-                    new Vector2((MouseLocation.X - StartX)*CellWidth, (MouseLocation.Y - StartY)*CellHeight),
-                }, Color.Lime);
-
+            new Vector2((MouseLocation.X - StartX) * CellWidth, (MouseLocation.Y - StartY) * CellHeight),
+            new Vector2((MouseLocation.X - StartX) * CellWidth + CellWidth, (MouseLocation.Y - StartY) * CellHeight),
+            new Vector2((MouseLocation.X - StartX) * CellWidth + CellWidth, (MouseLocation.Y - StartY) * CellHeight + CellHeight),
+            new Vector2((MouseLocation.X - StartX) * CellWidth, (MouseLocation.Y - StartY) * CellHeight + CellHeight),
+            new Vector2((MouseLocation.X - StartX) * CellWidth, (MouseLocation.Y - StartY) * CellHeight),
+        }, Color.Lime);
 
                 if (Radius > 0)
+                {
                     Manager.Line.Draw(new[]
                     {
-                        new Vector2((MouseLocation.X - StartX - Radius)*CellWidth, (MouseLocation.Y - StartY - Radius)*CellHeight),
-                        new Vector2((MouseLocation.X - StartX + Radius)*CellWidth + CellWidth, (MouseLocation.Y - StartY- Radius)*CellHeight),
-                        new Vector2((MouseLocation.X - StartX + Radius)*CellWidth + CellWidth, (MouseLocation.Y - StartY + Radius)*CellHeight + CellHeight),
-                        new Vector2((MouseLocation.X - StartX - Radius)*CellWidth, (MouseLocation.Y - StartY + Radius)*CellHeight + CellHeight),
-                        new Vector2((MouseLocation.X - StartX - Radius)*CellWidth, (MouseLocation.Y - StartY - Radius)*CellHeight),
-                    }, Color.Lime);
+                new Vector2((MouseLocation.X - StartX - Radius) * CellWidth, (MouseLocation.Y - StartY - Radius) * CellHeight),
+                new Vector2((MouseLocation.X - StartX + Radius) * CellWidth + CellWidth, (MouseLocation.Y - StartY - Radius) * CellHeight),
+                new Vector2((MouseLocation.X - StartX + Radius) * CellWidth + CellWidth, (MouseLocation.Y - StartY + Radius) * CellHeight + CellHeight),
+                new Vector2((MouseLocation.X - StartX - Radius) * CellWidth, (MouseLocation.Y - StartY + Radius) * CellHeight + CellHeight),
+                new Vector2((MouseLocation.X - StartX - Radius) * CellWidth, (MouseLocation.Y - StartY - Radius) * CellHeight),
+            }, Color.Lime);
+                }
             }
-
-
-
-
 
             Manager.Sprite.Transform = Matrix.Identity;
         }
@@ -2168,7 +2223,7 @@ namespace Server.Views.DirectX
 
                 if (!File.Exists(path)) return;
 
-                byte[] Bytes = File.ReadAllBytes(Config.MapPath + fileName + ".map");
+                byte[] Bytes = File.ReadAllBytes(path);
                 //c# custom map format
                 if ((Bytes[2] == 0x43) && (Bytes[3] == 0x23))
                     LoadMapType100(Bytes);
@@ -2253,7 +2308,6 @@ namespace Server.Views.DirectX
             }
             TextureValid = false;
         }
-
         private void LoadMapType0(byte[] Bytes)
         {
             try
@@ -2710,7 +2764,7 @@ namespace Server.Views.DirectX
                             Cells[x, y].FishingCell = true;
 
                         //if ((Cells[x, y].BackImage & 0x20000000) != 0 || (Cells[x, y].FrontImage & 0x8000) != 0)
-                            //Cells[x, y].Flag = true;
+                        //Cells[x, y].Flag = true;
                     }
             }
             catch (Exception ex)
@@ -2930,6 +2984,12 @@ namespace Server.Views.DirectX
 
             public bool Flag;
             public bool FishingCell;
+
+            public int FrontAnimationCount => FrontAnimationFrame & 0x0F;
+            public bool FrontAnimationBlend => (FrontAnimationFrame & 0x80) != 0;
+
+            public int MiddleAnimationCount => MiddleAnimationFrame & 0x0F;
+            public bool MiddleAnimationBlend => (MiddleAnimationFrame & 0x80) != 0;
         }
 
     }
