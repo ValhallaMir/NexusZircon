@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace Launcher
 {
@@ -26,6 +27,8 @@ namespace Launcher
         public bool NeedUpdate;
 
         public static bool HasError;
+        private HttpClient _httpClient;
+        private System.Windows.Forms.Timer _uiTimer;
 
         public LMain()
         {
@@ -33,10 +36,24 @@ namespace Launcher
                                                    SecurityProtocolType.Tls11 |
                                                    SecurityProtocolType.Tls12;
 
+            ServicePointManager.DefaultConnectionLimit = Math.Max(8, Config.Concurrent * 4);
+
             InitializeComponent();
 
-        }
+            _httpClient = new HttpClient();
+            _httpClient.Timeout = TimeSpan.FromMinutes(30);
 
+            if (Config.UseLogin)
+            {
+                var byteArray = Encoding.ASCII.GetBytes($"{Config.Username}:{Config.Password}");
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+            }
+
+            _uiTimer = new System.Windows.Forms.Timer();
+            _uiTimer.Interval = 500;
+            _uiTimer.Tick += (s, e) => CreateSizeLabel();
+        }
         private void LMain_Load(object sender, EventArgs e)
         {
             CheckPatch(false);
@@ -53,6 +70,8 @@ namespace Launcher
             CheckPatch(true);
         }
 
+
+
         private async void CheckPatch(bool repair)
         {
             HasError = false;
@@ -65,6 +84,8 @@ namespace Launcher
             LastSpeedCheck = Time.Now;
             NeedUpdate = false;
 
+            _uiTimer.Start();
+
             Progress<string> progress = new Progress<string>(s => StatusLabel.Text = s);
 
             List<PatchInformation> liveVersion = await GetPatchInformation(progress);
@@ -74,6 +95,7 @@ namespace Launcher
                 DownloadSizeLabel.Text = "Downloading failed.";
                 RepairButton.Enabled = true;
                 StartGameButton.Enabled = true;
+                _uiTimer.Stop();
                 return;
             }
 
@@ -83,15 +105,18 @@ namespace Launcher
             StatusLabel.Text = "Downloading";
             CreateSizeLabel();
 
-            Task task = DownloadPatch(patch, progress, new Progress<int>(percent =>
-            {
-                // Update progress bar or label with the percentage downloaded
-                CreateSizeLabel();
-            }));
-
-            await task;
+            await DownloadPatch(patch, progress);
 
             CreateSizeLabel();
+
+            if (HasError)
+            {
+                _uiTimer.Stop();
+                StatusLabel.Text = "Patch failed";
+                RepairButton.Enabled = true;
+                StartGameButton.Enabled = true;
+                return;
+            }
 
             SaveVersion(liveVersion);
 
@@ -116,53 +141,73 @@ namespace Launcher
             }
             catch (Exception) { }
 
+            _uiTimer.Stop();
             RepairButton.Enabled = true;
             StartGameButton.Enabled = true;
         }
         private void CreateSizeLabel()
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(CreateSizeLabel));
+                return;
+            }
+
             const decimal KB = 1024;
             const decimal MB = KB * 1024;
             const decimal GB = MB * 1024;
 
-            long progress = TotalProgress + CurrentProgress;
+            long totalProgress = Interlocked.Read(ref TotalProgress);
+            long currentProgress = Interlocked.Read(ref CurrentProgress);
+            long totalDownload = Interlocked.Read(ref TotalDownload);
+
+            long progress = totalProgress + currentProgress;
 
             StringBuilder text = new StringBuilder();
 
-            if (progress > GB)
+            if (progress >= GB)
                 text.Append($"{progress / GB:#,##0.0}GB");
-            else if (progress > MB)
+            else if (progress >= MB)
                 text.Append($"{progress / MB:#,##0.0}MB");
-            else if (progress > KB)
+            else if (progress >= KB)
                 text.Append($"{progress / KB:#,##0}KB");
             else
                 text.Append($"{progress:#,##0}B");
 
-            if (TotalDownload > GB)
-                text.Append($" / {TotalDownload / GB:#,##0.0}GB");
-            else if (TotalDownload > MB)
-                text.Append($" / {TotalDownload / MB:#,##0.0}MB");
-            else if (TotalDownload > KB)
-                text.Append($" / {TotalDownload / KB:#,##0}KB");
+            if (totalDownload >= GB)
+                text.Append($" / {totalDownload / GB:#,##0.0}GB");
+            else if (totalDownload >= MB)
+                text.Append($" / {totalDownload / MB:#,##0.0}MB");
+            else if (totalDownload >= KB)
+                text.Append($" / {totalDownload / KB:#,##0}KB");
             else
-                text.Append($" / {TotalDownload:#,##0}B");
+                text.Append($" / {totalDownload:#,##0}B");
 
             DownloadSizeLabel.Text = text.ToString();
 
-            if (TotalDownload > 0)
-                TotalProgressBar.EditValue = Math.Max(0, Math.Min(100, (int)(progress * 100 / TotalDownload)));
-
-            long speed = (progress - LastDownloadProcess) * TimeSpan.TicksPerSecond / (Time.Now.Ticks - LastSpeedCheck.Ticks); //May cause errors?
-            LastDownloadProcess = progress;
-
-            if (speed > GB)
-                DownloadSpeedLabel.Text = $"{speed / GB:#,##0.0}GBps";
-            else if (speed > MB)
-                DownloadSpeedLabel.Text = $"{speed / MB:#,##0.0}MBps";
-            else if (speed > KB)
-                DownloadSpeedLabel.Text = $"{speed / KB:#,##0}KBps";
+            if (totalDownload > 0)
+                TotalProgressBar.EditValue = Math.Max(0, Math.Min(100, (int)(progress * 100 / totalDownload)));
             else
-                DownloadSpeedLabel.Text = $"{speed:#,##0}Bps";
+                TotalProgressBar.EditValue = 0;
+
+            long nowTicks = Time.Now.Ticks;
+            long lastTicks = LastSpeedCheck.Ticks;
+            long tickDiff = nowTicks - lastTicks;
+
+            if (tickDiff > 0)
+            {
+                long speed = (progress - LastDownloadProcess) * TimeSpan.TicksPerSecond / tickDiff;
+                LastDownloadProcess = progress;
+
+                if (speed >= GB)
+                    DownloadSpeedLabel.Text = $"{speed / GB:#,##0.0}GBps";
+                else if (speed >= MB)
+                    DownloadSpeedLabel.Text = $"{speed / MB:#,##0.0}MBps";
+                else if (speed >= KB)
+                    DownloadSpeedLabel.Text = $"{speed / KB:#,##0}KBps";
+                else
+                    DownloadSpeedLabel.Text = $"{speed:#,##0}Bps";
+            }
 
             LastSpeedCheck = Time.Now;
         }
@@ -188,7 +233,7 @@ namespace Launcher
             }
             catch (Exception ex)
             {
-                progress.Report(ex.Message);
+                progress.Report(ex.ToString());
             }
 
             return null;
@@ -199,35 +244,28 @@ namespace Launcher
             {
                 progress.Report("Downloading Patch Information");
 
-                using (HttpClient client = new HttpClient())
+                using (HttpResponseMessage response = await _httpClient.GetAsync(
+                    Config.Host + PListFileName + "?nocache=" + Guid.NewGuid().ToString("N")))
                 {
-                    if (Config.UseLogin)
+                    response.EnsureSuccessStatusCode();
+
+                    byte[] data = await response.Content.ReadAsByteArrayAsync();
+
+                    using (MemoryStream contentStream = new MemoryStream(data))
+                    using (BinaryReader reader = new BinaryReader(contentStream))
                     {
-                        var byteArray = Encoding.ASCII.GetBytes($"{Config.Username}:{Config.Password}");
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-                    }
+                        List<PatchInformation> list = new List<PatchInformation>();
 
-                    using (HttpResponseMessage response = await client.GetAsync(Config.Host + PListFileName + "?nocache=" + Guid.NewGuid().ToString("N")))
-                    {
-                        response.EnsureSuccessStatusCode();
+                        while (reader.BaseStream.Position < reader.BaseStream.Length)
+                            list.Add(new PatchInformation(reader));
 
-                        using (Stream contentStream = await response.Content.ReadAsStreamAsync())
-                        using (BinaryReader reader = new BinaryReader(contentStream))
-                        {
-                            List<PatchInformation> list = new List<PatchInformation>();
-
-                            while (reader.BaseStream.Position < reader.BaseStream.Length)
-                                list.Add(new PatchInformation(reader));
-
-                            return list;
-                        }
+                        return list;
                     }
                 }
-
             }
             catch (Exception ex)
             {
-                progress.Report(ex.Message);
+                progress.Report(ex.ToString());
             }
 
             return null;
@@ -251,7 +289,7 @@ namespace Launcher
                     using (MD5 md5 = MD5.Create())
                     {
                         using (FileStream stream = File.OpenRead(ClientPath + file.FileName))
-                            CheckSum = await md5.ComputeHashAsync(stream);
+                            CheckSum = md5.ComputeHash(stream);
                     }
 
                     if (IsMatch(CheckSum, file.CheckSum))
@@ -259,7 +297,7 @@ namespace Launcher
                 }
 
                 patch.Add(file);
-                TotalDownload += file.CompressedLength;
+                Interlocked.Add(ref TotalDownload, file.CompressedLength);
             }
 
             return patch;
@@ -287,24 +325,40 @@ namespace Launcher
 
         }
 
-        private async Task DownloadPatch(List<PatchInformation> patch, IProgress<string> progress, IProgress<int> downloadProgress)
+        private async Task DownloadPatch(List<PatchInformation> patch, IProgress<string> progress)
         {
-            List<Task> tasks = new List<Task>();
+            if (patch == null || patch.Count == 0) return;
 
-            foreach (PatchInformation file in patch)
+            int concurrent = Math.Max(1, Config.Concurrent);
+            using (SemaphoreSlim downloadLimiter = new SemaphoreSlim(concurrent))
             {
-                if (!await Download(file, downloadProgress)) continue;
+                List<Task> workers = new List<Task>();
 
-                tasks.Add(Extract(file));
+                foreach (PatchInformation file in patch)
+                {
+                    workers.Add(ProcessPatchFile(file, downloadLimiter));
+                }
+
+                progress.Report($"Downloading ({concurrent} at a time)...");
+                await Task.WhenAll(workers);
             }
-
-            if (tasks.Count == 0) return;
-
-            progress.Report("Downloaded, Extracting.");
-
-            await Task.WhenAll(tasks);
         }
 
+        private async Task ProcessPatchFile(PatchInformation file, SemaphoreSlim downloadLimiter)
+        {
+            await downloadLimiter.WaitAsync();
+            try
+            {
+                bool ok = await Download(file);
+                if (!ok) return;
+            }
+            finally
+            {
+                downloadLimiter.Release();
+            }
+
+            await Extract(file);
+        }
 
         private void StartGameButton_Click(object sender, EventArgs e)
         {
@@ -319,58 +373,67 @@ namespace Launcher
             }
         }
 
-        private async Task<bool> Download(PatchInformation file, IProgress<int> progress)
+        private async Task<bool> Download(PatchInformation file)
         {
             string webFileName = file.FileName.Replace("\\", "-") + ".gz";
+            string patchDir = Path.Combine(ClientPath, "Patch");
+            string patchFile = Path.Combine(patchDir, webFileName);
+
+            long downloadedForThisFile = 0;
 
             try
             {
-                using (HttpClient client = new HttpClient())
-                {
-                    if (Config.UseLogin)
-                    {
-                        var byteArray = Encoding.ASCII.GetBytes($"{Config.Username}:{Config.Password}");
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-                    }
+                if (!Directory.Exists(patchDir))
+                    Directory.CreateDirectory(patchDir);
 
-                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-                    HttpResponseMessage response = await client.GetAsync(Config.Host + webFileName, HttpCompletionOption.ResponseHeadersRead);
+                using (HttpResponseMessage response = await _httpClient.GetAsync(Config.Host + webFileName))
+                {
+                    response.EnsureSuccessStatusCode();
 
                     using (Stream contentStream = await response.Content.ReadAsStreamAsync())
+                    using (FileStream fileStream = new FileStream(
+                        patchFile,
+                        FileMode.Create,
+                        FileAccess.Write,
+                        FileShare.None,
+                        64 * 1024,
+                        true))
                     {
-                        response.EnsureSuccessStatusCode();
+                        byte[] buffer = new byte[64 * 1024];
+                        int bytesRead;
 
-                        if (!Directory.Exists(ClientPath + "Patch\\"))
-                            Directory.CreateDirectory(ClientPath + "Patch\\");
-
-                        using (FileStream fileStream = new FileStream($"{ClientPath}Patch\\{webFileName}", FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                        while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                         {
-                            long totalBytes = response.Content.Headers.ContentLength ?? -1;
-                            long totalDownloadedBytes = 0;
-                            byte[] buffer = new byte[8192];
-                            int bytesRead;
-                            while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                            {
-                                await fileStream.WriteAsync(buffer, 0, bytesRead);
-                                totalDownloadedBytes += bytesRead;
-                                if (totalBytes > 0)
-                                    progress.Report((int)(totalDownloadedBytes * 100 / totalBytes));
-                            }
+                            await fileStream.WriteAsync(buffer, 0, bytesRead);
+                            downloadedForThisFile += bytesRead;
+                            Interlocked.Add(ref CurrentProgress, bytesRead);
                         }
                     }
-
-                    CurrentProgress = 0;
-                    TotalProgress += file.CompressedLength;
-
-                    return true;
                 }
-            }
-            catch (Exception)
-            {
-                file.CheckSum = new byte[8];
-            }
 
-            return false;
+                Interlocked.Add(ref CurrentProgress, -downloadedForThisFile);
+                Interlocked.Add(ref TotalProgress, downloadedForThisFile);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Interlocked.Add(ref CurrentProgress, -downloadedForThisFile);
+                file.CheckSum = new byte[8];
+
+                if (!HasError)
+                {
+                    HasError = true;
+                    BeginInvoke(new Action(() =>
+                    {
+                        MessageBox.Show(
+                            $"Failed downloading {file.FileName}\n\n{ex}",
+                            "Download Error",
+                            MessageBoxButtons.OK);
+                    }));
+                }
+
+                return false;
+            }
         }
 
         private async Task Extract(PatchInformation file)
@@ -387,8 +450,8 @@ namespace Launcher
                     NeedUpdate = true;
                 }
 
-
-                if (File.Exists(toPath)) File.Delete(toPath);
+                if (File.Exists(toPath))
+                    File.Delete(toPath);
 
                 await Decompress($"{ClientPath}Patch\\{webFileName}", toPath);
             }
@@ -398,11 +461,44 @@ namespace Launcher
 
                 if (HasError) return;
                 HasError = true;
-                MessageBox.Show(ex.Message + "\n\nFile might be in use, please make sure the game is closed.", "File Error", MessageBoxButtons.OK);
+
+                BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show(
+                        ex.Message + "\n\nFile might be in use, please make sure the game is closed.",
+                        "File Error",
+                        MessageBoxButtons.OK);
+                }));
             }
-            catch (Exception)
+            catch (InvalidDataException ex)
             {
                 file.CheckSum = new byte[8];
+
+                if (HasError) return;
+                HasError = true;
+
+                BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show(
+                        $"Invalid compressed patch file for {file.FileName}\n\n{ex.Message}",
+                        "Patch Error",
+                        MessageBoxButtons.OK);
+                }));
+            }
+            catch (Exception ex)
+            {
+                file.CheckSum = new byte[8];
+
+                if (HasError) return;
+                HasError = true;
+
+                BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show(
+                        $"Failed extracting {file.FileName}\n\n{ex.Message}",
+                        "Extract Error",
+                        MessageBoxButtons.OK);
+                }));
             }
         }
         private static async Task Decompress(string sourceFile, string destFile)
@@ -416,6 +512,13 @@ namespace Launcher
             {
                 await gStream.CopyToAsync(tofile);
             }
+        }
+
+        private void LMain_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _uiTimer?.Stop();
+            _uiTimer?.Dispose();
+            _httpClient?.Dispose();
         }
     }
 }
