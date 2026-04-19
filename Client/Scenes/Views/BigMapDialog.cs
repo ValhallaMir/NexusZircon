@@ -156,49 +156,46 @@ namespace Client.Scenes.Views
 
         private Size GetMapSize(string fileName)
         {
-            if (!File.Exists(Config.MapPath + fileName + ".map")) return Size.Empty;
+            string mapFile = Directory
+                .EnumerateFiles(Config.MapPath, fileName + ".map", SearchOption.AllDirectories)
+                .FirstOrDefault();
 
+            if (string.IsNullOrEmpty(mapFile)) return Size.Empty;
 
-            byte[] Bytes = File.ReadAllBytes(Config.MapPath + fileName + ".map");
-            //c# custom map format
+            byte[] Bytes = File.ReadAllBytes(mapFile);
+
+            // c# custom map format
             if ((Bytes[2] == 0x43) && (Bytes[3] == 0x23))
                 return LoadMapType100(Bytes);
-            //wemade mir3 maps have no title they just start with blank bytes
+            // wemade mir3 maps have no title they just start with blank bytes
             else if (Bytes[0] == 0)
                 return LoadMapType5(Bytes);
-            //shanda mir3 maps start with title: (C) SNDA, MIR3.
+            // shanda mir3 maps start with title: (C) SNDA, MIR3.
             else if ((Bytes[0] == 0x0F) && (Bytes[5] == 0x53) && (Bytes[14] == 0x33))
                 return LoadMapType6(Bytes);
-            //wemades antihack map (laby maps) title start with: Mir2 AntiHack
+            // wemades antihack map (laby maps) title start with: Mir2 AntiHack
             else if ((Bytes[0] == 0x15) && (Bytes[4] == 0x32) && (Bytes[6] == 0x41) && (Bytes[19] == 0x31))
                 return LoadMapType4(Bytes);
-            //wemades 2010 map format i guess title starts with: Map 2010 Ver 1.0
+            // wemades 2010 map format i guess title starts with: Map 2010 Ver 1.0
             else if ((Bytes[0] == 0x10) && (Bytes[2] == 0x61) && (Bytes[7] == 0x31) && (Bytes[14] == 0x31))
                 return LoadMapType1(Bytes);
-            //shanda's 2012 format and one of shandas(wemades) older formats share same header info, only difference is the filesize
+            // shanda's 2012 format and one of shandas(wemades) older formats share same header info, only difference is the filesize
             else if ((Bytes[4] == 0x0F) || (Bytes[4] == 0x03) && (Bytes[18] == 0x0D) && (Bytes[19] == 0x0A))
             {
                 int W = Bytes[0] + (Bytes[1] << 8);
                 int H = Bytes[2] + (Bytes[3] << 8);
+
                 if (Bytes.Length > (52 + (W * H * 14)))
                     return LoadMapType3(Bytes);
                 else
                     return LoadMapType2(Bytes);
             }
-            //3/4 heroes map format (myth/lifcos i guess)
+            // 3/4 heroes map format (myth/lifcos i guess)
             else if ((Bytes[0] == 0x0D) && (Bytes[1] == 0x4C) && (Bytes[7] == 0x20) && (Bytes[11] == 0x6D))
                 return LoadMapType7(Bytes);
             else
-                //if it's none of the above load the default old school format
+                // if it's none of the above load the default old school format
                 return LoadMapType0(Bytes);
-            /*
-             * using (FileStream stream = File.OpenRead(Config.MapPath + fileName + ".map"))
-             * using (BinaryReader reader = new BinaryReader(stream))
-            {
-                stream.Seek(22, SeekOrigin.Begin);
-
-                return new Size(reader.ReadInt16(), reader.ReadInt16());
-            }*/
         }
 
         private Size LoadMapType0(byte[] Bytes)

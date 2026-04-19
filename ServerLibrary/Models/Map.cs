@@ -57,11 +57,13 @@ namespace Server.Models
 
         public void Load()
         {
-            var path = Path.Combine(Config.MapPath, Info.FileName + ".map");
+            var path = Directory
+                .EnumerateFiles(Config.MapPath, Info.FileName + ".map", SearchOption.AllDirectories)
+                .FirstOrDefault();
 
-            if (!File.Exists(path))
+            if (string.IsNullOrEmpty(path))
             {
-                SEnvir.Log($"Map: {path} not found.");
+                SEnvir.Log($"Map: {Info.FileName}.map not found under {Config.MapPath}");
                 return;
             }
 

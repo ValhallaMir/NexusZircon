@@ -2210,7 +2210,7 @@ namespace Server.Views.DirectX
         {
             try
             {
-                string path = null;
+                string path;
 
                 if (Path.IsPathRooted(fileName))
                 {
@@ -2218,94 +2218,53 @@ namespace Server.Views.DirectX
                 }
                 else
                 {
-                    path = Path.Combine(Config.MapPath, fileName + ".map");
+                    path = Directory
+                        .EnumerateFiles(Config.MapPath, fileName + ".map", SearchOption.AllDirectories)
+                        .FirstOrDefault();
                 }
 
-                if (!File.Exists(path)) return;
+                if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
 
                 byte[] Bytes = File.ReadAllBytes(path);
-                //c# custom map format
+
+                // c# custom map format
                 if ((Bytes[2] == 0x43) && (Bytes[3] == 0x23))
                     LoadMapType100(Bytes);
-                //wemade mir3 maps have no title they just start with blank bytes
+                // wemade mir3 maps have no title they just start with blank bytes
                 else if (Bytes[0] == 0)
                     LoadMapType5(Bytes);
-                //shanda mir3 maps start with title: (C) SNDA, MIR3.
+                // shanda mir3 maps start with title: (C) SNDA, MIR3.
                 else if ((Bytes[0] == 0x0F) && (Bytes[5] == 0x53) && (Bytes[14] == 0x33))
                     LoadMapType6(Bytes);
-                //wemades antihack map (laby maps) title start with: Mir2 AntiHack
+                // wemades antihack map (laby maps) title start with: Mir2 AntiHack
                 else if ((Bytes[0] == 0x15) && (Bytes[4] == 0x32) && (Bytes[6] == 0x41) && (Bytes[19] == 0x31))
                     LoadMapType4(Bytes);
-                //wemades 2010 map format i guess title starts with: Map 2010 Ver 1.0
+                // wemades 2010 map format i guess title starts with: Map 2010 Ver 1.0
                 else if ((Bytes[0] == 0x10) && (Bytes[2] == 0x61) && (Bytes[7] == 0x31) && (Bytes[14] == 0x31))
                     LoadMapType1(Bytes);
-                //shanda's 2012 format and one of shandas(wemades) older formats share same header info, only difference is the filesize
+                // shanda's 2012 format and one of shandas(wemades) older formats share same header info, only difference is the filesize
                 else if ((Bytes[4] == 0x0F) || (Bytes[4] == 0x03) && (Bytes[18] == 0x0D) && (Bytes[19] == 0x0A))
                 {
                     int W = Bytes[0] + (Bytes[1] << 8);
                     int H = Bytes[2] + (Bytes[3] << 8);
+
                     if (Bytes.Length > (52 + (W * H * 14)))
                         LoadMapType3(Bytes);
                     else
                         LoadMapType2(Bytes);
                 }
-                //3/4 heroes map format (myth/lifcos i guess)
+                // 3/4 heroes map format (myth/lifcos i guess)
                 else if ((Bytes[0] == 0x0D) && (Bytes[1] == 0x4C) && (Bytes[7] == 0x20) && (Bytes[11] == 0x6D))
                     LoadMapType7(Bytes);
                 else
-                    //if it's none of the above load the default old school format
+                    // if it's none of the above load the default old school format
                     LoadMapType0(Bytes);
-
-                /*using (MemoryStream mStream = new MemoryStream(File.ReadAllBytes(Config.MapPath + fileName + ".map")))
-                using (BinaryReader reader = new BinaryReader(mStream))
-                {
-                    mStream.Seek(22, SeekOrigin.Begin);
-                    Width = reader.ReadInt16();
-                    Height = reader.ReadInt16();
-
-                    mStream.Seek(28, SeekOrigin.Begin);
-
-                    Cells = new Cell[Width, Height];
-                    for (int x = 0; x < Width; x++)
-                        for (int y = 0; y < Height; y++)
-                            Cells[x, y] = new Cell();
-
-                    for (int x = 0; x < Width / 2; x++)
-                        for (int y = 0; y < Height / 2; y++)
-                        {
-                            Cells[(x * 2), (y * 2)].BackFile = reader.ReadByte();
-                            Cells[(x * 2), (y * 2)].BackImage = reader.ReadUInt16();
-                        }
-
-                    for (int x = 0; x < Width; x++)
-                        for (int y = 0; y < Height; y++)
-                        {
-                            byte flag = reader.ReadByte();
-                            Cells[x, y].MiddleAnimationFrame = reader.ReadByte();
-
-                            byte value = reader.ReadByte();
-                            Cells[x, y].FrontAnimationFrame = value == 255 ? 0 : value;
-
-                            Cells[x, y].FrontFile = reader.ReadByte();
-                            Cells[x, y].MiddleFile = reader.ReadByte();
-
-                            Cells[x, y].MiddleImage = reader.ReadUInt16() + 1;
-                            Cells[x, y].FrontImage = reader.ReadUInt16() + 1;
-
-                            mStream.Seek(3, SeekOrigin.Current);
-
-                            Cells[x, y].Light = (byte)(reader.ReadByte() & 0x0F) * 2;
-
-                            mStream.Seek(1, SeekOrigin.Current);
-
-                            Cells[x, y].Flag = ((flag & 0x01) != 1) || ((flag & 0x02) != 2);
-                        }
-                }*/
             }
             catch (Exception ex)
             {
                 SEnvir.Log(ex.ToString());
             }
+
             TextureValid = false;
         }
         private void LoadMapType0(byte[] Bytes)

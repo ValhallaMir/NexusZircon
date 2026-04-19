@@ -607,47 +607,52 @@ namespace Client.Scenes.Views
         {
             try
             {
-                var path = Path.Combine(Config.MapPath, MapInfo.FileName + ".map");
+                var path = Directory
+                    .EnumerateFiles(Config.MapPath, MapInfo.FileName + ".map", SearchOption.AllDirectories)
+                    .FirstOrDefault();
 
-                if (!File.Exists(path)) return;
+                if (string.IsNullOrEmpty(path)) return;
+
                 string MapType = "Unknown";
 
-                byte[] Bytes = File.ReadAllBytes(Config.MapPath + MapInfo.FileName + ".map");
-                //c# custom map format
+                byte[] Bytes = File.ReadAllBytes(path);
+
+                // c# custom map format
                 if ((Bytes[2] == 0x43) && (Bytes[3] == 0x23))
                 {
                     LoadMapType100(Bytes);
                     MapType = "Crystal - Type 100";
                 }
-                //wemade mir3 maps have no title they just start with blank bytes
+                // wemade mir3 maps have no title they just start with blank bytes
                 else if (Bytes[0] == 0)
                 {
                     LoadMapType5(Bytes);
                     MapType = "Wemade Mir3 - Type 5";
                 }
-                //shanda mir3 maps start with title: (C) SNDA, MIR3.
+                // shanda mir3 maps start with title: (C) SNDA, MIR3.
                 else if ((Bytes[0] == 0x0F) && (Bytes[5] == 0x53) && (Bytes[14] == 0x33))
                 {
                     LoadMapType6(Bytes);
                     MapType = "Shanda Mir3 - Type 6";
                 }
-                //wemades antihack map (laby maps) title start with: Mir2 AntiHack
+                // wemades antihack map (laby maps) title start with: Mir2 AntiHack
                 else if ((Bytes[0] == 0x15) && (Bytes[4] == 0x32) && (Bytes[6] == 0x41) && (Bytes[19] == 0x31))
                 {
                     LoadMapType4(Bytes);
                     MapType = "Wemade Mir2 AntiHack - Type 4";
                 }
-                //wemades 2010 map format i guess title starts with: Map 2010 Ver 1.0
+                // wemades 2010 map format i guess title starts with: Map 2010 Ver 1.0
                 else if ((Bytes[0] == 0x10) && (Bytes[2] == 0x61) && (Bytes[7] == 0x31) && (Bytes[14] == 0x31))
                 {
                     LoadMapType1(Bytes);
                     MapType = "Wemade 2010 - Type 1";
                 }
-                //shanda's 2012 format and one of shandas(wemades) older formats share same header info, only difference is the filesize
+                // shanda's 2012 format and one of shandas(wemades) older formats share same header info, only difference is the filesize
                 else if ((Bytes[4] == 0x0F) || (Bytes[4] == 0x03) && (Bytes[18] == 0x0D) && (Bytes[19] == 0x0A))
                 {
                     int W = Bytes[0] + (Bytes[1] << 8);
                     int H = Bytes[2] + (Bytes[3] << 8);
+
                     if (Bytes.Length > (52 + (W * H * 14)))
                     {
                         LoadMapType3(Bytes);
@@ -659,7 +664,7 @@ namespace Client.Scenes.Views
                         MapType = "Wemade 2012 - Type 2";
                     }
                 }
-                //3/4 heroes map format (myth/lifcos i guess)
+                // 3/4 heroes map format (myth/lifcos i guess)
                 else if ((Bytes[0] == 0x0D) && (Bytes[1] == 0x4C) && (Bytes[7] == 0x20) && (Bytes[11] == 0x6D))
                 {
                     LoadMapType7(Bytes);
@@ -667,11 +672,10 @@ namespace Client.Scenes.Views
                 }
                 else
                 {
-                    //if it's none of the above load the default old school format
+                    // if it's none of the above load the default old school format
                     LoadMapType0(Bytes);
                     MapType = "Old School Format - Type 0";
                 }
-
             }
             catch (Exception ex)
             {
