@@ -7,6 +7,8 @@ namespace Launcher
     {
         [ConfigSection("Patcher")]
         public static string Host { get; set; } = @"https://zirconpatch.nexusmir.com/";
+        public static string ResourcePath = @".\DirectX\";
+        public static bool DebugMode { get; set; } = false;
         public static bool UseLogin { get; set; }
         public static string Username { get; set; }
         public static string Password { get; set; }

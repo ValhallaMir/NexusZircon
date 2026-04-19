@@ -10,7 +10,7 @@ namespace Client.Envir
     {
         public static readonly Size IntroSceneSize = new Size(1024, 768);
 
-        public const string DefaultIPAddress = "127.0.0.1";
+        public const string DefaultIPAddress = "zircongame.nexusmir.com";
         public const int DefaultPort = 7000;
 
         [ConfigSection("Network")]
@@ -25,7 +25,7 @@ namespace Client.Envir
 
 
         [ConfigSection("Graphics")]
-        public static bool FullScreen { get; set; } = true;
+        public static bool FullScreen { get; set; } = false;
         public static bool VSync { get; set; }
         public static bool LimitFPS { get; set; }
         public static bool ExtendedLogin { get; set; }
@@ -75,8 +75,8 @@ namespace Client.Envir
         public static bool EscapeCloseAll { get; set; } = false;
         public static bool ShiftOpenChat { get; set; } = true;
         public static bool SpecialRepair { get; set; } = true;
-        public static bool RightClickDeTarget { get; set; } = true;
-        public static bool HideChatBar { get; set; } = true;
+        public static bool RightClickDeTarget { get; set; } = false;
+        public static bool HideChatBar { get; set; } = false;
         public static bool ShowMagicBarFrames { get; set; } = true;
 
         public static bool MonsterBoxExpanded { get; set; } = true;
@@ -86,7 +86,7 @@ namespace Client.Envir
         public static bool LogChat { get; set; } = true;
 
         public static int RankingClass { get; set; } = (int)RequiredClass.All;
-        public static bool RankingOnline { get; set; } = true;
+        public static bool RankingOnline { get; set; } = false;
         public static string HighlightedItems { get; set; } = string.Empty;
 
         [ConfigSection("Colours")]

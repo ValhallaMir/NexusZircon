@@ -11,6 +11,8 @@ namespace Launcher
     {
         public const string PatcherFileName = @".\Patcher.exe";
 
+        public static LMain PForm;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -27,7 +29,7 @@ namespace Launcher
             SkinManager.EnableFormSkins();
             UserLookAndFeel.Default.SetSkinStyle("DevExpress Style");
 
-            Application.Run(new LMain());
+            Application.Run(PForm = new LMain());
 
             ConfigReader.Save();
         }

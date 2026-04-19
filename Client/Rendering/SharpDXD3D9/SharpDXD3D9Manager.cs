@@ -24,7 +24,7 @@ namespace Client.Rendering.SharpDXD3D9
         public static Graphics Graphics { get; private set; }
 
         public static List<Size> ValidResolutions = new List<Size>();
-        private static Size MinimumResolution = new Size(1024, 768);
+        private static Size MinimumResolution = new Size(1366, 768);
 
         public static List<Size> ValidDisplays = new List<Size>();
         private static PresentParameters _parameters;

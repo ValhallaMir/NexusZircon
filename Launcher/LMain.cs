@@ -1,7 +1,10 @@
-﻿using Library;
+﻿using DevExpress.XtraSpreadsheet.Commands;
+using Library;
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -10,9 +13,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Threading;
+using System.Windows.Media;
 
 namespace Launcher
 {
@@ -24,11 +28,18 @@ namespace Launcher
 
         public DateTime LastSpeedCheck;
         public long TotalDownload, TotalProgress, CurrentProgress, LastDownloadProcess;
+        public long ActiveDownloadTotal;
         public bool NeedUpdate;
 
         public static bool HasError;
         private HttpClient _httpClient;
         private System.Windows.Forms.Timer _uiTimer;
+
+        public bool dragging = false;
+        private Point dragCursorPoint;
+        private Point dragFormPoint;
+
+        private ConfigForm ConfigForm = new ConfigForm();
 
         public LMain()
         {
@@ -51,38 +62,71 @@ namespace Launcher
             }
 
             _uiTimer = new System.Windows.Forms.Timer();
-            _uiTimer.Interval = 500;
+            _uiTimer.Interval = 10;
             _uiTimer.Tick += (s, e) => CreateSizeLabel();
         }
         private void LMain_Load(object sender, EventArgs e)
         {
+            var envir = CoreWebView2Environment.CreateAsync(null, Config.ResourcePath).Result;
+            Main_browser.EnsureCoreWebView2Async(envir);
+
+            Main_browser.NavigationCompleted += Main_browser_NavigationCompleted;
+            Main_browser.Source = new Uri("https://nexusmir.com/");
+            Main_browser.ExecuteScriptAsync("window.scrollTo(0,20)");
+
+            ProgressCurrent_pb.Width = 5;
+            TotalProg_pb.Width = 5;
+            CurrentPercent_label.Text = "0%";
+            TotalPercent_label.Text = "0%";
+
             CheckPatch(false);
-        }
 
-        private void PatchNotesHyperlinkControl_HyperlinkClick(object sender, DevExpress.Utils.HyperlinkClickEventArgs e)
+            ToggleMode();
+        }
+        private void Main_browser_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
-            PatchNotesHyperlinkControl.LinkVisited = true;
-            Process.Start(e.Link);
+            if (Main_browser.Source.AbsolutePath != "blank") Main_browser.Visible = true;
+
+            if (e.IsSuccess)
+            {
+                Main_browser.ExecuteScriptAsync("document.querySelector('body').style.overflow='scroll';var style=document.createElement('style');style.type='text/css';style.innerHTML='::-webkit-scrollbar{display:none}';document.getElementsByTagName('body')[0].appendChild(style)");
+                Main_browser.ExecuteScriptAsync("window.scrollTo(0,20)");
+
+            }
         }
 
-        private void RepairButton_Click(object sender, EventArgs e)
+        public void ToggleMode()
         {
-            CheckPatch(true);
+            if (Config.DebugMode)
+            {
+                Main_browser.SendToBack();
+                OutputTextBox.BringToFront();
+            }
+            else
+            {
+                OutputTextBox.SendToBack();
+                Main_browser.BringToFront();
+                Main_browser.Focus();
+            }
         }
 
-
-
-        private async void CheckPatch(bool repair)
+        public async void CheckPatch(bool repair)
         {
             HasError = false;
-            RepairButton.Enabled = false;
-            StartGameButton.Enabled = false;
+            Launch_pb.Enabled = false;
+            Launch_pb.Image = Properties.Resources.Start_Greyscale;
             TotalDownload = 0;
             TotalProgress = 0;
             CurrentProgress = 0;
-            TotalProgressBar.EditValue = 0;
+            ActiveDownloadTotal = 0;
+            LastDownloadProcess = 0;
+            ProgressCurrent_pb.Width = 0;
+            TotalProg_pb.Width = 0;
+            CurrentPercent_label.Text = "0%";
+            TotalPercent_label.Text = "0%";
             LastSpeedCheck = Time.Now;
             NeedUpdate = false;
+            OutputTextBox.Text = string.Empty;
 
             _uiTimer.Start();
 
@@ -93,8 +137,14 @@ namespace Launcher
             if (liveVersion == null)
             {
                 DownloadSizeLabel.Text = "Downloading failed.";
-                RepairButton.Enabled = true;
-                StartGameButton.Enabled = true;
+                OutputTextBox.AppendText($"Downloading failed.\r\n");
+
+                ProgressCurrent_pb.Width = 5;
+                TotalProg_pb.Width = 5;
+                CurrentPercent_label.Text = "Failed";
+                TotalPercent_label.Text = "Failed";
+
+                Launch_pb.Enabled = true;
                 _uiTimer.Stop();
                 return;
             }
@@ -103,6 +153,7 @@ namespace Launcher
             List<PatchInformation> patch = await CalculatePatch(liveVersion, currentVersion, progress);
 
             StatusLabel.Text = "Downloading";
+            OutputTextBox.AppendText($"Total files to download: {patch.Count}\r\n");
             CreateSizeLabel();
 
             await DownloadPatch(patch, progress);
@@ -113,8 +164,13 @@ namespace Launcher
             {
                 _uiTimer.Stop();
                 StatusLabel.Text = "Patch failed";
-                RepairButton.Enabled = true;
-                StartGameButton.Enabled = true;
+                OutputTextBox.AppendText($"Patch failed.\r\n");
+                ProgressCurrent_pb.Width = 5;
+                TotalProg_pb.Width = 5;
+                CurrentPercent_label.Text = "Failed";
+                TotalPercent_label.Text = "Failed";
+                Launch_pb.Enabled = true;
+                Launch_pb.Image = Properties.Resources.Start_Normal;
                 return;
             }
 
@@ -123,6 +179,12 @@ namespace Launcher
             StatusLabel.Text = "Complete";
             DownloadSizeLabel.Text = "Complete.";
             DownloadSpeedLabel.Text = "Complete.";
+            OutputTextBox.AppendText($"Patch complete. Total files downloaded: {patch.Count}\r\n");
+
+            ProgressCurrent_pb.Width = 250;
+            TotalProg_pb.Width = 252;
+            CurrentPercent_label.Text = "100%";
+            TotalPercent_label.Text = "100%";
 
             if (Directory.Exists(ClientPath + "Patch\\"))
                 Directory.Delete(ClientPath + "Patch\\", true);
@@ -142,8 +204,8 @@ namespace Launcher
             catch (Exception) { }
 
             _uiTimer.Stop();
-            RepairButton.Enabled = true;
-            StartGameButton.Enabled = true;
+            Launch_pb.Enabled = true;
+            Launch_pb.Image = Properties.Resources.Start_Normal;
         }
         private void CreateSizeLabel()
         {
@@ -153,26 +215,28 @@ namespace Launcher
                 return;
             }
 
-            const decimal KB = 1024;
-            const decimal MB = KB * 1024;
-            const decimal GB = MB * 1024;
+            const decimal KB = 1024m;
+            const decimal MB = KB * 1024m;
+            const decimal GB = MB * 1024m;
 
             long totalProgress = Interlocked.Read(ref TotalProgress);
             long currentProgress = Interlocked.Read(ref CurrentProgress);
             long totalDownload = Interlocked.Read(ref TotalDownload);
+            long activeDownloadTotal = Interlocked.Read(ref ActiveDownloadTotal);
 
-            long progress = totalProgress + currentProgress;
+            long overallProgress = totalProgress + currentProgress;
 
+            // Size label
             StringBuilder text = new StringBuilder();
 
-            if (progress >= GB)
-                text.Append($"{progress / GB:#,##0.0}GB");
-            else if (progress >= MB)
-                text.Append($"{progress / MB:#,##0.0}MB");
-            else if (progress >= KB)
-                text.Append($"{progress / KB:#,##0}KB");
+            if (overallProgress >= GB)
+                text.Append($"{overallProgress / GB:#,##0.0}GB");
+            else if (overallProgress >= MB)
+                text.Append($"{overallProgress / MB:#,##0.0}MB");
+            else if (overallProgress >= KB)
+                text.Append($"{overallProgress / KB:#,##0}KB");
             else
-                text.Append($"{progress:#,##0}B");
+                text.Append($"{overallProgress:#,##0}B");
 
             if (totalDownload >= GB)
                 text.Append($" / {totalDownload / GB:#,##0.0}GB");
@@ -185,19 +249,46 @@ namespace Launcher
 
             DownloadSizeLabel.Text = text.ToString();
 
+            // TOTAL %
+            int totalPercent = 0;
             if (totalDownload > 0)
-                TotalProgressBar.EditValue = Math.Max(0, Math.Min(100, (int)(progress * 100 / totalDownload)));
-            else
-                TotalProgressBar.EditValue = 0;
+                totalPercent = (int)((overallProgress * 100L) / totalDownload);
 
+            totalPercent = Math.Max(0, Math.Min(100, totalPercent));
+
+            TotalPercent_label.Text = $"{totalPercent}%";
+
+            // IMPORTANT: use actual max width of your bar container
+            int totalBarMaxWidth = 252;
+            TotalProg_pb.Width = (totalBarMaxWidth * totalPercent) / 100;
+
+            // CURRENT %
+            int currentPercent = 0;
+
+            if (Config.Concurrent > 1)
+            {
+                currentPercent = activeDownloadTotal > 0 ? 100 : 0;
+            }
+            else if (activeDownloadTotal > 0)
+            {
+                currentPercent = (int)((currentProgress * 100L) / activeDownloadTotal);
+                currentPercent = Math.Max(0, Math.Min(100, currentPercent));
+            }
+
+            CurrentPercent_label.Text = $"{currentPercent}%";
+
+            int currentBarMaxWidth = 250;
+            ProgressCurrent_pb.Width = (currentBarMaxWidth * currentPercent) / 100;
+
+            // Speed
             long nowTicks = Time.Now.Ticks;
             long lastTicks = LastSpeedCheck.Ticks;
             long tickDiff = nowTicks - lastTicks;
 
             if (tickDiff > 0)
             {
-                long speed = (progress - LastDownloadProcess) * TimeSpan.TicksPerSecond / tickDiff;
-                LastDownloadProcess = progress;
+                long speed = (overallProgress - LastDownloadProcess) * TimeSpan.TicksPerSecond / tickDiff;
+                LastDownloadProcess = overallProgress;
 
                 if (speed >= GB)
                     DownloadSpeedLabel.Text = $"{speed / GB:#,##0.0}GBps";
@@ -226,6 +317,7 @@ namespace Launcher
                             list.Add(new PatchInformation(reader));
 
                     progress.Report("Calculating Patch.");
+                    OutputTextBox.AppendText($"Calculating Patch.\r\n");
                     return list;
                 }
 
@@ -243,6 +335,7 @@ namespace Launcher
             try
             {
                 progress.Report("Downloading Patch Information");
+                OutputTextBox.AppendText($"Downloading Patch Information.\r\n");
 
                 using (HttpResponseMessage response = await _httpClient.GetAsync(
                     Config.Host + PListFileName + "?nocache=" + Guid.NewGuid().ToString("N")))
@@ -299,6 +392,7 @@ namespace Launcher
                 patch.Add(file);
                 Interlocked.Add(ref TotalDownload, file.CompressedLength);
             }
+            OutputTextBox.AppendText($"Total Files Checked: {list.Count}\r\n");
 
             return patch;
         }
@@ -339,7 +433,10 @@ namespace Launcher
                     workers.Add(ProcessPatchFile(file, downloadLimiter));
                 }
 
-                progress.Report($"Downloading ({concurrent} at a time)...");
+                if (concurrent > 1)
+                {
+                    progress.Report($"Downloading ({concurrent} at a time)...");
+                }
                 await Task.WhenAll(workers);
             }
         }
@@ -347,6 +444,9 @@ namespace Launcher
         private async Task ProcessPatchFile(PatchInformation file, SemaphoreSlim downloadLimiter)
         {
             await downloadLimiter.WaitAsync();
+
+            Interlocked.Add(ref ActiveDownloadTotal, file.CompressedLength);
+
             try
             {
                 bool ok = await Download(file);
@@ -354,23 +454,11 @@ namespace Launcher
             }
             finally
             {
+                Interlocked.Add(ref ActiveDownloadTotal, -file.CompressedLength);
                 downloadLimiter.Release();
             }
 
             await Extract(file);
-        }
-
-        private void StartGameButton_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                Process.Start(ClientPath + ClientFileName);
-                Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
         }
 
         private async Task<bool> Download(PatchInformation file)
@@ -386,9 +474,17 @@ namespace Launcher
                 if (!Directory.Exists(patchDir))
                     Directory.CreateDirectory(patchDir);
 
-                using (HttpResponseMessage response = await _httpClient.GetAsync(Config.Host + webFileName))
+                using (HttpResponseMessage response = await _httpClient.GetAsync(
+                    Config.Host + webFileName,
+                    HttpCompletionOption.ResponseHeadersRead))
                 {
                     response.EnsureSuccessStatusCode();
+                    OutputTextBox.AppendText($"Downloading {file.FileName}\r\n");
+                    StatusLabel.Text = $"Downloading {file.FileName}";
+
+                    long contentLength = response.Content.Headers.ContentLength ?? file.CompressedLength;
+                    Interlocked.Exchange(ref ActiveDownloadTotal, contentLength);
+                    Interlocked.Exchange(ref CurrentProgress, 0);
 
                     using (Stream contentStream = await response.Content.ReadAsStreamAsync())
                     using (FileStream fileStream = new FileStream(
@@ -411,13 +507,16 @@ namespace Launcher
                     }
                 }
 
-                Interlocked.Add(ref CurrentProgress, -downloadedForThisFile);
                 Interlocked.Add(ref TotalProgress, downloadedForThisFile);
+                Interlocked.Exchange(ref CurrentProgress, 0);
+                Interlocked.Exchange(ref ActiveDownloadTotal, 0);
+
                 return true;
             }
             catch (Exception ex)
             {
-                Interlocked.Add(ref CurrentProgress, -downloadedForThisFile);
+                Interlocked.Exchange(ref CurrentProgress, 0);
+                Interlocked.Exchange(ref ActiveDownloadTotal, 0);
                 file.CheckSum = new byte[8];
 
                 if (!HasError)
@@ -516,9 +615,124 @@ namespace Launcher
 
         private void LMain_FormClosed(object sender, FormClosedEventArgs e)
         {
+            ConfigReader.Save();
             _uiTimer?.Stop();
             _uiTimer?.Dispose();
             _httpClient?.Dispose();
+        }
+
+        private void Movement_panel_MouseClick(object sender, MouseEventArgs e)
+        {
+            dragging = true;
+            dragCursorPoint = Cursor.Position;
+            dragFormPoint = this.Location;
+        }
+
+        private void Movement_panel_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (dragging)
+            {
+                Point dif = Point.Subtract(Cursor.Position, new Size(dragCursorPoint));
+                this.Location = Point.Add(dragFormPoint, new Size(dif));
+                ConfigForm.Location = new Point(Location.X + 30, Location.Y + 62);
+            }
+        }
+
+        private void Movement_panel_MouseUp(object sender, MouseEventArgs e)
+        {
+            dragging = false;
+        }
+
+        private void Close_pb_Click(object sender, EventArgs e)
+        {
+            //if (ConfigForm.Visible) ConfigForm.Visible = false;
+            Close();
+        }
+
+        private void Close_pb_MouseDown(object sender, MouseEventArgs e)
+        {
+            Close_pb.Image = Properties.Resources.Close_Clicked;
+        }
+
+        private void Close_pb_MouseEnter(object sender, EventArgs e)
+        {
+            Close_pb.Image = Properties.Resources.Close_Hover;
+        }
+
+        private void Close_pb_MouseLeave(object sender, EventArgs e)
+        {
+            Close_pb.Image = Properties.Resources.Close_Normal;
+        }
+
+        private void Close_pb_MouseUp(object sender, MouseEventArgs e)
+        {
+            Close_pb.Image = Properties.Resources.Close_Normal;
+        }
+
+        private void Config_pb_Click(object sender, EventArgs e)
+        {
+            if (ConfigForm.Visible) ConfigForm.Hide();
+            else ConfigForm.Show(this);
+            ConfigForm.Location = new Point(Location.X + 30, Location.Y + 62);
+        }
+
+        private void Config_pb_MouseDown(object sender, MouseEventArgs e)
+        {
+            Config_pb.Image = Properties.Resources.Config_Clicked;
+        }
+
+        private void Config_pb_MouseEnter(object sender, EventArgs e)
+        {
+            Config_pb.Image = Properties.Resources.Config_Hover;
+        }
+
+        private void Config_pb_MouseLeave(object sender, EventArgs e)
+        {
+            Config_pb.Image = Properties.Resources.Config_Normal;
+        }
+
+        private void Config_pb_MouseUp(object sender, MouseEventArgs e)
+        {
+            Config_pb.Image = Properties.Resources.Config_Hover;
+        }
+
+        private void Credit_label_Click(object sender, EventArgs e)
+        {
+            if (Credit_label.Text == "NexusMir - Powered by Carbon M3") Credit_label.Text = "Designed by Valhalla @ LOMCN";
+            else Credit_label.Text = "NexusMir - Powered by Carbon M3";
+        }
+
+        private void Launch_pb_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(ClientPath + ClientFileName);
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void Launch_pb_MouseDown(object sender, MouseEventArgs e)
+        {
+            Launch_pb.Image = Properties.Resources.Start_Clicked;
+        }
+
+        private void Launch_pb_MouseEnter(object sender, EventArgs e)
+        {
+            Launch_pb.Image = Properties.Resources.Start_Hover;
+        }
+
+        private void Launch_pb_MouseLeave(object sender, EventArgs e)
+        {
+            Launch_pb.Image = Properties.Resources.Start_Normal;
+        }
+
+        private void Launch_pb_MouseUp(object sender, MouseEventArgs e)
+        {
+            Launch_pb.Image = Properties.Resources.Start_Hover;
         }
     }
 }
