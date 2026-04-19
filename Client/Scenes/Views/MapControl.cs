@@ -452,11 +452,11 @@ namespace Client.Scenes.Views
                                     if (blend)
                                         cell.FrontLibrary.DrawBlend(index, drawX, frontY, Color.White, true, 0.5F, ImageType.Image);
                                     else
-                                        cell.FrontLibrary.Draw(index, drawX, frontY, Color.White, true, 1F, ImageType.Image);
+                                        cell.FrontLibrary.Draw(index, drawX, frontY, Color.White, false, 1F, ImageType.Image);
                                 }
                                 else
                                 {
-                                    cell.FrontLibrary.Draw(index, drawX, frontY, Color.White, true, 1F, ImageType.Image);
+                                    cell.FrontLibrary.Draw(index, drawX, frontY, Color.White, false, 1F, ImageType.Image);
                                 }
                             }
                         }
