@@ -2722,8 +2722,8 @@ namespace Server.Views.DirectX
                         if (Cells[x, y].Light >= 100 && Cells[x, y].Light <= 119)
                             Cells[x, y].FishingCell = true;
 
-                        //if ((Cells[x, y].BackImage & 0x20000000) != 0 || (Cells[x, y].FrontImage & 0x8000) != 0)
-                        //Cells[x, y].Flag = true;
+                        if ((Cells[x, y].BackImage & 0x20000000) != 0 || (Cells[x, y].FrontImage & 0x8000) != 0)
+                        Cells[x, y].Flag = true;
                     }
             }
             catch (Exception ex)
