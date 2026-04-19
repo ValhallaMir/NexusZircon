@@ -417,8 +417,15 @@ namespace Client.Controls
         public event EventHandler<EventArgs> DisplayAreaChanged;
         public virtual void OnDisplayAreaChanged(Rectangle oValue, Rectangle nValue)
         {
-            foreach (DXControl control in Controls)
+            if (IsDisposed || Controls == null) return;
+
+            for (int i = 0; i < Controls.Count; i++)
+            {
+                DXControl control = Controls[i];
+                if (control == null || control.IsDisposed) continue;
+
                 control.UpdateDisplayArea();
+            }
 
             UpdateBorderInformation();
             DisplayAreaChanged?.Invoke(this, EventArgs.Empty);
