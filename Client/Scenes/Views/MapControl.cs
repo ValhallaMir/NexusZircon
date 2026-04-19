@@ -331,7 +331,6 @@ namespace Client.Scenes.Views
 
             PresentTexture(image.Image, Parent, DisplayArea, Color.White, this, 0, 0, 1F);
         }
-
         private void DrawObjects()
         {
             int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 4);
@@ -341,12 +340,18 @@ namespace Client.Scenes.Views
 
             for (int y = minY; y <= maxY; y++)
             {
+                if (y < 0) continue;
+                if (y >= Height) break;
+
                 int drawY = (y - User.CurrentLocation.Y + OffSetY + 1) * CellHeight
                             - User.MovingOffSet.Y
                             - User.ShakeScreenOffset.Y;
 
                 for (int x = minX; x <= maxX; x++)
                 {
+                    if (x < 0) continue;
+                    if (x >= Width) break;
+
                     int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth
                                 - User.MovingOffSet.X
                                 - User.ShakeScreenOffset.X;
@@ -355,112 +360,198 @@ namespace Client.Scenes.Views
 
                     if (!cell.LibrariesLoaded)
                     {
-                        if (Libraries.KROrder.TryGetValue(cell.MiddleFile, out LibraryFile file) && file != LibraryFile.WemadeMir3_Tilesc)
-                            CEnvir.LibraryList.TryGetValue(file, out cell.MiddleLibrary);
+                        if (Libraries.TryGetKROrder(cell.MiddleFile, out LibraryFile middleFile) &&
+                            middleFile != LibraryFile.WemadeMir3_Tilesc)
+                            CEnvir.LibraryList.TryGetValue(middleFile, out cell.MiddleLibrary);
 
-                        if (Libraries.KROrder.TryGetValue(cell.FrontFile, out file) && file != LibraryFile.WemadeMir3_Tilesc)
-                            CEnvir.LibraryList.TryGetValue(file, out cell.FrontLibrary);
+                        if (Libraries.TryGetKROrder(cell.FrontFile, out LibraryFile frontFile) &&
+                            frontFile != LibraryFile.WemadeMir3_Tilesc)
+                            CEnvir.LibraryList.TryGetValue(frontFile, out cell.FrontLibrary);
 
                         cell.LibrariesLoaded = true;
                     }
 
-                    // Tile animation layer
-                    if (cell.TileAnimationImage > 0 && cell.TileAnimationFrames > 0)
+                    int index;
+                    byte animation;
+                    bool blend;
+                    Size s;
+
+                    #region Tile animation layer
+
+                    index = cell.TileAnimationImage;
+                    animation = cell.TileAnimationFrames;
+
+                    if (index > 0 && animation > 0)
                     {
-                        if (Libraries.KROrder.TryGetValue(190, out LibraryFile animFile) &&
+                        if (Libraries.TryGetKROrder(190, out LibraryFile animFile) &&
                             CEnvir.LibraryList.TryGetValue(animFile, out MirLibrary animLib))
                         {
-                            int index = cell.TileAnimationImage - 1;
+                            index--;
                             int animationOffset = cell.TileAnimationOffset ^ 0x2000;
-                            index += animationOffset * (Animation % cell.TileAnimationFrames);
+                            index += animationOffset * (Animation % animation);
 
-                            Size s = animLib.GetSize(index);
-                            animLib.Draw(index, drawX - (CellWidth * 4), drawY - s.Height + CellHeight, Color.White, false, 1F, ImageType.Image);
+                            s = animLib.GetSize(index);
+
+                            // Mir2 DrawUp equivalent
+                            animLib.Draw(index,
+                                         drawX,
+                                         drawY - s.Height,
+                                         Color.White,
+                                         false,
+                                         1F,
+                                         ImageType.Image);
                         }
                     }
 
-                    // Middle layer: only draw oversized/animated here
+                    #endregion
+
+                    #region Middle layer
+
                     if (cell.MiddleLibrary != null)
                     {
-                        int index = cell.MiddleImage - 1;
-                        if (index >= 0)
-                        {
-                            bool blend = false;
-                            int animationCount = cell.MiddleAnimationCount;
+                        index = cell.MiddleImage - 1;
 
-                            if (cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255 && animationCount > 0)
+                        if (index > 0)
+                        {
+                            animation = cell.MiddleAnimationFrame;
+                            blend = false;
+
+                            if (animation > 0 && animation < 255)
                             {
-                                blend = cell.MiddleAnimationBlend;
-                                index += Animation % animationCount;
+                                // EXACT Mir2 behavior
+                                if ((animation & 0x0F) > 0)
+                                {
+                                    blend = true;
+                                    animation &= 0x0F;
+                                }
+
+                                if (animation > 0)
+                                {
+                                    byte animationTick = cell.MiddleAnimationTick;
+                                    index += (Animation % (animation + (animation * animationTick))) / (1 + animationTick);
+
+                                    if (index >= 0)
+                                    {
+                                        if (blend && (animation == 10 || animation == 8))
+                                        {
+                                            s = cell.MiddleLibrary.GetSize(index);
+                                            cell.MiddleLibrary.DrawBlend(index,
+                                                                         drawX,
+                                                                         drawY - s.Height,
+                                                                         Color.White,
+                                                                         false,
+                                                                         0.5F,
+                                                                         ImageType.Image);
+                                        }
+                                        else
+                                        {
+                                            s = cell.MiddleLibrary.GetSize(index);
+                                            cell.MiddleLibrary.Draw(index,
+                                                                    drawX,
+                                                                    drawY - s.Height,
+                                                                    Color.White,
+                                                                    false,
+                                                                    1F,
+                                                                    ImageType.Image);
+                                        }
+                                    }
+                                }
                             }
 
-                            Size s = cell.MiddleLibrary.GetSize(index);
-
-                            bool isStandard =
-                                (s.Width == CellWidth && s.Height == CellHeight) ||
-                                (s.Width == CellWidth * 2 && s.Height == CellHeight * 2);
-
-                            if (!isStandard || blend)
+                            if (index >= 0)
                             {
-                                if (blend)
-                                    cell.MiddleLibrary.DrawBlend(index, drawX, drawY - s.Height, Color.White, false, 0.5F, ImageType.Image);
-                                else
-                                    cell.MiddleLibrary.Draw(index, drawX, drawY - s.Height, Color.White, false, 1F, ImageType.Image);
+                                s = cell.MiddleLibrary.GetSize(index);
+
+                                if ((s.Width != CellWidth || s.Height != CellHeight) &&
+                                    (s.Width != (CellWidth * 2) || s.Height != (CellHeight * 2)) &&
+                                    !blend)
+                                {
+                                    cell.MiddleLibrary.Draw(index,
+                                                            drawX,
+                                                            drawY - s.Height,
+                                                            Color.White,
+                                                            false,
+                                                            1F,
+                                                            ImageType.Image);
+                                }
                             }
                         }
                     }
 
-                    // Front layer: only draw oversized/animated/door-adjusted here
-                    if (cell.FrontLibrary != null)
+                    #endregion
+
+                    #region Front layer
+
+                    index = (cell.FrontImage & 0x7FFF) - 1;
+                    if (index < 0 || cell.FrontLibrary == null) continue;
+
+                    animation = cell.FrontAnimationFrame;
+
+                    // EXACT Mir2 behavior
+                    if ((animation & 0x80) > 0)
                     {
-                        int index = (cell.FrontImage & 0x7FFF) - 1;
-                        if (index >= 0)
+                        blend = true;
+                        animation &= 0x7F;
+                    }
+                    else
+                    {
+                        blend = false;
+                    }
+
+                    if (animation > 0)
+                    {
+                        byte animationTick = cell.FrontAnimationTick;
+                        index += (Animation % (animation + (animation * animationTick))) / (1 + animationTick);
+                    }
+
+                    if (cell.DoorIndex > 0 && cell.DoorOffset > 0)
+                    {
+                        // hook runtime door state here later if needed
+                    }
+
+                    s = cell.FrontLibrary.GetSize(index);
+
+                    if (s.Width == CellWidth && s.Height == CellHeight && animation == 0) continue;
+                    if (s.Width == CellWidth * 2 && s.Height == CellHeight * 2 && animation == 0) continue;
+
+                    if (blend)
+                    {
+                        // EXACT Mir2 behavior
+                        if (cell.FrontFile > 99 && cell.FrontFile < 199)
                         {
-                            bool blend = false;
-                            int animationCount = cell.FrontAnimationCount;
+                            cell.FrontLibrary.DrawBlend(index,
+                                                        drawX,
+                                                        drawY - (3 * CellHeight),
+                                                        Color.White,
+                                                        true,
+                                                        0.5F,
+                                                        ImageType.Image);
+                        }
+                        else
+                        {
+                            bool specialOffset = index >= 2723 && index <= 2732;
 
-                            if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255 && animationCount > 0)
-                            {
-                                blend = cell.FrontAnimationBlend;
-                                index += Animation % animationCount;
-                            }
-
-                            // door support
-                            if (cell.DoorIndex > 0 && cell.DoorOffset > 0)
-                            {
-                                // If you have door runtime state elsewhere, apply it here.
-                                // For now, keep the base index unchanged unless you already track door frame state.
-                            }
-
-                            Size s = cell.FrontLibrary.GetSize(index);
-
-                            bool isStandard =
-                                (s.Width == CellWidth && s.Height == CellHeight) ||
-                                (s.Width == CellWidth * 2 && s.Height == CellHeight * 2);
-
-                            // Match old Mir2 behavior:
-                            // standard static fronts are handled by Floor.OnClearTexture()
-                            if (!isStandard || cell.FrontAnimationFrame > 0 || cell.DoorIndex > 0)
-                            {
-                                float frontY = drawY - s.Height;
-
-                                if (cell.FrontAnimationFrame > 0)
-                                    frontY += CellHeight * 2;
-
-                                if (blend || cell.FrontAnimationFrame > 0)
-                                {
-                                    if (blend)
-                                        cell.FrontLibrary.DrawBlend(index, drawX, frontY, Color.White, true, 0.5F, ImageType.Image);
-                                    else
-                                        cell.FrontLibrary.Draw(index, drawX, frontY, Color.White, false, 1F, ImageType.Image);
-                                }
-                                else
-                                {
-                                    cell.FrontLibrary.Draw(index, drawX, frontY, Color.White, false, 1F, ImageType.Image);
-                                }
-                            }
+                            cell.FrontLibrary.DrawBlend(index,
+                                                        drawX,
+                                                        drawY - s.Height,
+                                                        Color.White,
+                                                        specialOffset,
+                                                        0.5F,
+                                                        ImageType.Image);
                         }
                     }
+                    else
+                    {
+                        cell.FrontLibrary.Draw(index,
+                                               drawX,
+                                               drawY - s.Height,
+                                               Color.White,
+                                               false,
+                                               1F,
+                                               ImageType.Image);
+                    }
+
+                    #endregion
                 }
 
                 foreach (MapObject ob in Objects)
@@ -2026,77 +2117,120 @@ namespace Client.Scenes.Views
             {
                 base.OnClearTexture();
 
-                int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 4), maxX = Math.Min(GameScene.Game.MapControl.Width - 1, User.CurrentLocation.X + OffSetX + 4);
-                int minY = Math.Max(0, User.CurrentLocation.Y - OffSetY - 4), maxY = Math.Min(GameScene.Game.MapControl.Height - 1, User.CurrentLocation.Y + OffSetY + 4);
+                int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 4);
+                int maxX = Math.Min(GameScene.Game.MapControl.Width - 1, User.CurrentLocation.X + OffSetX + 4);
+                int minY = Math.Max(0, User.CurrentLocation.Y - OffSetY - 4);
+                int maxY = Math.Min(GameScene.Game.MapControl.Height - 1, User.CurrentLocation.Y + OffSetY + 4);
 
+                // Back tiles
                 for (int y = minY; y <= maxY; y++)
                 {
                     if (y < 0) continue;
                     if (y >= GameScene.Game.MapControl.Height) break;
 
-                    int drawY = (y - User.CurrentLocation.Y + OffSetY) * CellHeight - User.MovingOffSet.Y - User.ShakeScreenOffset.Y;
+                    int drawY = (y - User.CurrentLocation.Y + OffSetY) * CellHeight
+                                - User.MovingOffSet.Y
+                                - User.ShakeScreenOffset.Y;
 
                     for (int x = minX; x <= maxX; x++)
                     {
                         if (x < 0) continue;
                         if (x >= GameScene.Game.MapControl.Width) break;
 
-                        int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth - User.MovingOffSet.X - User.ShakeScreenOffset.X;
+                        int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth
+                                    - User.MovingOffSet.X
+                                    - User.ShakeScreenOffset.X;
 
                         Cell tile = GameScene.Game.MapControl.Cells[x, y];
 
                         if (y % 2 == 0 && x % 2 == 0)
                         {
-                            MirLibrary library;
-                            LibraryFile file;
+                            if (!Libraries.TryGetKROrder(tile.BackFile, out LibraryFile file)) continue;
+                            if (!CEnvir.LibraryList.TryGetValue(file, out MirLibrary library)) continue;
 
-                            if (!Libraries.KROrder.TryGetValue(tile.BackFile, out file)) continue;
-
-                            if (!CEnvir.LibraryList.TryGetValue(file, out library)) continue;
-
-                            library.Draw((tile.BackImage & 0x1FFFF) - 1, drawX, drawY, Color.White, false, 1F, ImageType.Image);
+                            library.Draw((tile.BackImage & 0x1FFFF) - 1,
+                                         drawX,
+                                         drawY,
+                                         Color.White,
+                                         false,
+                                         1F,
+                                         ImageType.Image);
                         }
                     }
                 }
 
+                // Standard middle/front tiles only
                 for (int y = minY; y <= maxY; y++)
                 {
-                    int drawY = (y - User.CurrentLocation.Y + OffSetY + 1) * CellHeight - User.MovingOffSet.Y - User.ShakeScreenOffset.Y;
+                    int drawY = (y - User.CurrentLocation.Y + OffSetY + 1) * CellHeight
+                                - User.MovingOffSet.Y
+                                - User.ShakeScreenOffset.Y;
 
                     for (int x = minX; x <= maxX; x++)
                     {
-                        int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth - User.MovingOffSet.X - User.ShakeScreenOffset.X;
+                        int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth
+                                    - User.MovingOffSet.X
+                                    - User.ShakeScreenOffset.X;
 
                         Cell cell = GameScene.Game.MapControl.Cells[x, y];
 
-                        MirLibrary library;
-                        LibraryFile file;
-
-                        if (Libraries.KROrder.TryGetValue(cell.MiddleFile, out file) && file != LibraryFile.WemadeMir3_Tilesc && CEnvir.LibraryList.TryGetValue(file, out library))
+                        // Middle
+                        if (Libraries.TryGetKROrder(cell.MiddleFile, out LibraryFile middleFile) &&
+                            middleFile != LibraryFile.WemadeMir3_Tilesc &&
+                            CEnvir.LibraryList.TryGetValue(middleFile, out MirLibrary middleLibrary))
                         {
                             int index = cell.MiddleImage - 1;
 
-                            if (cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255)
-                                continue;//   index += GameScene.Game.MapControl.Animation % cell.MiddleAnimationFrame;
+                            if (index >= 0)
+                            {
+                                bool animated = cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255;
+                                if (!animated)
+                                {
+                                    Size s = middleLibrary.GetSize(index);
 
-                            Size s = library.GetSize(index);
-
-                            if ((s.Width == CellWidth && s.Height == CellHeight) || (s.Width == CellWidth * 2 && s.Height == CellHeight * 2))
-                                library.Draw(index, drawX, drawY - CellHeight, Color.White, false, 1F, ImageType.Image);
+                                    if ((s.Width == CellWidth && s.Height == CellHeight) ||
+                                        (s.Width == CellWidth * 2 && s.Height == CellHeight * 2))
+                                    {
+                                        middleLibrary.Draw(index,
+                                                           drawX,
+                                                           drawY - CellHeight,
+                                                           Color.White,
+                                                           false,
+                                                           1F,
+                                                           ImageType.Image);
+                                    }
+                                }
+                            }
                         }
 
-
-                        if (Libraries.KROrder.TryGetValue(cell.FrontFile, out file) && file != LibraryFile.WemadeMir3_Tilesc && CEnvir.LibraryList.TryGetValue(file, out library))
+                        // Front
+                        if (Libraries.TryGetKROrder(cell.FrontFile, out LibraryFile frontFile) &&
+                            frontFile != LibraryFile.WemadeMir3_Tilesc &&
+                            CEnvir.LibraryList.TryGetValue(frontFile, out MirLibrary frontLibrary))
                         {
                             int index = (cell.FrontImage & 0x7FFF) - 1;
 
-                            if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
-                                continue;//  index += GameScene.Game.MapControl.Animation % cell.FrontAnimationFrame;
+                            if (index >= 0)
+                            {
+                                bool animated = cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255;
 
-                            Size s = library.GetSize(index);
+                                if (!animated && cell.DoorIndex == 0)
+                                {
+                                    Size s = frontLibrary.GetSize(index);
 
-                            if ((s.Width == CellWidth && s.Height == CellHeight) || (s.Width == CellWidth * 2 && s.Height == CellHeight * 2))
-                                library.Draw(index, drawX, drawY - CellHeight, Color.White, false, 1F, ImageType.Image);
+                                    if ((s.Width == CellWidth && s.Height == CellHeight) ||
+                                        (s.Width == CellWidth * 2 && s.Height == CellHeight * 2))
+                                    {
+                                        frontLibrary.Draw(index,
+                                                          drawX,
+                                                          drawY - CellHeight,
+                                                          Color.White,
+                                                          false,
+                                                          1F,
+                                                          ImageType.Image);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -2313,9 +2447,8 @@ namespace Client.Scenes.Views
         public byte FrontAnimationTick;
 
         public byte MiddleAnimationFrame;
-        public byte MiddleAnimationTick;
-        public int FrontAnimationCount => FrontAnimationFrame & FrontFrameMask;
-        public bool FrontAnimationBlend => (FrontAnimationFrame & FrontBlendBit) != 0;
+        public byte MiddleAnimationTick; public int FrontAnimationCount => FrontAnimationFrame & 0x7F;
+        public bool FrontAnimationBlend => (FrontAnimationFrame & 0x80) != 0;
 
         public short TileAnimationImage;
         public short TileAnimationOffset;
