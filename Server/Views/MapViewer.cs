@@ -32,6 +32,7 @@ namespace Server.Views
         public MapControl Map;
 
         public DateTime AnimationTime;
+        private const int ScrollScale = 100;
 
         #region MapRegion
 
@@ -235,7 +236,6 @@ namespace Server.Views
             }
         }
 
-
         public void UpdateScrollBars()
         {
             if (Map.Width == 0 || Map.Height == 0)
@@ -248,27 +248,47 @@ namespace Server.Views
             MapVScroll.Enabled = true;
             MapHScroll.Enabled = true;
 
-            int wCount = (int)(DXPanel.ClientSize.Width / (Map.CellWidth));
-            int hCount = (int)(DXPanel.ClientSize.Height / (Map.CellHeight));
+            int maxH = Math.Max(0, (int)Math.Ceiling(GetMaxStartX() * ScrollScale));
+            int maxV = Math.Max(0, (int)Math.Ceiling(GetMaxStartY() * ScrollScale));
 
+            MapHScroll.Minimum = 0;
+            MapVScroll.Minimum = 0;
 
-            MapVScroll.Maximum = Math.Max(0, Map.Height - hCount + 20);
-            MapHScroll.Maximum = Math.Max(0, Map.Width - wCount + 20);
+            MapHScroll.SmallChange = 1;
+            MapVScroll.SmallChange = 1;
 
-            if (MapVScroll.Value >= MapVScroll.Maximum)
-                MapVScroll.Value = MapVScroll.Maximum - 1;
+            MapHScroll.LargeChange = Math.Max(1, ScrollScale);
+            MapVScroll.LargeChange = Math.Max(1, ScrollScale);
 
-            if (MapHScroll.Value >= MapHScroll.Maximum)
-                MapHScroll.Value = MapHScroll.Maximum - 1;
+            MapHScroll.Maximum = maxH + MapHScroll.LargeChange - 1;
+            MapVScroll.Maximum = maxV + MapVScroll.LargeChange - 1;
+
+            ClampCamera();
+            SyncScrollBarsToMap();
+        }
+
+        private void SyncScrollBarsToMap()
+        {
+            int h = (int)Math.Round(Map.StartX * ScrollScale);
+            int v = (int)Math.Round(Map.StartY * ScrollScale);
+
+            h = Math.Max(MapHScroll.Minimum, Math.Min(MapHScroll.Maximum - MapHScroll.LargeChange + 1, h));
+            v = Math.Max(MapVScroll.Minimum, Math.Min(MapVScroll.Maximum - MapVScroll.LargeChange + 1, v));
+
+            MapHScroll.Value = h;
+            MapVScroll.Value = v;
         }
 
         private void MapVScroll_ValueChanged(object sender, EventArgs e)
         {
-            Map.StartY = MapVScroll.Value;
+            Map.StartY = MapVScroll.Value / (float)ScrollScale;
+            ClampCamera();
         }
+
         private void MapHScroll_ValueChanged(object sender, EventArgs e)
         {
-            Map.StartX = MapHScroll.Value;
+            Map.StartX = MapHScroll.Value / (float)ScrollScale;
+            ClampCamera();
         }
 
         private void ZoomResetButton_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -288,25 +308,75 @@ namespace Server.Views
 
         private void ZoomIn()
         {
-            Map.Zoom *= 2F;
-            if (Map.Zoom > 4F)
-                Map.Zoom = 4F;
-
-            UpdateScrollBars();
+            ZoomAt(GetZoomAnchorPoint(), Map.Zoom * 1.25f);
         }
+
         private void ZoomOut()
         {
-            Map.Zoom /= 2;
-            if (Map.Zoom < 0.01F)
-                Map.Zoom = 0.01F;
-
-            UpdateScrollBars();
+            ZoomAt(GetZoomAnchorPoint(), Map.Zoom / 1.25f);
         }
 
         private void ResetZoom()
         {
-                Map.Zoom = 1;
-                UpdateScrollBars();
+            ZoomAt(GetZoomAnchorPoint(), 1f);
+        }
+
+        private Point GetZoomAnchorPoint()
+        {
+            Point p = DXPanel.PointToClient(Cursor.Position);
+
+            if (!DXPanel.ClientRectangle.Contains(p))
+                p = new Point(DXPanel.ClientSize.Width / 2, DXPanel.ClientSize.Height / 2);
+
+            return p;
+        }
+
+        private void ZoomAt(Point cursorPosition, float newZoom)
+        {
+            if (Map == null || Map.Width == 0 || Map.Height == 0)
+                return;
+
+            float oldZoom = Map.Zoom;
+            newZoom = Math.Max(0.01f, Math.Min(4f, newZoom));
+
+            if (Math.Abs(newZoom - oldZoom) < 0.0001f)
+                return;
+
+            float worldX = Map.StartX + (cursorPosition.X / Map.CellWidth);
+            float worldY = Map.StartY + (cursorPosition.Y / Map.CellHeight);
+
+            Map.Zoom = newZoom;
+
+            Map.StartX = worldX - (cursorPosition.X / Map.CellWidth);
+            Map.StartY = worldY - (cursorPosition.Y / Map.CellHeight);
+
+            ClampCamera();
+            UpdateScrollBars();
+            SyncScrollBarsToMap();
+        }
+
+        private float GetMaxStartX()
+        {
+            if (Map == null) return 0;
+
+            float visibleColumns = DXPanel.ClientSize.Width / Map.CellWidth;
+            return Math.Max(0, Map.Width - visibleColumns);
+        }
+
+        private float GetMaxStartY()
+        {
+            if (Map == null) return 0;
+
+            float visibleRows = DXPanel.ClientSize.Height / Map.CellHeight;
+            return Math.Max(0, Map.Height - visibleRows);
+        }
+
+        private void ClampCamera()
+        {
+            if (Map == null) return;
+
+            Map.StartX = Math.Max(0, Math.Min(GetMaxStartX(), Map.StartX));
+            Map.StartY = Math.Max(0, Math.Min(GetMaxStartY(), Map.StartY));
         }
 
         private void AttributesButton_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -1574,22 +1644,22 @@ namespace Server.Views.DirectX
 
         #region StartX
 
-        public int StartX
+        public float StartX
         {
             get { return _StartX; }
             set
             {
-                if (_StartX == value) return;
+                if (Math.Abs(_StartX - value) < 0.0001f) return;
 
-                int oldValue = _StartX;
+                float oldValue = _StartX;
                 _StartX = value;
 
                 OnStartXChanged(oldValue, value);
             }
         }
-        private int _StartX;
+        private float _StartX;
         public event EventHandler<EventArgs> StartXChanged;
-        public virtual void OnStartXChanged(int oValue, int nValue)
+        public virtual void OnStartXChanged(float oValue, float nValue)
         {
             StartXChanged?.Invoke(this, EventArgs.Empty);
             TextureValid = false;
@@ -1599,25 +1669,24 @@ namespace Server.Views.DirectX
 
         #region StartY
 
-        public int StartY
+        public float StartY
         {
             get { return _StartY; }
             set
             {
-                if (_StartY == value) return;
+                if (Math.Abs(_StartY - value) < 0.0001f) return;
 
-                int oldValue = _StartY;
+                float oldValue = _StartY;
                 _StartY = value;
 
                 OnStartYChanged(oldValue, value);
             }
         }
-        private int _StartY;
+        private float _StartY;
         public event EventHandler<EventArgs> StartYChanged;
-        public virtual void OnStartYChanged(int oValue, int nValue)
+        public virtual void OnStartYChanged(float oValue, float nValue)
         {
             StartYChanged?.Invoke(this, EventArgs.Empty);
-
             TextureValid = false;
         }
 
@@ -1930,11 +1999,11 @@ namespace Server.Views.DirectX
 
         public void DrawFloor()
         {
-            int minX = Math.Max(0, StartX - 1);
-            int maxX = Math.Min(Width - 1, StartX + (int)Math.Ceiling(Size.Width / CellWidth));
+            int minX = Math.Max(0, (int)Math.Floor(StartX) - 1);
+            int maxX = Math.Min(Width - 1, (int)Math.Ceiling(StartX + (Size.Width / CellWidth)) + 1);
 
-            int minY = Math.Max(0, StartY - 1);
-            int maxY = Math.Min(Height - 1, StartY + (int)Math.Ceiling(Size.Height / CellHeight));
+            int minY = Math.Max(0, (int)Math.Floor(StartY) - 1);
+            int maxY = Math.Min(Height - 1, (int)Math.Ceiling(StartY + (Size.Height / CellHeight)) + 1);
 
             Matrix scale = Matrix.Scaling(Zoom, Zoom, 1);
 
@@ -2064,7 +2133,7 @@ namespace Server.Views.DirectX
             // =========================
             // Oversized / animated lower pass
             // =========================
-            maxY = Math.Min(Height - 1, StartY + 20 + (int)Math.Ceiling(Size.Height / CellHeight));
+            maxY = (int)Math.Min(Height - 1, StartY + 20 + (int)Math.Ceiling(Size.Height / CellHeight));
 
             for (int y = minY; y <= maxY; y++)
             {
@@ -2170,7 +2239,7 @@ namespace Server.Views.DirectX
             // =========================
             // Attributes / selection overlay
             // =========================
-            maxY = Math.Min(Height - 1, StartY + (int)Math.Ceiling(Size.Height / CellHeight));
+            maxY = (int)Math.Min(Height - 1, StartY + (int)Math.Ceiling(Size.Height / CellHeight));
 
             Manager.SetOpacity(0.35F);
 
@@ -2903,7 +2972,13 @@ namespace Server.Views.DirectX
         }
         public void MouseMove(MouseEventArgs e)
         {
-            MouseLocation = new Point(Math.Min(Width, Math.Max(0, (int)(e.X / CellWidth) + StartX)), Math.Min(Height, Math.Max(0, (int)(e.Y / CellHeight) + StartY)));
+            int mouseCellX = (int)Math.Floor(StartX + (e.X / CellWidth));
+            int mouseCellY = (int)Math.Floor(StartY + (e.Y / CellHeight));
+
+            mouseCellX = Math.Max(0, Math.Min(Width - 1, mouseCellX));
+            mouseCellY = Math.Max(0, Math.Min(Height - 1, mouseCellY));
+
+            MouseLocation = new Point(mouseCellX, mouseCellY);
 
             switch (e.Button)
             {
