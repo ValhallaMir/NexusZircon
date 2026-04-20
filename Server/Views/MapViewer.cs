@@ -32,7 +32,12 @@ namespace Server.Views
         public MapControl Map;
 
         public DateTime AnimationTime;
+
         private const int ScrollScale = 100;
+        private bool _isPanning;
+        private Point _panStartMouse;
+        private float _panStartX;
+        private float _panStartY;
 
         #region MapRegion
 
@@ -386,31 +391,76 @@ namespace Server.Views
 
         private void DXPanel_MouseWheel(object sender, MouseEventArgs e)
         {
-            if ((Control.ModifierKeys & Keys.LShiftKey) == Keys.LShiftKey)
+            if (Map == null) return;
+
+            bool ctrlHeld = (Control.ModifierKeys & Keys.Control) == Keys.Control;
+
+            // Ctrl + wheel = zoom
+            if (ctrlHeld)
             {
-                Map.Radius = Math.Max(0, Map.Radius - e.Delta / SystemInformation.MouseWheelScrollDelta);
+                if (e.Delta > 0)
+                    ZoomIn();
+                else if (e.Delta < 0)
+                    ZoomOut();
+
                 return;
             }
 
-            if (e.Delta > 0)
-                ZoomIn();
-            else if (e.Delta < 0)
-                ZoomOut();
+            // No modifier = change brush radius
+            int wheelSteps = e.Delta / SystemInformation.MouseWheelScrollDelta;
+            if (wheelSteps != 0)
+                Map.Radius = Math.Max(0, Map.Radius - wheelSteps);
         }
 
         private void DXPanel_MouseDown(object sender, MouseEventArgs e)
         {
+            if (Map == null) return;
+
+            if (e.Button == MouseButtons.Left &&
+                (Control.ModifierKeys & Keys.Control) == Keys.Control)
+            {
+                _isPanning = true;
+                _panStartMouse = e.Location;
+                _panStartX = Map.StartX;
+                _panStartY = Map.StartY;
+
+                DXPanel.Capture = true;
+                DXPanel.Cursor = Cursors.Hand;
+                return;
+            }
+
             Map.MouseDown(e);
         }
 
         private void DXPanel_MouseMove(object sender, MouseEventArgs e)
         {
+            if (Map == null) return;
+
+            if (_isPanning)
+            {
+                float deltaX = (e.X - _panStartMouse.X) / Map.CellWidth;
+                float deltaY = (e.Y - _panStartMouse.Y) / Map.CellHeight;
+
+                Map.StartX = _panStartX - deltaX;
+                Map.StartY = _panStartY - deltaY;
+
+                ClampCamera();
+                SyncScrollBarsToMap();
+                return;
+            }
+
             Map.MouseMove(e);
         }
 
         private void DXPanel_MouseUp(object sender, MouseEventArgs e)
         {
-
+            if (e.Button == MouseButtons.Left && _isPanning)
+            {
+                _isPanning = false;
+                DXPanel.Capture = false;
+                DXPanel.Cursor = Cursors.Default;
+                return;
+            }
         }
 
         private void DXPanel_MouseEnter(object sender, EventArgs e)
@@ -420,6 +470,13 @@ namespace Server.Views
 
         private void DXPanel_MouseLeave(object sender, EventArgs e)
         {
+            if (_isPanning)
+            {
+                _isPanning = false;
+                DXPanel.Capture = false;
+                DXPanel.Cursor = Cursors.Default;
+            }
+
             Map.MouseLeave();
         }
 
