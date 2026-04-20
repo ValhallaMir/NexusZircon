@@ -156,6 +156,8 @@ namespace Server.Views
 
             DXPanel.MouseWheel += DXPanel_MouseWheel;
 
+            Map.Zoom = 0.25f;
+
             UpdateScrollBars();
         }
 
@@ -271,11 +273,20 @@ namespace Server.Views
 
         private void ZoomResetButton_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            Map.Zoom = 1;
-            UpdateScrollBars();
+            ResetZoom();
         }
 
         private void ZoomInButton_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            ZoomIn();
+        }
+
+        private void ZoomOutButton_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            ZoomOut();
+        }
+
+        private void ZoomIn()
         {
             Map.Zoom *= 2F;
             if (Map.Zoom > 4F)
@@ -283,14 +294,19 @@ namespace Server.Views
 
             UpdateScrollBars();
         }
-
-        private void ZoomOutButton_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private void ZoomOut()
         {
             Map.Zoom /= 2;
             if (Map.Zoom < 0.01F)
                 Map.Zoom = 0.01F;
 
             UpdateScrollBars();
+        }
+
+        private void ResetZoom()
+        {
+                Map.Zoom = 1;
+                UpdateScrollBars();
         }
 
         private void AttributesButton_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -300,8 +316,18 @@ namespace Server.Views
 
         private void DXPanel_MouseWheel(object sender, MouseEventArgs e)
         {
-            Map.Radius = Math.Max(0, Map.Radius - e.Delta / SystemInformation.MouseWheelScrollDelta);
+            if ((Control.ModifierKeys & Keys.LShiftKey) == Keys.LShiftKey)
+            {
+                Map.Radius = Math.Max(0, Map.Radius - e.Delta / SystemInformation.MouseWheelScrollDelta);
+                return;
+            }
+
+            if (e.Delta > 0)
+                ZoomIn();
+            else if (e.Delta < 0)
+                ZoomOut();
         }
+
         private void DXPanel_MouseDown(object sender, MouseEventArgs e)
         {
             Map.MouseDown(e);
@@ -1612,7 +1638,7 @@ namespace Server.Views.DirectX
                 OnDrawAttributesChanged(oldValue, value);
             }
         }
-        private bool _DrawAttributes;
+        private bool _DrawAttributes = true;
         public event EventHandler<EventArgs> DrawAttributesChanged;
         public virtual void OnDrawAttributesChanged(bool oValue, bool nValue)
         {
@@ -1637,7 +1663,7 @@ namespace Server.Views.DirectX
                 OnDrawSelectionChanged(oldValue, value);
             }
         }
-        private bool _DrawSelection;
+        private bool _DrawSelection = true;
         public event EventHandler<EventArgs> DrawSelectionChanged;
         public virtual void OnDrawSelectionChanged(bool oValue, bool nValue)
         {

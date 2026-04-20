@@ -46,14 +46,14 @@
             MapVScroll = new DevExpress.XtraEditors.VScrollBar();
             MapHScroll = new DevExpress.XtraEditors.HScrollBar();
             barManager1 = new DevExpress.XtraBars.BarManager(components);
-            barDockControlTop = new DevExpress.XtraBars.BarDockControl();
-            barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
-            barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
-            barDockControlRight = new DevExpress.XtraBars.BarDockControl();
             bar3 = new DevExpress.XtraBars.Bar();
             MapSizeLabel = new DevExpress.XtraBars.BarStaticItem();
             PositionLabel = new DevExpress.XtraBars.BarStaticItem();
             SelectedCellsLabel = new DevExpress.XtraBars.BarStaticItem();
+            barDockControlTop = new DevExpress.XtraBars.BarDockControl();
+            barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
+            barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
+            barDockControlRight = new DevExpress.XtraBars.BarDockControl();
             ((System.ComponentModel.ISupportInitialize)ribbon).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DXPanel).BeginInit();
             ((System.ComponentModel.ISupportInitialize)barManager1).BeginInit();
@@ -61,19 +61,22 @@
             // 
             // ribbon
             // 
+            ribbon.EmptyAreaImageOptions.ImagePadding = new System.Windows.Forms.Padding(45, 44, 45, 44);
             ribbon.ExpandCollapseItem.Id = 0;
-            ribbon.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbon.ExpandCollapseItem, ribbon.SearchEditItem, ZoomResetButton, ZoomInButton, ZoomOutButton, AttributesButton, SelectionButton, SaveButton, CancelButton1, BlockedOnlyButton });
+            ribbon.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbon.ExpandCollapseItem, ZoomResetButton, ZoomInButton, ZoomOutButton, AttributesButton, SelectionButton, SaveButton, CancelButton1, BlockedOnlyButton });
             ribbon.Location = new System.Drawing.Point(0, 0);
+            ribbon.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             ribbon.MaxItemId = 13;
             ribbon.MdiMergeStyle = DevExpress.XtraBars.Ribbon.RibbonMdiMergeStyle.Always;
             ribbon.Name = "ribbon";
+            ribbon.OptionsMenuMinWidth = 495;
             ribbon.OptionsPageCategories.ShowCaptions = false;
             ribbon.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] { ribbonPage1 });
             ribbon.ShowApplicationButton = DevExpress.Utils.DefaultBoolean.False;
             ribbon.ShowExpandCollapseButton = DevExpress.Utils.DefaultBoolean.False;
             ribbon.ShowQatLocationSelector = false;
             ribbon.ShowToolbarCustomizeItem = false;
-            ribbon.Size = new System.Drawing.Size(1078, 144);
+            ribbon.Size = new System.Drawing.Size(1904, 209);
             ribbon.Toolbar.ShowCustomizeItem = false;
             // 
             // ZoomResetButton
@@ -179,9 +182,10 @@
             // DXPanel
             // 
             DXPanel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            DXPanel.Location = new System.Drawing.Point(0, 150);
+            DXPanel.Location = new System.Drawing.Point(0, 219);
+            DXPanel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             DXPanel.Name = "DXPanel";
-            DXPanel.Size = new System.Drawing.Size(1061, 432);
+            DXPanel.Size = new System.Drawing.Size(1879, 813);
             DXPanel.TabIndex = 2;
             DXPanel.MouseDown += DXPanel_MouseDown;
             DXPanel.MouseEnter += DXPanel_MouseEnter;
@@ -192,18 +196,20 @@
             // MapVScroll
             // 
             MapVScroll.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            MapVScroll.Location = new System.Drawing.Point(1061, 150);
+            MapVScroll.Location = new System.Drawing.Point(1879, 219);
+            MapVScroll.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             MapVScroll.Name = "MapVScroll";
-            MapVScroll.Size = new System.Drawing.Size(17, 432);
+            MapVScroll.Size = new System.Drawing.Size(26, 813);
             MapVScroll.TabIndex = 4;
             MapVScroll.ValueChanged += MapVScroll_ValueChanged;
             // 
             // MapHScroll
             // 
             MapHScroll.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            MapHScroll.Location = new System.Drawing.Point(0, 565);
+            MapHScroll.Location = new System.Drawing.Point(0, 1008);
+            MapHScroll.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             MapHScroll.Name = "MapHScroll";
-            MapHScroll.Size = new System.Drawing.Size(1061, 17);
+            MapHScroll.Size = new System.Drawing.Size(1879, 25);
             MapHScroll.TabIndex = 5;
             MapHScroll.ValueChanged += MapHScroll_ValueChanged;
             // 
@@ -219,43 +225,12 @@
             barManager1.MaxItemId = 3;
             barManager1.StatusBar = bar3;
             // 
-            // barDockControlTop
-            // 
-            barDockControlTop.CausesValidation = false;
-            barDockControlTop.Dock = System.Windows.Forms.DockStyle.Top;
-            barDockControlTop.Location = new System.Drawing.Point(0, 0);
-            barDockControlTop.Manager = barManager1;
-            barDockControlTop.Size = new System.Drawing.Size(1078, 0);
-            // 
-            // barDockControlBottom
-            // 
-            barDockControlBottom.CausesValidation = false;
-            barDockControlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            barDockControlBottom.Location = new System.Drawing.Point(0, 584);
-            barDockControlBottom.Manager = barManager1;
-            barDockControlBottom.Size = new System.Drawing.Size(1078, 25);
-            // 
-            // barDockControlLeft
-            // 
-            barDockControlLeft.CausesValidation = false;
-            barDockControlLeft.Dock = System.Windows.Forms.DockStyle.Left;
-            barDockControlLeft.Location = new System.Drawing.Point(0, 0);
-            barDockControlLeft.Manager = barManager1;
-            barDockControlLeft.Size = new System.Drawing.Size(0, 584);
-            // 
-            // barDockControlRight
-            // 
-            barDockControlRight.CausesValidation = false;
-            barDockControlRight.Dock = System.Windows.Forms.DockStyle.Right;
-            barDockControlRight.Location = new System.Drawing.Point(1078, 0);
-            barDockControlRight.Manager = barManager1;
-            barDockControlRight.Size = new System.Drawing.Size(0, 584);
-            // 
             // bar3
             // 
             bar3.BarName = "Status bar";
             bar3.CanDockStyle = DevExpress.XtraBars.BarCanDockStyle.Bottom;
             bar3.DockCol = 0;
+            bar3.DockRow = 0;
             bar3.DockStyle = DevExpress.XtraBars.BarDockStyle.Bottom;
             bar3.LinksPersistInfo.AddRange(new DevExpress.XtraBars.LinkPersistInfo[] { new DevExpress.XtraBars.LinkPersistInfo(MapSizeLabel), new DevExpress.XtraBars.LinkPersistInfo(PositionLabel), new DevExpress.XtraBars.LinkPersistInfo(SelectedCellsLabel) });
             bar3.OptionsBar.AllowQuickCustomization = false;
@@ -281,11 +256,47 @@
             SelectedCellsLabel.Id = 2;
             SelectedCellsLabel.Name = "SelectedCellsLabel";
             // 
+            // barDockControlTop
+            // 
+            barDockControlTop.CausesValidation = false;
+            barDockControlTop.Dock = System.Windows.Forms.DockStyle.Top;
+            barDockControlTop.Location = new System.Drawing.Point(0, 0);
+            barDockControlTop.Manager = barManager1;
+            barDockControlTop.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            barDockControlTop.Size = new System.Drawing.Size(1904, 0);
+            // 
+            // barDockControlBottom
+            // 
+            barDockControlBottom.CausesValidation = false;
+            barDockControlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
+            barDockControlBottom.Location = new System.Drawing.Point(0, 1038);
+            barDockControlBottom.Manager = barManager1;
+            barDockControlBottom.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            barDockControlBottom.Size = new System.Drawing.Size(1904, 34);
+            // 
+            // barDockControlLeft
+            // 
+            barDockControlLeft.CausesValidation = false;
+            barDockControlLeft.Dock = System.Windows.Forms.DockStyle.Left;
+            barDockControlLeft.Location = new System.Drawing.Point(0, 0);
+            barDockControlLeft.Manager = barManager1;
+            barDockControlLeft.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            barDockControlLeft.Size = new System.Drawing.Size(0, 1038);
+            // 
+            // barDockControlRight
+            // 
+            barDockControlRight.CausesValidation = false;
+            barDockControlRight.Dock = System.Windows.Forms.DockStyle.Right;
+            barDockControlRight.Location = new System.Drawing.Point(1904, 0);
+            barDockControlRight.Manager = barManager1;
+            barDockControlRight.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            barDockControlRight.Size = new System.Drawing.Size(0, 1038);
+            // 
             // MapViewer
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1078, 609);
+            ClientSize = new System.Drawing.Size(1904, 1072);
             Controls.Add(MapHScroll);
             Controls.Add(MapVScroll);
             Controls.Add(DXPanel);
@@ -294,9 +305,11 @@
             Controls.Add(barDockControlRight);
             Controls.Add(barDockControlBottom);
             Controls.Add(barDockControlTop);
+            Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             Name = "MapViewer";
             Ribbon = ribbon;
             Text = "Map Viewer";
+            WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)ribbon).EndInit();
             ((System.ComponentModel.ISupportInitialize)DXPanel).EndInit();
             ((System.ComponentModel.ISupportInitialize)barManager1).EndInit();

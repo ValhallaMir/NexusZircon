@@ -132,6 +132,9 @@ namespace Client.Scenes.Views
 
         #endregion
 
+        public List<Door> Doors = new List<Door>();
+        private DateTime DoorTime = DateTime.MinValue;
+
         public override void OnSizeChanged(Size oValue, Size nValue)
         {
             base.OnSizeChanged(oValue, nValue);
@@ -307,14 +310,13 @@ namespace Client.Scenes.Views
         {
             if (!IsVisible || Size.Width == 0 || Size.Height == 0) return;
 
+            ProcessDoors();
+
             FLayer.CheckTexture();
             LLayer.CheckTexture();
 
-            //CreateTexture();
             OnBeforeDraw();
-
             DrawControl();
-
             DrawBorder();
             OnAfterDraw();
         }
@@ -392,7 +394,6 @@ namespace Client.Scenes.Views
 
                             s = animLib.GetSize(index);
 
-                            // Mir2 DrawUp equivalent
                             animLib.Draw(index,
                                          drawX,
                                          drawY - s.Height,
@@ -418,7 +419,6 @@ namespace Client.Scenes.Views
 
                             if (animation > 0 && animation < 255)
                             {
-                                // EXACT Mir2 behavior
                                 if ((animation & 0x0F) > 0)
                                 {
                                     blend = true;
@@ -487,7 +487,6 @@ namespace Client.Scenes.Views
 
                     animation = cell.FrontAnimationFrame;
 
-                    // EXACT Mir2 behavior
                     if ((animation & 0x80) > 0)
                     {
                         blend = true;
@@ -504,19 +503,41 @@ namespace Client.Scenes.Views
                         index += (Animation % (animation + (animation * animationTick))) / (1 + animationTick);
                     }
 
-                    if (cell.DoorIndex > 0 && cell.DoorOffset > 0)
+                    bool isDoor = cell.DoorIndex > 0 && cell.DoorOffset > 0;
+
+                    if (isDoor)
                     {
-                        // hook runtime door state here later if needed
+                        Door door = GetDoor(cell.DoorIndex);
+                        if (door == null)
+                        {
+                            door = new Door
+                            {
+                                Index = cell.DoorIndex,
+                                State = DoorState.Closed,
+                                ImageIndex = 0,
+                                LastTick = CEnvir.Now
+                            };
+
+                            Doors.Add(door);
+                        }
+
+                        if (door.State != DoorState.Closed)
+                        {
+                            index += (door.ImageIndex + 1) * cell.DoorOffset;
+                        }
                     }
 
                     s = cell.FrontLibrary.GetSize(index);
 
-                    if (s.Width == CellWidth && s.Height == CellHeight && animation == 0) continue;
-                    if (s.Width == CellWidth * 2 && s.Height == CellHeight * 2 && animation == 0) continue;
+                    bool isStandard =
+                        (s.Width == CellWidth && s.Height == CellHeight) ||
+                        (s.Width == CellWidth * 2 && s.Height == CellHeight * 2);
+
+                    // normal static fronts are drawn by floor layer, doors are not
+                    if (isStandard && animation == 0 && !isDoor) continue;
 
                     if (blend)
                     {
-                        // EXACT Mir2 behavior
                         if (cell.FrontFile > 99 && cell.FrontFile < 199)
                         {
                             cell.FrontLibrary.DrawBlend(index,
@@ -542,11 +563,16 @@ namespace Client.Scenes.Views
                     }
                     else
                     {
+                        bool useOffset = false;
+
+                        if (animation > 0)
+                            useOffset = true;
+
                         cell.FrontLibrary.Draw(index,
                                                drawX,
                                                drawY - s.Height,
                                                Color.White,
-                                               false,
+                                               useOffset,
                                                1F,
                                                ImageType.Image);
                     }
@@ -602,11 +628,150 @@ namespace Client.Scenes.Views
                 }
             }
         }
+        public Door GetDoor(byte index)
+        {
+            for (int i = 0; i < Doors.Count; i++)
+            {
+                if (Doors[i].Index == index)
+                    return Doors[i];
+            }
+
+            return null;
+        }
+
+        public void ProcessDoors()
+        {
+            for (int i = 0; i < Doors.Count; i++)
+            {
+                Door door = Doors[i];
+
+                if (door.State == DoorState.Opening)
+                {
+                    if (door.LastTick.AddMilliseconds(50) < CEnvir.Now)
+                    {
+                        door.LastTick = CEnvir.Now;
+                        door.ImageIndex++;
+
+                        // increase if your door has more frames
+                        if (door.ImageIndex >= 1)
+                        {
+                            door.ImageIndex = 0;
+                            door.State = DoorState.Open;
+                            door.LastTick = CEnvir.Now;
+                        }
+
+                        TextureValid = false;
+                        if (FLayer != null) FLayer.TextureValid = false;
+                    }
+                }
+                else if (door.State == DoorState.Open)
+                {
+                    if (door.LastTick.AddSeconds(5) < CEnvir.Now)
+                    {
+                        door.State = DoorState.Closing;
+                        door.ImageIndex = 0;
+                        door.LastTick = CEnvir.Now;
+
+                        TextureValid = false;
+                        if (FLayer != null) FLayer.TextureValid = false;
+                    }
+                }
+                else if (door.State == DoorState.Closing)
+                {
+                    if (door.LastTick.AddMilliseconds(50) < CEnvir.Now)
+                    {
+                        door.LastTick = CEnvir.Now;
+                        door.ImageIndex++;
+
+                        if (door.ImageIndex >= 1)
+                        {
+                            door.ImageIndex = 0;
+                            door.State = DoorState.Closed;
+                            door.LastTick = CEnvir.Now;
+                        }
+
+                        TextureValid = false;
+                        if (FLayer != null) FLayer.TextureValid = false;
+                    }
+                }
+            }
+        }
+
+        public void OpenDoor(byte index, bool closed)
+        {
+            Door door = GetDoor(index);
+            if (door == null) return;
+
+            door.State = closed ? DoorState.Closing : DoorState.Opening;
+            door.ImageIndex = 0;
+            door.LastTick = CEnvir.Now;
+
+            TextureValid = false;
+            if (FLayer != null) FLayer.TextureValid = false;
+        }
+
+        public bool CheckDoorOpen(Point p)
+        {
+            if (p.X < 0 || p.Y < 0 || p.X >= Width || p.Y >= Height) return false;
+
+            Cell cell = Cells[p.X, p.Y];
+
+            if (cell.DoorIndex == 0) return true;
+
+            Door door = GetDoor(cell.DoorIndex);
+            if (door == null)
+            {
+                door = new Door
+                {
+                    Index = cell.DoorIndex,
+                    State = DoorState.Closed,
+                    ImageIndex = 0,
+                    LastTick = CEnvir.Now
+                };
+
+                Doors.Add(door);
+            }
+
+            if (door.State == DoorState.Closed)
+            {
+                door.State = DoorState.Opening;
+                door.ImageIndex = 0;
+                door.LastTick = CEnvir.Now;
+
+                TextureValid = false;
+                if (FLayer != null) FLayer.TextureValid = false;
+
+                return false;
+            }
+
+            if (door.State == DoorState.Closing)
+            {
+                door.State = DoorState.Opening;
+                door.ImageIndex = 0;
+                door.LastTick = CEnvir.Now;
+
+                TextureValid = false;
+                if (FLayer != null) FLayer.TextureValid = false;
+
+                return false;
+            }
+
+            if (door.State == DoorState.Open)
+            {
+                door.LastTick = CEnvir.Now;
+                return true;
+            }
+
+            // opening
+            return false;
+        }
 
         private void LoadMap()
         {
             try
             {
+                Doors.Clear();
+
                 var path = Directory
                     .EnumerateFiles(Config.MapPath, MapInfo.FileName + ".map", SearchOption.AllDirectories)
                     .FirstOrDefault();
@@ -1900,11 +2065,71 @@ namespace Client.Scenes.Views
             {
                 Point loc = Functions.Move(User.CurrentLocation, dir, i);
 
-                if (loc.X < 0 || loc.Y < 0 || loc.X >= Width || loc.Y > Height) return false;
+                if (loc.X < 0 || loc.Y < 0 || loc.X >= Width || loc.Y >= Height)
+                    return false;
 
-                if (Cells[loc.X, loc.Y].Blocking())
+                Cell cell = Cells[loc.X, loc.Y];
+
+                // Door cells need special handling because their map flag stays blocked
+                if (cell.DoorIndex > 0)
+                {
+                    Door door = GetDoor(cell.DoorIndex);
+
+                    if (door == null)
+                    {
+                        door = new Door
+                        {
+                            Index = cell.DoorIndex,
+                            State = DoorState.Closed,
+                            ImageIndex = 0,
+                            LastTick = CEnvir.Now
+                        };
+
+                        Doors.Add(door);
+                    }
+
+                    switch (door.State)
+                    {
+                        case DoorState.Closed:
+                            door.State = DoorState.Opening;
+                            door.ImageIndex = 0;
+                            door.LastTick = CEnvir.Now;
+
+                            TextureValid = false;
+                            if (FLayer != null) FLayer.TextureValid = false;
+                            return false;
+
+                        case DoorState.Opening:
+                            return false;
+
+                        case DoorState.Closing:
+                            door.State = DoorState.Opening;
+                            door.ImageIndex = 0;
+                            door.LastTick = CEnvir.Now;
+
+                            TextureValid = false;
+                            if (FLayer != null) FLayer.TextureValid = false;
+                            return false;
+
+                        case DoorState.Open:
+                            door.LastTick = CEnvir.Now;
+
+                            // Ignore map Flag for open doors, but still block on objects
+                            if (cell.Objects != null)
+                            {
+                                foreach (MapObject ob in cell.Objects)
+                                    if (ob.Blocking)
+                                        return false;
+                            }
+                            continue;
+                    }
+                }
+
+                // Normal non-door blocking
+                if (cell.Blocking())
                     return false;
             }
+
             return true;
         }
 
@@ -2513,5 +2738,20 @@ namespace Client.Scenes.Views
 
             ob.CurrentCell = null;
         }
+    }
+    public enum DoorState : byte
+    {
+        Closed,
+        Opening,
+        Open,
+        Closing
+    }
+
+    public sealed class Door
+    {
+        public byte Index;
+        public DoorState State;
+        public int ImageIndex;
+        public DateTime LastTick;
     }
 }

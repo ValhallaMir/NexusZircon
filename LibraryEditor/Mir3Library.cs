@@ -485,9 +485,11 @@ namespace LibraryEditor
                     Bitmap temp = new Bitmap(w, h);
                     using (Graphics g = Graphics.FromImage(temp))
                     {
-                        g.Clear(Color.Transparent);
-                        g.DrawImage(image, 0, 0);
-                        g.Save();
+                        g.Clear(Color.Transparent); g.DrawImage(
+    image,
+    new Rectangle(0, 0, image.Width, image.Height),
+    new Rectangle(0, 0, image.Width, image.Height),
+    GraphicsUnit.Pixel);
                     }
                     image.Dispose();
                     image = temp;
@@ -529,9 +531,11 @@ namespace LibraryEditor
                     Bitmap temp = new Bitmap(w, h, PixelFormat.Format32bppArgb);
                     using (Graphics g = Graphics.FromImage(temp))
                     {
-                        g.Clear(Color.Transparent);
-                        g.DrawImage(image, 0, 0);
-                        g.Save();
+                        g.Clear(Color.Transparent); g.DrawImage(
+    image,
+    new Rectangle(0, 0, image.Width, image.Height),
+    new Rectangle(0, 0, image.Width, image.Height),
+    GraphicsUnit.Pixel);
                     }
                     image.Dispose();
                     image = temp;
@@ -561,12 +565,15 @@ namespace LibraryEditor
 
                     if (shadow.Width != w || shadow.Height != h)
                     {
-                        Bitmap temp = new Bitmap(w, h);
+                        Bitmap temp = new Bitmap(w, h, PixelFormat.Format32bppArgb);
                         using (Graphics g = Graphics.FromImage(temp))
                         {
                             g.Clear(Color.Transparent);
-                            g.DrawImage(shadow, 0, 0);
-                            g.Save();
+                            g.DrawImage(
+                                shadow,
+                                new Rectangle(0, 0, shadow.Width, shadow.Height),
+                                new Rectangle(0, 0, shadow.Width, shadow.Height),
+                                GraphicsUnit.Pixel);
                         }
                         shadow.Dispose();
                         shadow = temp;
@@ -597,12 +604,15 @@ namespace LibraryEditor
 
                     if (overlay.Width != w || overlay.Height != h)
                     {
-                        Bitmap temp = new Bitmap(w, h);
+                        Bitmap temp = new Bitmap(w, h, PixelFormat.Format32bppArgb);
                         using (Graphics g = Graphics.FromImage(temp))
                         {
                             g.Clear(Color.Transparent);
-                            g.DrawImage(overlay, 0, 0);
-                            g.Save();
+                            g.DrawImage(
+                                overlay,
+                                new Rectangle(0, 0, overlay.Width, overlay.Height),
+                                new Rectangle(0, 0, overlay.Width, overlay.Height),
+                                GraphicsUnit.Pixel);
                         }
                         overlay.Dispose();
                         overlay = temp;
