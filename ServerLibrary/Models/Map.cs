@@ -309,49 +309,36 @@ namespace Server.Models
             offSet += 2;
             Height = BitConverter.ToInt16(fileBytes, offSet);
             Cells = new Cell[Width, Height];
+            //DoorIndex = new Door[Width, Height];
 
             offSet = 52;
 
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
-                {
+                {//total 36
                     bool validcell = true;
-
-                    short backImage = BitConverter.ToInt16(fileBytes, offSet);
-                    if ((backImage & 0x8000) != 0)
+                    if ((BitConverter.ToInt16(fileBytes, offSet) & 0x8000) != 0)
                         validcell = false;
-                    offSet += 2;
 
-                    short middleImage = BitConverter.ToInt16(fileBytes, offSet);
-                    if ((middleImage & 0x8000) != 0)
+                    offSet += 2;
+                    if ((BitConverter.ToInt16(fileBytes, offSet) & 0x8000) != 0)
                         validcell = false;
-                    offSet += 2;
 
-                    short frontImage = BitConverter.ToInt16(fileBytes, offSet);
-                    if ((frontImage & 0x8000) != 0)
+                    offSet += 2;
+                    if ((BitConverter.ToInt16(fileBytes, offSet) & 0x8000) != 0)
                         validcell = false;
-                    offSet += 2;
 
-                    byte doorIndex = (byte)(fileBytes[offSet++] & 0x7F);
-                    byte doorOffset = fileBytes[offSet++];
-                    byte frontAnimationFrame = fileBytes[offSet++];
-                    byte frontAnimationTick = fileBytes[offSet++];
-                    byte frontFile = fileBytes[offSet++];
+                    offSet += 2;
+                    //if (fileBytes[offSet] > 0)
+                    //    DoorIndex[x, y] = AddDoor(fileBytes[offSet], new Point(x, y));
+                    offSet += 12;
+
                     byte light = fileBytes[offSet++];
-                    byte backFile = fileBytes[offSet++];
-                    byte middleFile = fileBytes[offSet++];
 
-                    short tileAnimationImage = BitConverter.ToInt16(fileBytes, offSet);
-                    offSet += 2;
+                    //if (light >= 100 && light <= 119)
+                    //    Cells[x, y].FishingAttribute = (sbyte)(light - 100);
 
-                    offSet += 5; // keep original structure alignment
-                    byte tileAnimationFrames = fileBytes[offSet++];
-                    short tileAnimationOffset = BitConverter.ToInt16(fileBytes, offSet);
-                    offSet += 2;
-                    offSet += 14;
-
-                    if (doorIndex > 0)
-                        validcell = true;
+                    offSet += 17;
 
                     if (validcell)
                         ValidCells.Add(Cells[x, y] = new Cell(new Point(x, y)) { Map = this });
