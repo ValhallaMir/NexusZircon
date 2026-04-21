@@ -18,6 +18,7 @@ namespace LibraryEditor
         private Mir3Library.Mir3Image _selectedImage, _exportImage;
         private Image _originalImage;
         public int newImages;
+        public string openFileName = "";
 
         [DllImport("user32.dll")]
         private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
@@ -49,6 +50,12 @@ namespace LibraryEditor
                 radioButtonImage.Enabled = true;
                 radioButtonShadow.Enabled = true;
                 radioButtonOverlay.Enabled = true;
+            }
+
+
+            if (Directory.Exists(PathTxtBox.Text))
+            {
+                LoadDirectory(PathTxtBox.Text);
             }
         }
         private static int MakeLong(int low, int high)
@@ -291,18 +298,23 @@ namespace LibraryEditor
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (OpenLibraryDialog.ShowDialog() != DialogResult.OK) return;
-            //MessageBox.Show(OpenLibraryDialog.FileName);
+
+            OpenLibrary(OpenLibraryDialog.FileName);
+        }
+
+        private void OpenLibrary(string filename)
+        {
             ClearInterface();
             ImageList.Images.Clear();
             PreviewListView.Items.Clear();
             _indexList.Clear();
 
             if (_library != null) _library.Close();
-            _library = new Mir3Library(OpenLibraryDialog.FileName);
+            _library = new Mir3Library(filename);
             PreviewListView.VirtualListSize = _library.Images.Count;
 
             // Show .Lib path in application title.
-            this.Text = OpenLibraryDialog.FileName.ToString();
+            this.Text = filename;
 
             PreviewListView.SelectedIndices.Clear();
 
@@ -708,10 +720,10 @@ namespace LibraryEditor
         // Don't let the splitter go out of sight on resizing.
         private void LMain_Resize(object sender, EventArgs e)
         {
-            if (splitContainer1.SplitterDistance <= this.Height - 150) return;
+            if (MainSplitContainer.SplitterDistance <= this.Height - 150) return;
             if (this.Height - 150 > 0)
             {
-                splitContainer1.SplitterDistance = this.Height - 150;
+                MainSplitContainer.SplitterDistance = this.Height - 150;
             }
         }
 
@@ -954,7 +966,7 @@ namespace LibraryEditor
 
         private void radioButtonImage_CheckedChanged(object sender, EventArgs e)
         {
-            int index = PreviewListView.SelectedIndices[0];            
+            int index = PreviewListView.SelectedIndices[0];
             ImageList.Images.Clear();
             PreviewListView.Items.Clear();
             _indexList.Clear();
@@ -1236,5 +1248,147 @@ namespace LibraryEditor
             _library.Save(_library.FileName);
         }
 
+        private void SearchButton_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog fbd = new FolderBrowserDialog() { Description = "Select your Client Data Folder." })
+            {
+                TreeBrowser.Nodes.Clear();
+
+                fbd.SelectedPath = PathTxtBox.Text;
+                DialogResult drResult = fbd.ShowDialog();
+                if (drResult == System.Windows.Forms.DialogResult.OK)
+                {
+                    PathTxtBox.Text = fbd.SelectedPath;
+
+                    string trimmedPath = PathTxtBox.Text.Substring(PathTxtBox.Text.Length - 4);
+                    if (trimmedPath.Contains("Data"))
+                    {
+                        if (Directory.Exists(PathTxtBox.Text))
+                        {
+                            LoadDirectory(PathTxtBox.Text);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Directory doesn't exist");
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Path must be Data folder.");
+                    }
+                }
+            }
+        }
+
+        public void LoadDirectory(string Dir)
+        {
+            DirectoryInfo di = new DirectoryInfo(Dir);
+
+            TreeNode tds = TreeBrowser.Nodes.Add(di.Name);
+            tds.Tag = di.FullName;
+            tds.StateImageIndex = 0;
+            LoadFiles(Dir, tds);
+            LoadSubDirectories(Dir, tds);
+        }
+
+        private void LoadSubDirectories(string dir, TreeNode td)
+        {
+            // Get all subdirectories
+            string[] subdirectoryEntries = Directory.GetDirectories(dir);
+            // Loop through them to see if they have any other subdirectories
+            foreach (string subdirectory in subdirectoryEntries)
+            {
+                DirectoryInfo di = new DirectoryInfo(subdirectory);
+                TreeNode tds = td.Nodes.Add(di.Name);
+                tds.StateImageIndex = 0;
+                tds.Tag = di.FullName;
+                LoadFiles(subdirectory, tds);
+                LoadSubDirectories(subdirectory, tds);
+            }
+        }
+
+        private void LoadFiles(string dir, TreeNode td)
+        {
+            string[] Files = Directory.GetFiles(dir, "*.*");
+            // Loop through them to see files
+            foreach (string file in Files)
+            {
+                FileInfo fi = new FileInfo(file);
+                TreeNode tds = td.Nodes.Add(fi.Name);
+                tds.Tag = fi.FullName;
+                tds.StateImageIndex = 1;
+            }
+        }
+
+        private void TreeBrowser_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (TreeBrowser.SelectedNode == null) return;
+            if (TreeBrowser.SelectedNode.FullPath.ToString().Contains(".zl") || TreeBrowser.SelectedNode.FullPath.ToString().Contains(".Zl"))
+            {
+                string pathToTrim = TreeBrowser.SelectedNode.FullPath.ToString();
+                string trimmedPath = pathToTrim.Substring(4);
+
+                openFileName = trimmedPath;
+
+                OpenLibraryDialog.FileName = null;
+                OpenLibrary(PathTxtBox.Text + trimmedPath);
+            }
+            else
+            {
+                MessageBox.Show("File must be in '.Zl' format.");
+            }
+        }
+
+        private void TreeBrowser_KeyDown(object sender, KeyEventArgs e)
+        {
+            TreeNode selectedNode = TreeBrowser.SelectedNode;
+
+            if (selectedNode == null) return;
+
+            // Use the ']' key to move up (Keys.OemCloseBrackets)
+            if (e.KeyCode == Keys.OemCloseBrackets)
+            {
+                if (selectedNode.PrevVisibleNode != null)
+                {
+                    TreeBrowser.SelectedNode = selectedNode.PrevVisibleNode;
+
+                    if (TreeBrowser.SelectedNode == null) return;
+                    if (TreeBrowser.SelectedNode.FullPath.ToString().Contains(".zl") || TreeBrowser.SelectedNode.FullPath.ToString().Contains(".Zl"))
+                    {
+                        string pathToTrim = TreeBrowser.SelectedNode.FullPath.ToString();
+                        string trimmedPath = pathToTrim.Substring(4);
+
+                        openFileName = trimmedPath;
+
+                        OpenLibraryDialog.FileName = null;
+                        OpenLibrary(PathTxtBox.Text + trimmedPath);
+                    }
+                }
+                e.Handled = true;
+                e.SuppressKeyPress = true; // Suppress further handling
+            }
+            // Use the '#' key to move down (Shift + D3 for US layout)
+            else if (e.KeyCode == Keys.Oemtilde)
+            {
+                if (selectedNode.NextVisibleNode != null)
+                {
+                    TreeBrowser.SelectedNode = selectedNode.NextVisibleNode;
+
+                    if (TreeBrowser.SelectedNode == null) return;
+                    if (TreeBrowser.SelectedNode.FullPath.ToString().Contains(".zl") || TreeBrowser.SelectedNode.FullPath.ToString().Contains(".Zl"))
+                    {
+                        string pathToTrim = TreeBrowser.SelectedNode.FullPath.ToString();
+                        string trimmedPath = pathToTrim.Substring(4);
+
+                        openFileName = trimmedPath;
+
+                        OpenLibraryDialog.FileName = null;
+                        OpenLibrary(PathTxtBox.Text + trimmedPath);
+                    }
+                }
+                e.Handled = true;
+                e.SuppressKeyPress = true; // Suppress further handling
+            }
+        }
     }
 }
