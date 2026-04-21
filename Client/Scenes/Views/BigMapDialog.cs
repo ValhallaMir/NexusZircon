@@ -53,7 +53,7 @@ namespace Client.Scenes.Views
             var minHeight = 240;
 
             var maxWidth = 800;
-            var maxHeight = 600 - 80;
+            var maxHeight = 600;
 
             SetClientSize(Image.Size, minWidth, minHeight, maxWidth, maxHeight);
 
