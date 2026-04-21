@@ -335,10 +335,10 @@ namespace Client.Scenes.Views
         }
         private void DrawObjects()
         {
-            int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 4);
-            int maxX = Math.Min(Width - 1, User.CurrentLocation.X + OffSetX + 4);
-            int minY = Math.Max(0, User.CurrentLocation.Y - OffSetY - 4);
-            int maxY = Math.Min(Height - 1, User.CurrentLocation.Y + OffSetY + 25);
+            int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 10);
+            int maxX = Math.Min(Width - 1, User.CurrentLocation.X + OffSetX + 10);
+            int minY = Math.Max(0, User.CurrentLocation.Y - OffSetY - 10);
+            int maxY = Math.Min(Height - 1, User.CurrentLocation.Y + OffSetY + 35);
 
             for (int y = minY; y <= maxY; y++)
             {
@@ -2572,8 +2572,8 @@ namespace Client.Scenes.Views
                     }
                 }
 
-                int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 15), maxX = Math.Min(GameScene.Game.MapControl.Width - 1, User.CurrentLocation.X + OffSetX + 15);
-                int minY = Math.Max(0, User.CurrentLocation.Y - OffSetY - 15), maxY = Math.Min(GameScene.Game.MapControl.Height - 1, User.CurrentLocation.Y + OffSetY + 15);
+                int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 35), maxX = Math.Min(GameScene.Game.MapControl.Width - 1, User.CurrentLocation.X + OffSetX + 35);
+                int minY = Math.Max(0, User.CurrentLocation.Y - OffSetY - 35), maxY = Math.Min(GameScene.Game.MapControl.Height - 1, User.CurrentLocation.Y + OffSetY + 35);
 
                 for (int y = minY; y <= maxY; y++)
                 {
