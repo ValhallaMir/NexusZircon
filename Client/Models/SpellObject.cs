@@ -68,8 +68,8 @@ namespace Client.Models
             switch (Effect)
             {
                 case SpellEffect.SafeZone:
-                    CEnvir.LibraryList.TryGetValue(LibraryFile.Magic, out BodyLibrary);
-                    Frames[MirAnimation.Standing] = new Frame(649, 1, 0, TimeSpan.FromDays(365));
+                    CEnvir.LibraryList.TryGetValue(LibraryFile.Mir2Magic5, out BodyLibrary);
+                    Frames[MirAnimation.Standing] = new Frame(970, 16, 0, TimeSpan.FromMilliseconds(200));
                     Blended = true;
                     BlendRate = 0.3f;
                     break;
