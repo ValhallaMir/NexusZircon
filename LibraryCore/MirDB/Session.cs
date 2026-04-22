@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MirDB
@@ -255,6 +256,9 @@ namespace MirDB
             }
 
             File.Move(SystemPath + TempExtension, SystemPath);
+
+            string clientDataPath = @"C:\Users\SBerr\Desktop\Nexus Zircon\Debug\Client\Data\System.db";
+            File.Copy(SystemPath, clientDataPath, true);
         }
         private void SaveUsers()
         {
