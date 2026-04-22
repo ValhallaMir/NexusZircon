@@ -3,6 +3,7 @@ using DevExpress.Skins;
 using DevExpress.UserSkins;
 using Library;
 using System;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace Launcher
@@ -19,7 +20,7 @@ namespace Launcher
         [STAThread]
         static void Main()
         {
-            ConfigReader.Load();
+            ConfigReader.Load(Assembly.GetAssembly(typeof(Config)));
 
             Application.EnableVisualStyles();
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
@@ -31,7 +32,7 @@ namespace Launcher
 
             Application.Run(PForm = new LMain());
 
-            ConfigReader.Save();
+            ConfigReader.Save(typeof(Config).Assembly);
         }
     }
 }

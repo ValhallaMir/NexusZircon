@@ -41,6 +41,8 @@ namespace Server.Views
 
         #region MapRegion
 
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MapRegion MapRegion
         {
             get { return _MapRegion; }
@@ -91,6 +93,8 @@ namespace Server.Views
 
         #region Map Path
 
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string MapPath
         {
             get { return _MapPath; }
@@ -138,9 +142,9 @@ namespace Server.Views
             CurrentViewer = this;
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            base.OnClosing(e);
+            base.OnFormClosing(e);
 
             if (CurrentViewer == this)
                 CurrentViewer = null;

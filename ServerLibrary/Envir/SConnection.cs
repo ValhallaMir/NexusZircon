@@ -244,6 +244,11 @@ namespace Server.Envir
                 observer.ReceiveChat(messageFunc(observer), messageType, linkedItems, objectID);
         }
 
+        public void ReceiveChat(Func<SConnection, string> messageFunc, MessageType messageType, List<ClientUserItem> linkedItems = null, uint objectID = 0)
+        {
+            ReceiveChat(messageFunc(this), messageType, linkedItems, objectID);
+        }
+
         public void Process(C.SelectLanguage p)
         {
             switch (p.Language.ToUpper())
@@ -697,14 +702,44 @@ namespace Server.Envir
 
             Player.GroupRemove(p.Name);
         }
+
         public void Process(C.GroupResponse p)
         {
             if (Stage != GameStage.Game) return;
 
             if (p.Accept)
                 Player.GroupJoin();
+            else
+                Player.GroupDecline(p.Name);
 
             Player.GroupInvitation = null;
+            Player.GroupInvitationRequest = null;
+        }
+
+        public void Process(C.GroupNotify p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.LFGSettings.ReceiveUpdates = p.Receive;
+
+            if (p.Receive)
+            {
+                Player.SendLFGList();
+            }
+        }
+
+        public void Process(C.GroupRequest p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.GroupRequest(p.Name);
+        }
+
+        public void Process(C.GroupLFGUpdate p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.LFGUpdate(p);
         }
 
         public void Process(C.Inspect p)
