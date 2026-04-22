@@ -1358,28 +1358,6 @@ namespace Client.Scenes.Views
                         c.FishingCell
                     });
                 }
-
-                DumpCell(53, 59);
-                DumpCell(54, 59);
-
-                string json = System.Text.Json.JsonSerializer.Serialize(debug, new System.Text.Json.JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
-
-                File.WriteAllText("cell_compare.json", json);
-
-
-                //DEBUG VALHALLA
-                //if (x == 315 && y == 268)
-                //{
-                //    GameScene.Game.ReceiveChat($"Loaded Map: {MapInfo.FileName} ({MapInfo.Description}) of Size: {Width}x{Height} ({Cells.Length} Cells)", MessageType.Announcement);
-                //    GameScene.Game.ReceiveChat($"Cell Info:", MessageType.Announcement);
-                //    Cell cell = Cells[x, y];
-                //    GameScene.Game.ReceiveChat($"BackImage: {cell.BackImage} Back Library: {cell.BackFile}", MessageType.Announcement);
-                //    GameScene.Game.ReceiveChat($"MiddleImage: {cell.MiddleImage} Middle Library: {cell.MiddleFile}", MessageType.Announcement);
-                //    GameScene.Game.ReceiveChat($"FrontImage: {cell.FrontImage} Front Library: {cell.FrontFile}", MessageType.Announcement);
-                //}
             }
             catch (Exception ex)
             {
