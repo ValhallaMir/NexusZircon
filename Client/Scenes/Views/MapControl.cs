@@ -2048,60 +2048,60 @@ namespace Client.Scenes.Views
 
                 Cell cell = Cells[loc.X, loc.Y];
 
-                // Door cells need special handling because their map flag stays blocked
-                if (cell.DoorIndex > 0)
-                {
-                    Door door = GetDoor(cell.DoorIndex);
+                //// Door cells need special handling because their map flag stays blocked
+                //if (cell.DoorIndex > 0)
+                //{
+                //    Door door = GetDoor(cell.DoorIndex);
 
-                    if (door == null)
-                    {
-                        door = new Door
-                        {
-                            Index = cell.DoorIndex,
-                            State = DoorState.Closed,
-                            ImageIndex = 0,
-                            LastTick = CEnvir.Now
-                        };
+                //    if (door == null)
+                //    {
+                //        door = new Door
+                //        {
+                //            Index = cell.DoorIndex,
+                //            State = DoorState.Closed,
+                //            ImageIndex = 0,
+                //            LastTick = CEnvir.Now
+                //        };
 
-                        Doors.Add(door);
-                    }
+                //        Doors.Add(door);
+                //    }
 
-                    switch (door.State)
-                    {
-                        case DoorState.Closed:
-                            door.State = DoorState.Opening;
-                            door.ImageIndex = 0;
-                            door.LastTick = CEnvir.Now;
+                //    switch (door.State)
+                //    {
+                //        case DoorState.Closed:
+                //            door.State = DoorState.Opening;
+                //            door.ImageIndex = 0;
+                //            door.LastTick = CEnvir.Now;
 
-                            TextureValid = false;
-                            if (FLayer != null) FLayer.TextureValid = false;
-                            return false;
+                //            TextureValid = false;
+                //            if (FLayer != null) FLayer.TextureValid = false;
+                //            return false;
 
-                        case DoorState.Opening:
-                            return false;
+                //        case DoorState.Opening:
+                //            return false;
 
-                        case DoorState.Closing:
-                            door.State = DoorState.Opening;
-                            door.ImageIndex = 0;
-                            door.LastTick = CEnvir.Now;
+                //        case DoorState.Closing:
+                //            door.State = DoorState.Opening;
+                //            door.ImageIndex = 0;
+                //            door.LastTick = CEnvir.Now;
 
-                            TextureValid = false;
-                            if (FLayer != null) FLayer.TextureValid = false;
-                            return false;
+                //            TextureValid = false;
+                //            if (FLayer != null) FLayer.TextureValid = false;
+                //            return false;
 
-                        case DoorState.Open:
-                            door.LastTick = CEnvir.Now;
+                //        case DoorState.Open:
+                //            door.LastTick = CEnvir.Now;
 
-                            // Ignore map Flag for open doors, but still block on objects
-                            if (cell.Objects != null)
-                            {
-                                foreach (MapObject ob in cell.Objects)
-                                    if (ob.Blocking)
-                                        return false;
-                            }
-                            continue;
-                    }
-                }
+                //            // Ignore map Flag for open doors, but still block on objects
+                //            if (cell.Objects != null)
+                //            {
+                //                foreach (MapObject ob in cell.Objects)
+                //                    if (ob.Blocking)
+                //                        return false;
+                //            }
+                //            continue;
+                //    }
+                //}
 
                 // Normal non-door blocking
                 if (cell.Blocking())
