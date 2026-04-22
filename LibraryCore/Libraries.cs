@@ -312,6 +312,15 @@ namespace Library
             [LibraryFile.MagicEx10] = @"Data\MagicEx10.Zl",
             [LibraryFile.MagicEx11] = @"Data\MagicEx11.Zl",
 
+            [LibraryFile.Mir2Magic] = @"Data\Mir2\Magic\Magic.Zl",
+            [LibraryFile.Mir2Magic2] = @"Data\Mir2\Magic\Magic2.Zl",
+            [LibraryFile.Mir2Magic3] = @"Data\Mir2\Magic\Magic3.Zl",
+            [LibraryFile.Mir2Magic4] = @"Data\Mir2\Magic\Magic4.Zl",
+            [LibraryFile.Mir2Magic5] = @"Data\Mir2\Magic\Magic5.Zl",
+            [LibraryFile.Mir2Magic8] = @"Data\Mir2\Magic\Magic8.Zl",
+            [LibraryFile.Mir2MagicC] = @"Data\Mir2\Magic\MagicC.Zl",
+
+
             [LibraryFile.WemadeMir2_Tiles] = @"Data\Map Data\WemadeMir2\Tiles.Zl",
             [LibraryFile.WemadeMir2_SmTiles] = @"Data\Map Data\WemadeMir2\SmTiles.Zl",
             [LibraryFile.WemadeMir2_Objects] = @"Data\Map Data\WemadeMir2\Objects.Zl",
@@ -1271,6 +1280,14 @@ namespace Library
         MagicEx9,
         MagicEx10,
         MagicEx11,
+
+        Mir2Magic,
+        Mir2Magic2,
+        Mir2Magic3,
+        Mir2Magic4,
+        Mir2Magic5,
+        Mir2Magic8,
+        Mir2MagicC,
 
         WemadeMir2_Tiles,
         WemadeMir2_SmTiles,
