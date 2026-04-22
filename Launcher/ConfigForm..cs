@@ -65,7 +65,7 @@ namespace Launcher
                 Program.PForm.Main_browser.Focus();
             }
 
-            ConfigReader.Save();
+            ConfigReader.Save(typeof(Config).Assembly);
         }
 
         private void ConfigForm_Load(object sender, EventArgs e)

@@ -615,7 +615,7 @@ namespace Launcher
 
         private void LMain_FormClosed(object sender, FormClosedEventArgs e)
         {
-            ConfigReader.Save();
+            ConfigReader.Save(typeof(Config).Assembly);
             _uiTimer?.Stop();
             _uiTimer?.Dispose();
             _httpClient?.Dispose();
