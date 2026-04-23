@@ -807,23 +807,27 @@ namespace Server.Envir
                     }
                 }
 
-                foreach (Point sPoint in movement.SourceRegion.PointRegion)
+                HashSet<Point> sourcePoints = movement.SourceRegion.GetPoints(sourceMap.Width);
+
+                if (sourcePoints == null || sourcePoints.Count == 0)
+                {
+                    Log($"[Movement] Bad Source, Source: {movement.SourceRegion.ServerDescription}, No Points");
+                    continue;
+                }
+
+                foreach (Point sPoint in sourcePoints)
                 {
                     Cell source = sourceMap.GetCell(sPoint);
 
                     if (source == null)
                     {
                         if (!movement.SkipValidation)
-                        {
                             Log($"[Movement] Bad Origin, Source: {movement.SourceRegion.ServerDescription}, X:{sPoint.X}, Y:{sPoint.Y}");
-                        }
 
                         continue;
                     }
 
-                    if (source.Movements == null)
-                        source.Movements = new List<MovementInfo>();
-
+                    source.Movements ??= new List<MovementInfo>();
                     source.Movements.Add(movement);
                 }
             }
