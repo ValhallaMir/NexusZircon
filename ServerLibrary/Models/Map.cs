@@ -198,9 +198,6 @@ namespace Server.Models
                     byte frontFile = fileBytes[offSet++];
                     byte light = fileBytes[offSet++];
 
-                    if (doorIndex > 0)
-                        validcell = true;
-
                     if (validcell)
                         ValidCells.Add(Cells[x, y] = new Cell(new Point(x, y)) { Map = this });
                 }
@@ -247,9 +244,6 @@ namespace Server.Models
                     byte light = fileBytes[offSet++];
                     byte unknown = fileBytes[offSet++];
 
-                    if (doorIndex > 0)
-                        validcell = true;
-
                     if (validcell)
                         ValidCells.Add(Cells[x, y] = new Cell(new Point(x, y)) { Map = this });
                 }
@@ -293,9 +287,6 @@ namespace Server.Models
                     byte light = fileBytes[offSet++];
                     byte backFile = fileBytes[offSet++];
                     byte middleFile = fileBytes[offSet++];
-
-                    if (doorIndex > 0)
-                        validcell = true;
 
                     if (validcell)
                         ValidCells.Add(Cells[x, y] = new Cell(new Point(x, y)) { Map = this });
@@ -385,9 +376,6 @@ namespace Server.Models
                     byte frontAnimationTick = fileBytes[offSet++];
                     byte frontFile = fileBytes[offSet++];
                     byte light = fileBytes[offSet++];
-
-                    if (doorIndex > 0)
-                        validcell = true;
 
                     if (validcell)
                         ValidCells.Add(Cells[x, y] = new Cell(new Point(x, y)) { Map = this });
@@ -519,9 +507,6 @@ namespace Server.Models
                     byte light = fileBytes[offSet++];
                     byte unknown = fileBytes[offSet++];
 
-                    if (doorIndex > 0)
-                        validcell = true;
-
                     if (validcell)
                         ValidCells.Add(Cells[x, y] = new Cell(new Point(x, y)) { Map = this });
                 }
@@ -582,10 +567,6 @@ namespace Server.Models
 
                     byte tileAnimationFrames = Bytes[offset++];
                     byte light = Bytes[offset++];
-
-                    // Door tiles must stay walkable server-side, even if front/back flags say blocked
-                    if (doorIndex > 0)
-                        validcell = true;
 
                     if (validcell)
                         ValidCells.Add(Cells[x, y] = new Cell(new Point(x, y)) { Map = this });
