@@ -58,6 +58,8 @@ namespace Client.Models
 
             NPCs[NPCInfo] = this;
 
+            //Valhalla HINT: NPC Custom Library Frames go here.
+
             CEnvir.LibraryList.TryGetValue(LibraryFile.NPC, out BodyLibrary);
             Frames = NPCInfo.Image switch
             {
@@ -72,6 +74,10 @@ namespace Client.Models
                 156 => new Dictionary<MirAnimation, Frame>
                 {
                     [MirAnimation.Standing] = new Frame(0, 16, 0, TimeSpan.FromMilliseconds(200))
+                },
+                252 => new Dictionary<MirAnimation, Frame>
+                {
+                    [MirAnimation.Standing] = new Frame(0, 10, 0, TimeSpan.FromMilliseconds(150))
                 },
                 _ => FrameSet.DefaultNPC,
             };
