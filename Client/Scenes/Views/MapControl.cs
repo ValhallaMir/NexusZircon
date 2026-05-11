@@ -148,6 +148,8 @@ namespace Client.Scenes.Views
 
             OffSetX = Size.Width / 2 / CellWidth;
             OffSetY = Size.Height / 2 / CellHeight;
+            PixelOffsetX = (Size.Width - CellWidth) / 2 - OffSetX * CellWidth;
+            PixelOffsetY = (Size.Height - CellHeight) / 2 - OffSetY * CellHeight - ManualHeightOffset;
         }
 
         public MouseButtons MapButtons;
@@ -174,11 +176,14 @@ namespace Client.Scenes.Views
         public List<Models.Particles.ParticleEmitter> ParticleEffects = new List<Models.Particles.ParticleEmitter>();
 
         public const int CellWidth = 48, CellHeight = 32;
+        public const int ManualHeightOffset = 34;
 
         public int ViewRangeX = 12, ViewRangeY = 24;
 
         public static int OffSetX;
         public static int OffSetY;
+        public static int PixelOffsetX;
+        public static int PixelOffsetY;
 
 
         #endregion
@@ -346,6 +351,7 @@ namespace Client.Scenes.Views
                 if (y >= Height) break;
 
                 int drawY = (y - User.CurrentLocation.Y + OffSetY + 1) * CellHeight
+                            + PixelOffsetY
                             - User.MovingOffSet.Y
                             - User.ShakeScreenOffset.Y;
 
@@ -355,6 +361,7 @@ namespace Client.Scenes.Views
                     if (x >= Width) break;
 
                     int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth
+                                + PixelOffsetX
                                 - User.MovingOffSet.X
                                 - User.ShakeScreenOffset.X;
 
@@ -395,12 +402,12 @@ namespace Client.Scenes.Views
                             s = animLib.GetSize(index);
 
                             animLib.Draw(index,
-                                         drawX,
-                                         drawY - s.Height,
-                                         Color.White,
-                                         false,
-                                         1F,
-                                         ImageType.Image);
+                                        drawX,
+                                        drawY - s.Height,
+                                        Color.White,
+                                        false,
+                                        1F,
+                                        ImageType.Image);
                         }
                     }
 
@@ -436,12 +443,12 @@ namespace Client.Scenes.Views
                                         {
                                             s = cell.MiddleLibrary.GetSize(index);
                                             cell.MiddleLibrary.DrawBlend(index,
-                                                                         drawX,
-                                                                         drawY - s.Height,
-                                                                         Color.White,
-                                                                         false,
-                                                                         0.5F,
-                                                                         ImageType.Image);
+                                                                        drawX,
+                                                                        drawY - s.Height,
+                                                                        Color.White,
+                                                                        false,
+                                                                        0.5F,
+                                                                        ImageType.Image);
                                         }
                                         else
                                         {
@@ -533,7 +540,6 @@ namespace Client.Scenes.Views
                         (s.Width == CellWidth && s.Height == CellHeight) ||
                         (s.Width == CellWidth * 2 && s.Height == CellHeight * 2);
 
-                    // normal static fronts are drawn by floor layer, doors are not
                     if (isStandard && animation == 0 && !isDoor) continue;
 
                     if (blend)
@@ -569,12 +575,12 @@ namespace Client.Scenes.Views
                             useOffset = true;
 
                         cell.FrontLibrary.Draw(index,
-                                               drawX,
-                                               drawY - s.Height,
-                                               Color.White,
-                                               useOffset,
-                                               1F,
-                                               ImageType.Image);
+                                            drawX,
+                                            drawY - s.Height,
+                                            Color.White,
+                                            useOffset,
+                                            1F,
+                                            ImageType.Image);
                     }
 
                     #endregion
@@ -1524,25 +1530,6 @@ namespace Client.Scenes.Views
 
                     if (CEnvir.Now >= User.AttackTime)
                     {
-                        int delayTime = 500;
-
-                        if (Functions.Distance(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation) == 1)
-                        {
-                            delayTime = 100;
-                        }
-                        else
-                        {
-                            int x = MapObject.OffSetX * MapObject.CellWidth - MapObject.User.MovingOffSet.X;
-                            int y = MapObject.OffSetY * MapObject.CellHeight - MapObject.User.MovingOffSet.Y;
-
-                            int x1 = (MapObject.TargetObject.CurrentLocation.X - MapObject.User.CurrentLocation.X + MapObject.OffSetX) * MapObject.CellWidth - MapObject.User.MovingOffSet.X;
-                            int y1 = (MapObject.TargetObject.CurrentLocation.Y - MapObject.User.CurrentLocation.Y + MapObject.OffSetY) * MapObject.CellHeight - MapObject.User.MovingOffSet.Y;
-
-                            long duration = Functions.Distance(new Point(x, y / 32 * 48), new Point(x1, y1 / 32 * 48)) * TimeSpan.TicksPerMillisecond * 2;
-
-                            delayTime = int.Parse(duration.ToString().Substring(0, 3));
-                        }
-
                         MapObject.User.AttemptAction(
                             new ObjectAction
                             (
@@ -1550,8 +1537,7 @@ namespace Client.Scenes.Views
                                       Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation),
                                       MapObject.User.CurrentLocation,
                                       MapObject.TargetObject.ObjectID, //Ranged Attack Target ID;
-                                      MagicType.Shuriken,
-                                      delayTime
+                                      MagicType.Shuriken
                             ));
 
                         Stop();
@@ -1968,10 +1954,11 @@ namespace Client.Scenes.Views
 
             if (loc.X >= 0 && loc.Y >= 0 && loc.X < Width && loc.Y < Height && !Cells[loc.X, loc.Y].Blocking()) return dir;
 
+            Point localMouse = new Point(MouseLocation.X - GameScene.Game.Location.X, MouseLocation.Y - GameScene.Game.Location.Y);
 
-            PointF c = new PointF(OffSetX * CellWidth + CellWidth / 2F, OffSetY * CellHeight + CellHeight / 2F);
+            PointF c = new PointF(OffSetX * CellWidth + PixelOffsetX + CellWidth / 2F, OffSetY * CellHeight + PixelOffsetY + CellHeight / 2F);
             PointF a = new PointF(c.X, 0);
-            PointF b = MouseLocation;
+            PointF b = localMouse;
             float bc = (float)Functions.Distance(c, b);
             float ac = bc;
             b.Y -= c.Y;
@@ -1983,7 +1970,7 @@ namespace Client.Scenes.Views
 
             angle *= 180 / Math.PI;
 
-            if (MouseLocation.X < c.X) angle = 360 - angle;
+            if (localMouse.X < c.X) angle = 360 - angle;
 
             MirDirection best = (MirDirection)(angle / 45F);
 
@@ -2007,10 +1994,10 @@ namespace Client.Scenes.Views
             if (loc.X >= 0 && loc.Y >= 0 && loc.X < Width && loc.Y < Height && !Cells[loc.X, loc.Y].Blocking()) return dir;
 
 
-            PointF c = new PointF(MapObject.OffSetX * MapObject.CellWidth + MapObject.CellWidth / 2F, MapObject.OffSetY * MapObject.CellHeight + MapObject.CellHeight / 2F);
+            PointF c = new PointF(MapObject.OffSetX * MapObject.CellWidth + PixelOffsetX + MapObject.CellWidth / 2F, MapObject.OffSetY * MapObject.CellHeight + PixelOffsetY + MapObject.CellHeight / 2F);
             PointF a = new PointF(c.X, 0);
-            PointF b = new PointF((targetLocation.X - MapObject.User.CurrentLocation.X + MapObject.OffSetX) * MapObject.CellWidth + MapObject.CellWidth / 2F,
-                (targetLocation.Y - MapObject.User.CurrentLocation.Y + MapObject.OffSetY) * MapObject.CellHeight + MapObject.CellHeight / 2F);
+            PointF b = new PointF((targetLocation.X - MapObject.User.CurrentLocation.X + MapObject.OffSetX) * MapObject.CellWidth + PixelOffsetX + MapObject.CellWidth / 2F,
+                (targetLocation.Y - MapObject.User.CurrentLocation.Y + MapObject.OffSetY) * MapObject.CellHeight + PixelOffsetY + MapObject.CellHeight / 2F);
             float bc = (float)Functions.Distance(c, b);
             float ac = bc;
             b.Y -= c.Y;
@@ -2113,15 +2100,16 @@ namespace Client.Scenes.Views
 
         public MirDirection MouseDirection() //22.5 = 16
         {
-            PointF p = new PointF(MouseLocation.X / CellWidth, MouseLocation.Y / CellHeight);
+            Point localMouse = new Point(MouseLocation.X - GameScene.Game.Location.X, MouseLocation.Y - GameScene.Game.Location.Y);
+            PointF p = new PointF((localMouse.X - PixelOffsetX) / (float)CellWidth, (localMouse.Y - PixelOffsetY) / (float)CellHeight);
 
             //If close proximity then co by co ords 
             if (Functions.InRange(new Point(OffSetX, OffSetY), Point.Truncate(p), 2))
                 return Functions.DirectionFromPoint(new Point(OffSetX, OffSetY), Point.Truncate(p));
 
-            PointF c = new PointF(OffSetX * CellWidth + CellWidth / 2F, OffSetY * CellHeight + CellHeight / 2F);
+            PointF c = new PointF(OffSetX * CellWidth + PixelOffsetX + CellWidth / 2F, OffSetY * CellHeight + PixelOffsetY + CellHeight / 2F);
             PointF a = new PointF(c.X, 0);
-            PointF b = new PointF(MouseLocation.X, MouseLocation.Y);
+            PointF b = new PointF(localMouse.X, localMouse.Y);
             float bc = (float)Functions.Distance(c, b);
             float ac = bc;
             b.Y -= c.Y;
@@ -2133,7 +2121,7 @@ namespace Client.Scenes.Views
 
             angle *= 180 / Math.PI;
 
-            if (MouseLocation.X < c.X) angle = 360 - angle;
+            if (localMouse.X < c.X) angle = 360 - angle;
             angle += 22.5F;
             if (angle > 360) angle -= 360;
 
@@ -2182,8 +2170,8 @@ namespace Client.Scenes.Views
         {
             if (User == null) return;
 
-            GameScene.Game.MapControl.MapLocation = new Point((GameScene.Game.MapControl.MouseLocation.X - GameScene.Game.Location.X) / CellWidth - OffSetX + User.CurrentLocation.X,
-                                                              (GameScene.Game.MapControl.MouseLocation.Y - GameScene.Game.Location.Y) / CellHeight - OffSetY + User.CurrentLocation.Y);
+            GameScene.Game.MapControl.MapLocation = new Point((GameScene.Game.MapControl.MouseLocation.X - GameScene.Game.Location.X - PixelOffsetX) / CellWidth - OffSetX + User.CurrentLocation.X,
+                                                              (GameScene.Game.MapControl.MouseLocation.Y - GameScene.Game.Location.Y - PixelOffsetY) / CellHeight - OffSetY + User.CurrentLocation.Y);
         }
 
         public bool HasTarget(Point loc)
@@ -2314,6 +2302,7 @@ namespace Client.Scenes.Views
             }
 
             #region Methods
+
             public void CheckTexture()
             {
                 if (!TextureValid)
@@ -2336,6 +2325,7 @@ namespace Client.Scenes.Views
                     if (y >= GameScene.Game.MapControl.Height) break;
 
                     int drawY = (y - User.CurrentLocation.Y + OffSetY) * CellHeight
+                                + PixelOffsetY
                                 - User.MovingOffSet.Y
                                 - User.ShakeScreenOffset.Y;
 
@@ -2345,6 +2335,7 @@ namespace Client.Scenes.Views
                         if (x >= GameScene.Game.MapControl.Width) break;
 
                         int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth
+                                    + PixelOffsetX
                                     - User.MovingOffSet.X
                                     - User.ShakeScreenOffset.X;
 
@@ -2356,12 +2347,12 @@ namespace Client.Scenes.Views
                             if (!CEnvir.LibraryList.TryGetValue(file, out MirLibrary library)) continue;
 
                             library.Draw((tile.BackImage & 0x1FFFF) - 1,
-                                         drawX,
-                                         drawY,
-                                         Color.White,
-                                         false,
-                                         1F,
-                                         ImageType.Image);
+                                        drawX,
+                                        drawY,
+                                        Color.White,
+                                        false,
+                                        1F,
+                                        ImageType.Image);
                         }
                     }
                 }
@@ -2369,13 +2360,21 @@ namespace Client.Scenes.Views
                 // Standard middle/front tiles only
                 for (int y = minY; y <= maxY; y++)
                 {
+                    if (y < 0) continue;
+                    if (y >= GameScene.Game.MapControl.Height) break;
+
                     int drawY = (y - User.CurrentLocation.Y + OffSetY + 1) * CellHeight
+                                + PixelOffsetY
                                 - User.MovingOffSet.Y
                                 - User.ShakeScreenOffset.Y;
 
                     for (int x = minX; x <= maxX; x++)
                     {
+                        if (x < 0) continue;
+                        if (x >= GameScene.Game.MapControl.Width) break;
+
                         int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth
+                                    + PixelOffsetX
                                     - User.MovingOffSet.X
                                     - User.ShakeScreenOffset.X;
 
@@ -2391,6 +2390,7 @@ namespace Client.Scenes.Views
                             if (index >= 0)
                             {
                                 bool animated = cell.MiddleAnimationFrame > 1 && cell.MiddleAnimationFrame < 255;
+
                                 if (!animated)
                                 {
                                     Size s = middleLibrary.GetSize(index);
@@ -2399,12 +2399,12 @@ namespace Client.Scenes.Views
                                         (s.Width == CellWidth * 2 && s.Height == CellHeight * 2))
                                     {
                                         middleLibrary.Draw(index,
-                                                           drawX,
-                                                           drawY - CellHeight,
-                                                           Color.White,
-                                                           false,
-                                                           1F,
-                                                           ImageType.Image);
+                                                        drawX,
+                                                        drawY - CellHeight,
+                                                        Color.White,
+                                                        false,
+                                                        1F,
+                                                        ImageType.Image);
                                     }
                                 }
                             }
@@ -2429,12 +2429,12 @@ namespace Client.Scenes.Views
                                         (s.Width == CellWidth * 2 && s.Height == CellHeight * 2))
                                     {
                                         frontLibrary.Draw(index,
-                                                          drawX,
-                                                          drawY - CellHeight,
-                                                          Color.White,
-                                                          false,
-                                                          1F,
-                                                          ImageType.Image);
+                                                        drawX,
+                                                        drawY - CellHeight,
+                                                        Color.White,
+                                                        false,
+                                                        1F,
+                                                        ImageType.Image);
                                     }
                                 }
                             }
@@ -2446,6 +2446,7 @@ namespace Client.Scenes.Views
             public override void Draw()
             {
             }
+
             protected override void DrawControl()
             {
             }
@@ -2508,8 +2509,8 @@ namespace Client.Scenes.Views
                     RenderingPipelineManager.Clear(RenderClearFlags.Target, Color.Black, 0, 0);
 
                     float scale = baseSize + 4 * lightScale;
-                    float abyssX = (OffSetX + MapObject.User.CurrentLocation.X - User.CurrentLocation.X) * CellWidth + CellWidth / 2F - (lightSize.Width * scale) / 2F;
-                    float abyssY = (OffSetY + MapObject.User.CurrentLocation.Y - User.CurrentLocation.Y) * CellHeight - (lightSize.Height * scale) / 2F;
+                    float abyssX = (OffSetX + MapObject.User.CurrentLocation.X - User.CurrentLocation.X) * CellWidth + PixelOffsetX + CellWidth / 2F - (lightSize.Width * scale) / 2F;
+                    float abyssY = (OffSetY + MapObject.User.CurrentLocation.Y - User.CurrentLocation.Y) * CellHeight + PixelOffsetY - (lightSize.Height * scale) / 2F;
 
                     DrawLight(lightTexture, lightSource, lightSize, abyssX, abyssY, scale, Color.White);
 
@@ -2529,8 +2530,8 @@ namespace Client.Scenes.Views
                     if (ob.Light > 0 && (!ob.Dead || ob == MapObject.User || ob.Race == ObjectType.Spell))
                     {
                         float scale = baseSize + ob.Light * 2 * lightScale;
-                        float objectX = (OffSetX + ob.CurrentLocation.X - User.CurrentLocation.X) * CellWidth + ob.MovingOffSet.X - User.MovingOffSet.X + CellWidth / 2F - (lightSize.Width * scale) / 2F;
-                        float objectY = (OffSetY + ob.CurrentLocation.Y - User.CurrentLocation.Y) * CellHeight + ob.MovingOffSet.Y - User.MovingOffSet.Y - (lightSize.Height * scale) / 2F;
+                        float objectX = (OffSetX + ob.CurrentLocation.X - User.CurrentLocation.X) * CellWidth + PixelOffsetX + ob.MovingOffSet.X - User.MovingOffSet.X + CellWidth / 2F - (lightSize.Width * scale) / 2F;
+                        float objectY = (OffSetY + ob.CurrentLocation.Y - User.CurrentLocation.Y) * CellHeight + PixelOffsetY + ob.MovingOffSet.Y - User.MovingOffSet.Y - (lightSize.Height * scale) / 2F;
 
                         DrawLight(lightTexture, lightSource, lightSize, objectX, objectY, scale, ob.LightColour);
                     }
@@ -2558,14 +2559,14 @@ namespace Client.Scenes.Views
                     if (y < 0) continue;
                     if (y >= GameScene.Game.MapControl.Height) break;
 
-                    int drawY = (y - User.CurrentLocation.Y + OffSetY) * CellHeight - User.MovingOffSet.Y - User.ShakeScreenOffset.Y;
+                    int drawY = (y - User.CurrentLocation.Y + OffSetY) * CellHeight + PixelOffsetY - User.MovingOffSet.Y - User.ShakeScreenOffset.Y;
 
                     for (int x = minX; x <= maxX; x++)
                     {
                         if (x < 0) continue;
                         if (x >= GameScene.Game.MapControl.Width) break;
 
-                        int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth - User.MovingOffSet.X - User.ShakeScreenOffset.X;
+                        int drawX = (x - User.CurrentLocation.X + OffSetX) * CellWidth + PixelOffsetX - User.MovingOffSet.X - User.ShakeScreenOffset.X;
 
                         Cell tile = GameScene.Game.MapControl.Cells[x, y];
 

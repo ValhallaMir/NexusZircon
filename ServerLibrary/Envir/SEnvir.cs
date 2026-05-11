@@ -297,6 +297,9 @@ namespace Server.Envir
         public static DBCollection<UserDiscipline> UserDisciplineList;
         public static DBCollection<BundleInfo> BundleInfoList;
         public static DBCollection<LootBoxInfo> LootBoxInfoList;
+        public static DBCollection<MilestoneInfo> MilestoneInfoList;
+        public static DBCollection<UserMilestoneLog> UserMilestoneLogList;
+        public static DBCollection<UserMilestone> UserMilestoneList;
 
         public static DBCollection<WorldEventTrigger> WorldEventInfoTriggerList;
         public static DBCollection<PlayerEventTrigger> PlayerEventInfoTriggerList;
@@ -499,6 +502,9 @@ namespace Server.Envir
             UserDisciplineList = Session.GetCollection<UserDiscipline>();
             BundleInfoList = Session.GetCollection<BundleInfo>();
             LootBoxInfoList = Session.GetCollection<LootBoxInfo>();
+            MilestoneInfoList = Session.GetCollection<MilestoneInfo>();
+            UserMilestoneLogList = Session.GetCollection<UserMilestoneLog>();
+            UserMilestoneList = Session.GetCollection<UserMilestone>();
 
             WorldEventInfoTriggerList = Session.GetCollection<WorldEventTrigger>();
             PlayerEventInfoTriggerList = Session.GetCollection<PlayerEventTrigger>();
@@ -559,8 +565,9 @@ namespace Server.Envir
 
         public static void RankingSort(CharacterInfo character, bool updateLead = true, bool initialSetup = false)
         {
-            //Only works on Increasing EXP, still need to do Rebirth or loss of exp ranking update.
             bool changed = false;
+            int rank = initialSetup ? 0 : GetRankingPosition(character.RankingNode);
+            Dictionary<CharacterInfo, int> changedRanks = null;
 
             LinkedListNode<CharacterInfo> node;
 
@@ -571,37 +578,81 @@ namespace Server.Envir
 
                 if (!initialSetup)
                 {
-                    SwapRankPosition(character.RankChange, node.Value.RankChange, RequiredClass.All);
-
-                    if (character.Class == node.Value.Class)
-                    {
-                        switch (character.Class)
-                        {
-                            case MirClass.Warrior:
-                                SwapRankPosition(character.RankChange, node.Value.RankChange, RequiredClass.Warrior);
-                                break;
-                            case MirClass.Wizard:
-                                SwapRankPosition(character.RankChange, node.Value.RankChange, RequiredClass.Wizard);
-                                break;
-                            case MirClass.Taoist:
-                                SwapRankPosition(character.RankChange, node.Value.RankChange, RequiredClass.Taoist);
-                                break;
-                            case MirClass.Assassin:
-                                SwapRankPosition(character.RankChange, node.Value.RankChange, RequiredClass.Assassin);
-                                break;
-                        }
-                    }
+                    SwapRankPosition(character, node.Value);
+                    changedRanks ??= new Dictionary<CharacterInfo, int>();
+                    changedRanks[character] = rank - 1;
+                    changedRanks[node.Value] = rank;
                 }
 
                 changed = true;
 
                 Rankings.Remove(character.RankingNode);
                 Rankings.AddBefore(node, character.RankingNode);
+                rank--;
+            }
+
+            while ((node = character.RankingNode.Next) != null)
+            {
+                if (node.Value.Level < character.Level) break;
+                if (node.Value.Level == character.Level && node.Value.Experience <= character.Experience) break;
+
+                if (!initialSetup)
+                {
+                    SwapRankPosition(node.Value, character);
+                    changedRanks ??= new Dictionary<CharacterInfo, int>();
+                    changedRanks[character] = rank + 1;
+                    changedRanks[node.Value] = rank;
+                }
+
+                changed = true;
+
+                Rankings.Remove(character.RankingNode);
+                Rankings.AddAfter(node, character.RankingNode);
+                rank++;
+            }
+
+            if (changedRanks != null)
+            {
+                foreach (KeyValuePair<CharacterInfo, int> changedRank in changedRanks)
+                    LogMilestone(changedRank.Key, MilestoneType.Ranking, changedRank.Value, true);
             }
 
             if (!updateLead || (TopRankings.Count >= 20 && !changed)) return; //5 * 4
 
             UpdateLead();
+        }
+
+        private static int GetRankingPosition(LinkedListNode<CharacterInfo> node)
+        {
+            int rank = 1;
+
+            while ((node = node.Previous) != null)
+                rank++;
+
+            return rank;
+        }
+
+        private static void SwapRankPosition(CharacterInfo rankIncrease, CharacterInfo rankDecrease)
+        {
+            SwapRankPosition(rankIncrease.RankChange, rankDecrease.RankChange, RequiredClass.All);
+
+            if (rankIncrease.Class != rankDecrease.Class) return;
+
+            switch (rankIncrease.Class)
+            {
+                case MirClass.Warrior:
+                    SwapRankPosition(rankIncrease.RankChange, rankDecrease.RankChange, RequiredClass.Warrior);
+                    break;
+                case MirClass.Wizard:
+                    SwapRankPosition(rankIncrease.RankChange, rankDecrease.RankChange, RequiredClass.Wizard);
+                    break;
+                case MirClass.Taoist:
+                    SwapRankPosition(rankIncrease.RankChange, rankDecrease.RankChange, RequiredClass.Taoist);
+                    break;
+                case MirClass.Assassin:
+                    SwapRankPosition(rankIncrease.RankChange, rankDecrease.RankChange, RequiredClass.Assassin);
+                    break;
+            }
         }
 
         private static void SwapRankPosition(Dictionary<RequiredClass, int> rankA, Dictionary<RequiredClass, int> rankB, RequiredClass cls)
@@ -1256,6 +1307,8 @@ namespace Server.Envir
             WeaponCraftStatInfoList = null;
             BundleInfoList = null;
             LootBoxInfoList = null;
+            UserMilestoneLogList = null;
+            UserMilestoneList = null;
 
             WorldEventInfoTriggerList = null;
             PlayerEventInfoTriggerList = null;
@@ -2019,6 +2072,8 @@ namespace Server.Envir
 
             freshItem.ExpireTime = item.ExpireTime;
 
+            ItemSetup(item);
+
             foreach (UserItemStat stat in item.AddedStats)
                 freshItem.AddStat(stat.Stat, stat.Amount, stat.StatSource);
             freshItem.StatsChanged();
@@ -2039,6 +2094,8 @@ namespace Server.Envir
 
             check.Count -= item.Count;
 
+            ItemSetup(item);
+
             return item;
         }
         public static UserItem CreateFreshItem(ItemInfo info)
@@ -2051,6 +2108,8 @@ namespace Server.Envir
             item.CurrentDurability = info.Durability;
             item.MaxDurability = info.Durability;
 
+            ItemSetup(item);
+
             return item;
         }
         public static UserItem CreateDropItem(ItemCheck check, int chance = 15)
@@ -2059,6 +2118,8 @@ namespace Server.Envir
 
             item.Flags = check.Flags;
             item.ExpireTime = check.ExpireTime;
+
+            ItemSetup(item);
 
             if (IsCurrencyItem(item.Info) || item.Info.ItemEffect == ItemEffect.Experience)
                 item.Count = check.Count;
@@ -2075,6 +2136,8 @@ namespace Server.Envir
 
             item.Info = info;
             item.MaxDurability = info.Durability;
+
+            ItemSetup(item);
 
             item.Colour = Color.FromArgb(Random.Next(256), Random.Next(256), Random.Next(256));
 
@@ -2109,12 +2172,6 @@ namespace Server.Envir
                     case ItemType.Shoes:
                         UpgradeShoes(item);
                         break;
-                    case ItemType.Bundle:
-                        UpgradeBundle(item);
-                        break;
-                    case ItemType.LootBox:
-                        UpgradeLootBox(item);
-                        break;
                 }
                 item.StatsChanged();
             }
@@ -2145,9 +2202,22 @@ namespace Server.Envir
                     break;
             }
 
-
             return item;
         }
+
+        private static void ItemSetup(UserItem item)
+        {
+            switch (item.Info.ItemType)
+            {
+                case ItemType.Bundle:
+                    UpgradeBundle(item);
+                    break;
+                case ItemType.LootBox:
+                    UpgradeLootBox(item);
+                    break;
+            }
+        }
+
         public static ItemInfo GetItemInfo(string name)
         {
             for (int i = 0; i < ItemInfoList.Count; i++)
@@ -3918,35 +3988,26 @@ namespace Server.Envir
 
         public static byte[] CreateHash(string password)
         {
-            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-            {
-                byte[] salt = new byte[SaltSize];
-                rng.GetBytes(salt);
+            byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
+            byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, HashAlgorithmName.SHA256, hashSize);
 
-                using (Rfc2898DeriveBytes rfc = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA256))
-                {
-                    byte[] hash = rfc.GetBytes(hashSize);
+            byte[] totalHash = new byte[SaltSize + hashSize];
 
-                    byte[] totalHash = new byte[SaltSize + hashSize];
+            Buffer.BlockCopy(salt, 0, totalHash, 0, SaltSize);
+            Buffer.BlockCopy(hash, 0, totalHash, SaltSize, hashSize);
 
-                    Buffer.BlockCopy(salt, 0, totalHash, 0, SaltSize);
-                    Buffer.BlockCopy(hash, 0, totalHash, SaltSize, hashSize);
-
-                    return totalHash;
-                }
-            }
+            return totalHash;
         }
         private static bool PasswordMatch(string password, byte[] totalHash)
         {
+            if (totalHash == null || totalHash.Length != SaltSize + hashSize) return false;
+
             byte[] salt = new byte[SaltSize];
             Buffer.BlockCopy(totalHash, 0, salt, 0, SaltSize);
 
-            using (Rfc2898DeriveBytes rfc = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA256))
-            {
-                byte[] hash = rfc.GetBytes(hashSize);
+            byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, HashAlgorithmName.SHA256, hashSize);
 
-                return Functions.IsMatch(totalHash, hash, SaltSize);
-            }
+            return CryptographicOperations.FixedTimeEquals(totalHash.AsSpan(SaltSize, hashSize), hash);
         }
         #endregion
 
@@ -4085,23 +4146,15 @@ namespace Server.Envir
             return result;
         }
 
-        private static void SetupMapRegions(Map map)
-        {
-            if (map == null || map.Width == 0) return;
-
-            foreach (MapRegion region in map.Info.Regions)
-            {
-                region.CreatePoints(map.Width);
-            }
-        }
-
         private static void FinaliseMapLoad(Map map)
         {
             if (map == null) return;
 
             map.Load();
             map.Setup();
-            SetupMapRegions(map);
+
+            foreach (MapRegion region in map.Info.Regions)
+                region.CreatePoints(map.Width);
 
             CreateSafeZones(map.Instance, map.InstanceSequence, map.Info);
             CreateMovements(map.Instance, map.InstanceSequence, map.Info);
@@ -4275,6 +4328,178 @@ namespace Server.Envir
 
             return null;
         }
+
+        #region Milestones
+
+        private static Dictionary<CharacterInfo, Dictionary<(MilestoneType, int), UserMilestoneLog>> MilestoneLogCache = [];
+
+        private static int GetSecondaryId(MilestoneType type, CharacterInfo player = null, ItemInfo item = null, MonsterInfo monster = null, CurrencyInfo currency = null, MapRegion region = null, InstanceInfo instance = null, QuestInfo quest = null, MagicInfo magic = null)
+        {
+            int index = -1;
+
+            switch (type)
+            {
+                case MilestoneType.ItemGain:
+                case MilestoneType.ItemUse:
+                    index = item?.Index ?? 0;
+                    break;
+                case MilestoneType.CurrencyGain:
+                    index = currency?.Index ?? 0;
+                    break;
+                case MilestoneType.QuestComplete:
+                    index = quest?.Index ?? 0;
+                    break;
+                case MilestoneType.SkillLearn:
+                case MilestoneType.SkillLevel:
+                    index = magic?.Index ?? 0;
+                    break;
+                case MilestoneType.PetTame:
+                case MilestoneType.PetSummon:
+                    index = monster?.Index ?? 0;
+                    break;
+                case MilestoneType.MineCatch:
+                    index = item?.Index ?? 0;
+                    break;
+                case MilestoneType.FishingCatch:
+                    index = item?.Index ?? 0;
+                    break;
+                case MilestoneType.InstanceJoin:
+                    index = instance?.Index ?? 0;
+                    break;
+                case MilestoneType.Region:
+                    index = region?.Index ?? 0;
+                    break;
+                case MilestoneType.ShopPurchase:
+                case MilestoneType.ShopSell:
+                    index = item?.Index ?? 0;
+                    break;
+                case MilestoneType.MarketConsign:
+                case MilestoneType.MarketPurchase:
+                case MilestoneType.MarketSell:
+                    index = item?.Index ?? 0;
+                    break;
+                case MilestoneType.MonsterKill:
+                case MilestoneType.MonsterDeath:
+                case MilestoneType.MonsterDamageTake:
+                case MilestoneType.MonsterDamageDone:
+                case MilestoneType.MonsterPetKill:
+                    index = monster?.Index ?? 0;
+                    break;
+                case MilestoneType.PlayerKill:
+                case MilestoneType.PlayerDeath:
+                case MilestoneType.PlayerDamageTake:
+                case MilestoneType.PlayerDamageDone:
+                case MilestoneType.PlayerPetKill:
+                    index = player?.Index ?? 0;
+                    break;
+            }
+
+            return index;
+        }
+
+        public static void LogMilestone(CharacterInfo character, MilestoneType type, long amount = 1, bool setAmount = false, CharacterInfo player = null, ItemInfo item = null, MonsterInfo monster = null, CurrencyInfo currency = null, MapRegion region = null, InstanceInfo instance = null, QuestInfo quest = null, MagicInfo magic = null)
+        {
+            if (!MilestoneLogCache.TryGetValue(character, out Dictionary<(MilestoneType, int), UserMilestoneLog> cache))
+            {
+                MilestoneLogCache[character] = cache = [];
+            }
+
+            int secondaryId = GetSecondaryId(type, player, item, monster, currency, region, instance, quest, magic);
+            var key = (type, secondaryId);
+
+            if (!cache.TryGetValue(key, out var log))
+            {
+                switch (type)
+                {
+                    case MilestoneType.ItemGain:
+                    case MilestoneType.ItemUse:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Item == item);
+                        break;
+                    case MilestoneType.CurrencyGain:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Currency == currency);
+                        break;
+                    case MilestoneType.QuestComplete:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Quest == quest);
+                        break;
+                    case MilestoneType.SkillLearn:
+                    case MilestoneType.SkillLevel:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Magic == magic);
+                        break;
+                    case MilestoneType.PetTame:
+                    case MilestoneType.PetSummon:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Monster == monster);
+                        break;
+                    case MilestoneType.MineCatch:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Item == item);
+                        break;
+                    case MilestoneType.FishingCast:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Item == item);
+                        break;
+                    case MilestoneType.InstanceJoin:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Instance == instance);
+                        break;
+                    case MilestoneType.Region:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Region == region);
+                        break;
+                    case MilestoneType.ShopPurchase:
+                    case MilestoneType.ShopSell:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Item == item);
+                        break;
+                    case MilestoneType.MarketConsign:
+                    case MilestoneType.MarketPurchase:
+                    case MilestoneType.MarketSell:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Item == item);
+                        break;
+                    case MilestoneType.MonsterKill:
+                    case MilestoneType.MonsterDeath:
+                    case MilestoneType.MonsterDamageDone:
+                    case MilestoneType.MonsterDamageTake:
+                    case MilestoneType.MonsterPetKill:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Monster == monster);
+                        break;
+                    case MilestoneType.PlayerKill:
+                    case MilestoneType.PlayerDeath:
+                    case MilestoneType.PlayerDamageDone:
+                    case MilestoneType.PlayerDamageTake:
+                    case MilestoneType.PlayerPetKill:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type && x.Player == player);
+                        break;
+                    default:
+                        log = character.MilestoneLogs.FirstOrDefault(x => x.Type == type);
+                        break;
+                }
+
+                if (log == null)
+                {
+                    log = SEnvir.UserMilestoneLogList.CreateNewObject();
+                    log.Character = character;
+                    log.Type = type;
+                    log.Item = item;
+                    log.Monster = monster;
+                    log.Currency = currency;
+                    log.Region = region;
+                    log.Instance = instance;
+                    log.Player = player;
+                    log.Quest = quest;
+                    log.Magic = magic;
+                    log.Count = 0;
+                    character.MilestoneLogs.Add(log);
+                }
+                cache[key] = log;
+            }
+
+            if (setAmount)
+                log.Count = amount;
+            else
+                log.Count += amount;
+
+            if (character.Player != null)
+            {
+                character.Player.CheckMilestones(type);
+            }
+        }
+
+        #endregion
     }
 
     public class WebCommand
