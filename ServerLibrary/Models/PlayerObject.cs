@@ -8055,7 +8055,7 @@ namespace Server.Models
 
             var amount = userCurrency.Amount;
 
-            if (currency.DropItem == null || !currency.DropItem.CanDrop || p.Amount <= 0 || p.Amount > amount) return;
+            if (currency.DropItem == null || p.Amount <= 0 || p.Amount > amount) return;
 
             Cell cell = GetDropLocation(Config.DropDistance, null);
 

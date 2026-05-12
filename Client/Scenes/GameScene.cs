@@ -4149,10 +4149,6 @@ namespace Client.Scenes
         {
             if (User == null) return;
 
-            InventoryBox.WeightLabel.Text = $"{User.BagWeight} of {User.Stats[Stat.BagWeight]}";
-
-            InventoryBox.WeightLabel.ForeColour = User.BagWeight > User.Stats[Stat.BagWeight] ? Color.Red : Color.White;
-
             CharacterBox.WearWeightLabel.Text = $"{User.WearWeight}/{User.Stats[Stat.WearWeight]}";
             CharacterBox.HandWeightLabel.Text = $"{User.HandWeight}/{User.Stats[Stat.HandWeight]}";
 

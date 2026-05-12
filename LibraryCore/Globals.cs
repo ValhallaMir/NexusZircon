@@ -284,7 +284,7 @@ namespace Library
             2090000,
         };
 
-        public const int InventorySize = 48,
+        public const int InventorySize = 200,
                          EquipmentSize = 22,
                          CompanionInventorySize = 30,
                          CompanionEquipmentSize = 4,
@@ -1143,7 +1143,7 @@ namespace Library
         [IgnorePropertyPacket]
         public bool CanPickup
         {
-            get { return Info != null && Info.DropItem != null && Info.DropItem.CanDrop; }
+            get { return Info != null && Info.DropItem != null; }
         }
 
         [CompleteObject]
