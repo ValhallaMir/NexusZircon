@@ -231,6 +231,7 @@ namespace Client.Scenes
         public TimerDialog TimerBox;
         public BundleDialog BundleBox;
         public LootBoxDialog LootBoxBox;
+        public RebirthDialog RebirthBox;
 
         public FishingDialog FishingBox;
         public FishingCatchDialog FishingCatchBox;
@@ -781,6 +782,12 @@ namespace Client.Scenes
                 Visible = false
             };
 
+            RebirthBox = new RebirthDialog
+            {
+                Parent = this,
+                Visible = false
+            };
+
             SetDefaultLocations();
 
             LoadChatTabs();
@@ -794,6 +801,7 @@ namespace Client.Scenes
             StorageBox.LoadSettings();
             TradeBox.LoadSettings();
             CompanionBox.LoadSettings();
+            RebirthBox.LoadSettings();
             CommunicationBox.LoadSettings();
             RankingBox.LoadSettings();
             QuestBox.LoadSettings();
@@ -809,7 +817,7 @@ namespace Client.Scenes
         {
             if (ConfigBox == null) return;
 
-            MenuBox.Location = new Point(Size.Width - MenuBox.Size.Width, Size.Height - MenuBox.Size.Height - MainPanel.Size.Height);
+            MenuBox.Location = new Point(Size.Width - MenuBox.Size.Width, Size.Height - MenuBox.Size.Height);
 
             ConfigBox.Location = new Point((Size.Width - ConfigBox.Size.Width) / 2, (Size.Height - ConfigBox.Size.Height) / 2);
 
@@ -870,6 +878,8 @@ namespace Client.Scenes
             CommunicationBox.Location = new Point((Size.Width - CommunicationBox.Size.Width) / 2, (Size.Height - CommunicationBox.Size.Height) / 2);
 
             CompanionBox.Location = new Point((Size.Width - CompanionBox.Size.Width) / 2, (Size.Height - CompanionBox.Size.Height) / 2);
+
+            RebirthBox.Location = new Point((Size.Width - RebirthBox.Size.Width) / 2, (Size.Height - RebirthBox.Size.Height) / 2);
 
             MonsterBox.Location = new Point((Size.Width - MonsterBox.Size.Width) / 2, 50);
 
@@ -1197,6 +1207,10 @@ namespace Client.Scenes
                         break;
                     case KeyBindAction.HelpWindow:
                         HelpBox.Visible = !HelpBox.Visible;
+                        break;
+                    case KeyBindAction.RebirthWindow:
+                        if (Observer) continue;
+                        RebirthBox.Visible = !RebirthBox.Visible;
                         break;
                     case KeyBindAction.ConfigWindow:
                         ConfigBox.Visible = !ConfigBox.Visible;

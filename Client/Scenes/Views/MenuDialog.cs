@@ -8,15 +8,15 @@ using System.Windows.Forms;
 
 namespace Client.Scenes.Views
 {
-    public class MenuDialog : DXImageControl
+    public class MenuDialog : DXWindow
     {
-        public DXLabel TitleLabel;
-
-        public DXButton CloseButton;
-        public DXButton SettingsButton, HelpButton, GuildButton, StorageButton, RankingButton, CompanionButton, LeaveButton;
+        public DXButton SettingsButton, HelpButton, GuildButton, StorageButton, RankingButton, CompanionButton, RebirthButton, LeaveButton;
 
         public WindowSetting Settings;
-        public WindowType Type => WindowType.MenuBox;
+        public override WindowType Type => WindowType.MenuBox;
+
+        public override bool CustomSize => false;
+        public override bool AutomaticVisibility => true;
 
         public void LoadSettings()
         {
@@ -81,38 +81,15 @@ namespace Client.Scenes.Views
 
         public MenuDialog()
         {
-            LibraryFile = LibraryFile.Interface;
-            Index = 279;
+            TitleLabel.Text = "Menu";
+            SetClientSize(new Size(102, 360));
             Sort = true;
             Movable = true;
             DropShadow = true;
 
-            CloseButton = new DXButton
-            {
-                Parent = this,
-                Index = 15,
-                LibraryFile = LibraryFile.Interface,
-                Hint = CEnvir.Language.CommonControlClose,
-                HintPosition = HintPosition.TopLeft
-            };
-            CloseButton.Location = new Point(152 - CloseButton.Size.Width - 3, 3);
-            CloseButton.MouseClick += (o, e) => Visible = false;
-
-            TitleLabel = new DXLabel
-            {
-                Text = CEnvir.Language.MenuDialogTitle,
-                Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
-                ForeColour = Color.FromArgb(198, 166, 99),
-                Outline = true,
-                OutlineColour = Color.Black,
-                IsControl = false,
-            };
-            TitleLabel.Location = new Point((DisplayArea.Width - TitleLabel.Size.Width) / 2, 8);
-
             SettingsButton = new DXButton
             {
-                Location = new Point(26, 40),
+                Location = new Point(10, 40),
                 Size = new Size(100, DefaultHeight),
                 Parent = this,
                 Label = { Text = CEnvir.Language.MenuDialogSettingsButtonLabel },
@@ -122,7 +99,7 @@ namespace Client.Scenes.Views
 
             HelpButton = new DXButton
             {
-                Location = new Point(26, 70),
+                Location = new Point(10, 70),
                 Size = new Size(100, DefaultHeight),
                 Parent = this,
                 Label = { Text = CEnvir.Language.MenuDialogHelpButtonLabel },
@@ -132,7 +109,7 @@ namespace Client.Scenes.Views
 
             GuildButton = new DXButton
             {
-                Location = new Point(26, 100),
+                Location = new Point(10, 100),
                 Size = new Size(100, DefaultHeight),
                 Parent = this,
                 Label = { Text = CEnvir.Language.MenuDialogGuildButtonLabel },
@@ -142,7 +119,7 @@ namespace Client.Scenes.Views
 
             StorageButton = new DXButton
             {
-                Location = new Point(26, 130),
+                Location = new Point(10, 130),
                 Size = new Size(100, DefaultHeight),
                 Parent = this,
                 Label = { Text = CEnvir.Language.MenuDialogStorageButtonLabel },
@@ -152,7 +129,7 @@ namespace Client.Scenes.Views
 
             RankingButton = new DXButton
             {
-                Location = new Point(26, 160),
+                Location = new Point(10, 160),
                 Size = new Size(100, DefaultHeight),
                 Parent = this,
                 Label = { Text = CEnvir.Language.MenuDialogRankingButtonLabel },
@@ -162,7 +139,7 @@ namespace Client.Scenes.Views
 
             CompanionButton = new DXButton
             {
-                Location = new Point(26, 190),
+                Location = new Point(10, 190),
                 Size = new Size(100, DefaultHeight),
                 Parent = this,
                 Label = { Text = CEnvir.Language.MenuDialogCompanionButtonLabel },
@@ -170,9 +147,19 @@ namespace Client.Scenes.Views
             };
             CompanionButton.MouseClick += (o, e) => GameScene.Game.CompanionBox.Visible = !GameScene.Game.CompanionBox.Visible;
 
+            RebirthButton = new DXButton
+            {
+                Location = new Point(10, 220),
+                Size = new Size(100, DefaultHeight),
+                Parent = this,
+                Label = { Text = CEnvir.Language.MenuDialogRebirthSystemButtonLabel },
+                Hint = string.Format(CEnvir.Language.MenuDialogRebirthSystemButtonHint, CEnvir.GetKeyBindLabel(KeyBindAction.RebirthWindow)),
+            };
+            RebirthButton.MouseClick += (o, e) => GameScene.Game.RebirthBox.Visible = !GameScene.Game.RebirthBox.Visible;
+
             LeaveButton = new DXButton
             {
-                Location = new Point(26, 220),
+                Location = new Point(10, 250),
                 Size = new Size(100, DefaultHeight),
                 Parent = this,
                 Label = { Text = CEnvir.Language.MenuDialogLeaveButtonLabel },
@@ -251,6 +238,14 @@ namespace Client.Scenes.Views
                         CompanionButton.Dispose();
 
                     CompanionButton = null;
+                }
+
+                if (RebirthButton != null)
+                {
+                    if (!RebirthButton.IsDisposed)
+                        RebirthButton.Dispose();
+
+                    RebirthButton = null;
                 }
 
                 if (LeaveButton != null)

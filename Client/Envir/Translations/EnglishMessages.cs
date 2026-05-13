@@ -594,6 +594,7 @@ namespace Client.Envir.Translations
         public override string MenuDialogStorageButtonLabel { get; set; } = "Storage";
         public override string MenuDialogRankingButtonLabel { get; set; } = "Ranking";
         public override string MenuDialogCompanionButtonLabel { get; set; } = "Companion";
+        public override string MenuDialogRebirthSystemButtonLabel { get; set; } = "Rebirth";
         public override string MenuDialogLeaveButtonLabel { get; set; } = "Exit Game";
 
         public override string MenuDialogSettingsButtonHint { get; set; } = "Settings [{0}]";
@@ -602,6 +603,7 @@ namespace Client.Envir.Translations
         public override string MenuDialogStorageButtonHint { get; set; } = "Storage [{0}]";
         public override string MenuDialogRankingButtonHint { get; set; } = "Ranking [{0}]";
         public override string MenuDialogCompanionButtonHint { get; set; } = "Companion [{0}]";
+        public override string MenuDialogRebirthSystemButtonHint { get; set; } = "Rebirth [{0}]";
         public override string MenuDialogLeaveButtonHint { get; set; } = "Exit Game [{0}]";
 
         public override string MainPanelCharacterButtonHint { get; set; } = "Character [{0}]";

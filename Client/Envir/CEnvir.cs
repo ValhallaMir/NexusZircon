@@ -636,6 +636,11 @@ namespace Client.Envir
                     bind.Key2 = Keys.X;
                     bind.Alt2 = true;
                     break;
+                case KeyBindAction.RebirthWindow:
+                    bind.Category = "Windows";
+                    bind.Key1 = Keys.R;
+                    bind.Control1 = true;
+                    break;
                 case KeyBindAction.ChangeAttackMode:
                     bind.Category = "Functions";
                     bind.Key1 = Keys.H;

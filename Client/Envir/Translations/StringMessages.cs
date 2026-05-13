@@ -594,6 +594,7 @@ namespace Client.Envir.Translations
         public abstract string MenuDialogStorageButtonLabel { get; set; }
         public abstract string MenuDialogRankingButtonLabel { get; set; }
         public abstract string MenuDialogCompanionButtonLabel { get; set; }
+        public abstract string MenuDialogRebirthSystemButtonLabel { get; set; }
         public abstract string MenuDialogLeaveButtonLabel { get; set; }
 
         public abstract string MenuDialogSettingsButtonHint { get; set; }
@@ -602,6 +603,7 @@ namespace Client.Envir.Translations
         public abstract string MenuDialogStorageButtonHint { get; set; }
         public abstract string MenuDialogRankingButtonHint { get; set; }
         public abstract string MenuDialogCompanionButtonHint { get; set; }
+        public abstract string MenuDialogRebirthSystemButtonHint { get; set; }
         public abstract string MenuDialogLeaveButtonHint { get; set; }
 
         public abstract string MainPanelCharacterButtonHint { get; set; }

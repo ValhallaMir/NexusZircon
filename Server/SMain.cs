@@ -466,6 +466,11 @@ namespace Server
             ShowView(typeof(HelpInfoView));
         }
 
+        private void RebirthInfoButton_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
+        {
+            ShowView(typeof(RebirthInfoView));
+        }
+
         private void CharacterInfoButton_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
         {
             ShowView(typeof(CharacterView));

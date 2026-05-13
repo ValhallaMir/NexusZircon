@@ -593,6 +593,7 @@ namespace Client.Envir.Translations
         public override string MenuDialogStorageButtonLabel { get; set; } = "仓库";
         public override string MenuDialogRankingButtonLabel { get; set; } = "排行";
         public override string MenuDialogCompanionButtonLabel { get; set; } = "宠物";
+        public override string MenuDialogRebirthSystemButtonLabel { get; set; } = "Rebirth";
         public override string MenuDialogLeaveButtonLabel { get; set; } = "退出游戏";
 
         public override string MenuDialogSettingsButtonHint { get; set; } = "设置 [{0}]";
@@ -601,6 +602,7 @@ namespace Client.Envir.Translations
         public override string MenuDialogStorageButtonHint { get; set; } = "仓库 [{0}]";
         public override string MenuDialogRankingButtonHint { get; set; } = "排行 [{0}]";
         public override string MenuDialogCompanionButtonHint { get; set; } = "宠物 [{0}]";
+        public override string MenuDialogRebirthSystemButtonHint { get; set; } = "Rebirth [{0}]";
         public override string MenuDialogLeaveButtonHint { get; set; } = "退出游戏 [{0}]";
 
         public override string MainPanelCharacterButtonHint { get; set; } = "角色 [{0}]";

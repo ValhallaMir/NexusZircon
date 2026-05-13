@@ -336,6 +336,11 @@ namespace Client.UserModels
         MenuWindow,
 
         [Description("Help Window")]
-        HelpWindow
+        HelpWindow,
+
+        [Description("Rebirth Window")]
+        RebirthWindow,
+
+
     }
 }

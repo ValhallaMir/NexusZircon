@@ -53,6 +53,7 @@
             CompanionInfoButton = new DevExpress.XtraNavBar.NavBarItem();
             CurrencyInfoButton = new DevExpress.XtraNavBar.NavBarItem();
             HelpInfoButton = new DevExpress.XtraNavBar.NavBarItem();
+            RebirthInfoButton = new DevExpress.XtraNavBar.NavBarItem();
             navBarGroup5 = new DevExpress.XtraNavBar.NavBarGroup();
             MapInfoButton = new DevExpress.XtraNavBar.NavBarItem();
             InstanceInfoButton = new DevExpress.XtraNavBar.NavBarItem();
@@ -124,19 +125,22 @@
             // 
             // ribbonControl1
             // 
+            ribbonControl1.EmptyAreaImageOptions.ImagePadding = new System.Windows.Forms.Padding(45, 44, 45, 44);
             ribbonControl1.ExpandCollapseItem.Id = 0;
             ribbonControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbonControl1.ExpandCollapseItem, skinRibbonGalleryBarItem1, StartServerButton, StopServerButton });
             ribbonControl1.Location = new System.Drawing.Point(0, 0);
+            ribbonControl1.Margin = new System.Windows.Forms.Padding(4);
             ribbonControl1.MaxItemId = 9;
             ribbonControl1.MdiMergeStyle = DevExpress.XtraBars.Ribbon.RibbonMdiMergeStyle.Always;
             ribbonControl1.Name = "ribbonControl1";
+            ribbonControl1.OptionsMenuMinWidth = 495;
             ribbonControl1.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] { ribbonPage1, ribbonPage2, ribbonPage3 });
             ribbonControl1.ShowApplicationButton = DevExpress.Utils.DefaultBoolean.False;
             ribbonControl1.ShowExpandCollapseButton = DevExpress.Utils.DefaultBoolean.True;
             ribbonControl1.ShowItemCaptionsInCaptionBar = true;
             ribbonControl1.ShowQatLocationSelector = false;
             ribbonControl1.ShowToolbarCustomizeItem = false;
-            ribbonControl1.Size = new System.Drawing.Size(1294, 144);
+            ribbonControl1.Size = new System.Drawing.Size(1941, 209);
             ribbonControl1.Toolbar.ShowCustomizeItem = false;
             // 
             // skinRibbonGalleryBarItem1
@@ -201,11 +205,12 @@
             navBarControl1.ActiveGroup = navBarGroup1;
             navBarControl1.Dock = System.Windows.Forms.DockStyle.Left;
             navBarControl1.Groups.AddRange(new DevExpress.XtraNavBar.NavBarGroup[] { navBarGroup1, navBarGroup4, navBarGroup5, navBarGroup8, navBarGroup7, navBarGroup6, navBarGroup3 });
-            navBarControl1.Items.AddRange(new DevExpress.XtraNavBar.NavBarItem[] { LogNavButton, ChatLogButton, ConfigButton, MapInfoButton, MonsterInfoButton, ItemInfoButton, InstanceInfoButton, NPCInfoButton, NPCPageButton, MagicInfoButton, AccountInfoButton, CharacterInfoButton, MovementInfoButton, ItemInfoStatButton, MonsterInfoStatButton, SetInfoButton, StoreInfoButton, BaseStatButton, SafeZoneInfoButton, RespawnInfoButton, MapRegionButton, DropInfoButton, UserDropButton, QuestInfoButton, MilestoneInfoButton, CompanionInfoButton, EventInfoButton, CastleInfoButton, PaymentButton, StoreSalesButton, DiagnosticButton, OrphanDiagnosticsButton, ConquestStatsButton, UserMailButton, WeaponCraftInfoButton, CurrencyInfoButton, FishingInfoButton, FameInfoButton, DisciplineInfoButton, NPCDataButton, BundleInfoButton, LootBoxInfoButton, HelpInfoButton });
-            navBarControl1.Location = new System.Drawing.Point(0, 144);
+            navBarControl1.Items.AddRange(new DevExpress.XtraNavBar.NavBarItem[] { LogNavButton, ChatLogButton, ConfigButton, MapInfoButton, MonsterInfoButton, ItemInfoButton, InstanceInfoButton, NPCInfoButton, NPCPageButton, MagicInfoButton, AccountInfoButton, CharacterInfoButton, MovementInfoButton, ItemInfoStatButton, MonsterInfoStatButton, SetInfoButton, StoreInfoButton, BaseStatButton, SafeZoneInfoButton, RespawnInfoButton, MapRegionButton, DropInfoButton, UserDropButton, QuestInfoButton, MilestoneInfoButton, CompanionInfoButton, EventInfoButton, CastleInfoButton, PaymentButton, StoreSalesButton, DiagnosticButton, OrphanDiagnosticsButton, ConquestStatsButton, UserMailButton, WeaponCraftInfoButton, CurrencyInfoButton, FishingInfoButton, FameInfoButton, DisciplineInfoButton, NPCDataButton, BundleInfoButton, LootBoxInfoButton, HelpInfoButton, RebirthInfoButton });
+            navBarControl1.Location = new System.Drawing.Point(0, 209);
+            navBarControl1.Margin = new System.Windows.Forms.Padding(4);
             navBarControl1.Name = "navBarControl1";
-            navBarControl1.OptionsNavPane.ExpandedWidth = 144;
-            navBarControl1.Size = new System.Drawing.Size(144, 690);
+            navBarControl1.OptionsNavPane.ExpandedWidth = 216;
+            navBarControl1.Size = new System.Drawing.Size(216, 1012);
             navBarControl1.TabIndex = 1;
             navBarControl1.Text = "navBarControl1";
             // 
@@ -241,9 +246,10 @@
             // navBarGroup4
             // 
             navBarGroup4.Caption = "Player";
+            navBarGroup4.Expanded = true;
             navBarGroup4.ImageOptions.LargeImage = (System.Drawing.Image)resources.GetObject("navBarGroup4.ImageOptions.LargeImage");
             navBarGroup4.ImageOptions.SmallImage = (System.Drawing.Image)resources.GetObject("navBarGroup4.ImageOptions.SmallImage");
-            navBarGroup4.ItemLinks.AddRange(new DevExpress.XtraNavBar.NavBarItemLink[] { new DevExpress.XtraNavBar.NavBarItemLink(BaseStatButton), new DevExpress.XtraNavBar.NavBarItemLink(MagicInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(FameInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(DisciplineInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(CompanionInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(CurrencyInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(HelpInfoButton) });
+            navBarGroup4.ItemLinks.AddRange(new DevExpress.XtraNavBar.NavBarItemLink[] { new DevExpress.XtraNavBar.NavBarItemLink(BaseStatButton), new DevExpress.XtraNavBar.NavBarItemLink(MagicInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(FameInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(DisciplineInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(CompanionInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(CurrencyInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(HelpInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(RebirthInfoButton) });
             navBarGroup4.Name = "navBarGroup4";
             // 
             // BaseStatButton
@@ -297,6 +303,14 @@
             HelpInfoButton.ImageOptions.SmallImage = (System.Drawing.Image)resources.GetObject("HelpInfoButton.ImageOptions.SmallImage");
             HelpInfoButton.Name = "HelpInfoButton";
             HelpInfoButton.LinkClicked += HelpInfoButton_LinkClicked;
+            // 
+            // RebirthInfoButton
+            // 
+            RebirthInfoButton.Caption = "Rebirth Info";
+            RebirthInfoButton.ImageOptions.LargeImage = (System.Drawing.Image)resources.GetObject("RebirthInfoButton.ImageOptions.LargeImage");
+            RebirthInfoButton.ImageOptions.SmallImage = (System.Drawing.Image)resources.GetObject("RebirthInfoButton.ImageOptions.SmallImage");
+            RebirthInfoButton.Name = "RebirthInfoButton";
+            RebirthInfoButton.LinkClicked += RebirthInfoButton_LinkClicked;
             // 
             // navBarGroup5
             // 
@@ -681,15 +695,17 @@
             barDockControlTop.Dock = System.Windows.Forms.DockStyle.Top;
             barDockControlTop.Location = new System.Drawing.Point(0, 0);
             barDockControlTop.Manager = BManager;
-            barDockControlTop.Size = new System.Drawing.Size(1294, 0);
+            barDockControlTop.Margin = new System.Windows.Forms.Padding(4);
+            barDockControlTop.Size = new System.Drawing.Size(1941, 0);
             // 
             // barDockControlBottom
             // 
             barDockControlBottom.CausesValidation = false;
             barDockControlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            barDockControlBottom.Location = new System.Drawing.Point(0, 834);
+            barDockControlBottom.Location = new System.Drawing.Point(0, 1221);
             barDockControlBottom.Manager = BManager;
-            barDockControlBottom.Size = new System.Drawing.Size(1294, 25);
+            barDockControlBottom.Margin = new System.Windows.Forms.Padding(4);
+            barDockControlBottom.Size = new System.Drawing.Size(1941, 34);
             // 
             // barDockControlLeft
             // 
@@ -697,15 +713,17 @@
             barDockControlLeft.Dock = System.Windows.Forms.DockStyle.Left;
             barDockControlLeft.Location = new System.Drawing.Point(0, 0);
             barDockControlLeft.Manager = BManager;
-            barDockControlLeft.Size = new System.Drawing.Size(0, 834);
+            barDockControlLeft.Margin = new System.Windows.Forms.Padding(4);
+            barDockControlLeft.Size = new System.Drawing.Size(0, 1221);
             // 
             // barDockControlRight
             // 
             barDockControlRight.CausesValidation = false;
             barDockControlRight.Dock = System.Windows.Forms.DockStyle.Right;
-            barDockControlRight.Location = new System.Drawing.Point(1294, 0);
+            barDockControlRight.Location = new System.Drawing.Point(1941, 0);
             barDockControlRight.Manager = BManager;
-            barDockControlRight.Size = new System.Drawing.Size(0, 834);
+            barDockControlRight.Margin = new System.Windows.Forms.Padding(4);
+            barDockControlRight.Size = new System.Drawing.Size(0, 1221);
             // 
             // InterfaceTimer
             // 
@@ -714,9 +732,9 @@
             // 
             // SMain
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1294, 859);
+            ClientSize = new System.Drawing.Size(1941, 1255);
             Controls.Add(navBarControl1);
             Controls.Add(ribbonControl1);
             Controls.Add(barDockControlLeft);
@@ -724,6 +742,7 @@
             Controls.Add(barDockControlBottom);
             Controls.Add(barDockControlTop);
             IsMdiContainer = true;
+            Margin = new System.Windows.Forms.Padding(4);
             Name = "SMain";
             Ribbon = ribbonControl1;
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -821,6 +840,7 @@
         private DevExpress.XtraNavBar.NavBarGroup navBarGroup6;
         private DevExpress.XtraNavBar.NavBarItem BundleInfoButton;
         private DevExpress.XtraNavBar.NavBarItem LootBoxInfoButton;
+        private DevExpress.XtraNavBar.NavBarItem RebirthInfoButton;
     }
 }
 
