@@ -1939,12 +1939,15 @@ namespace Client.Envir
         public void Process(S.LevelChanged p)
         {
             MapObject.User.Level = p.Level;
+            MapObject.User.Rebirth = p.Rebirth;
             MapObject.User.Experience = p.Experience;
             MapObject.User.MaxExperience = p.MaxExperience;
 
             GameScene.Game.CharacterBox.UpdateDiscipline();
 
             GameScene.Game.ReceiveChat(CEnvir.Language.LevelIncreased, MessageType.System);
+
+            GameScene.Game.RebirthBox.UpdateUI();
         }
 
         public void Process(S.GainedExperience p)

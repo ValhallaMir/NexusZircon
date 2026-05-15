@@ -806,4 +806,9 @@ namespace Library.Network.ClientPackets
     {
         public int Index { get; set; }
     }
+
+    public sealed class RebirthRequest : Packet
+    {
+        public int RebirthIndex { get; set; }
+    }
 }

@@ -356,6 +356,7 @@ namespace Client.Envir
                     Globals.HelpInfoList = Session.GetCollection<HelpInfo>();
                     Globals.MilestoneInfoList = Session.GetCollection<MilestoneInfo>();
                     Globals.MilestoneTaskInfoList = Session.GetCollection<MilestoneInfoTask>();
+                    Globals.RebirthInfoList = Session.GetCollection<RebirthInfo>();
 
                     KeyBinds = Session.GetCollection<KeyBindInfo>();
                     WindowSettings = Session.GetCollection<WindowSetting>();

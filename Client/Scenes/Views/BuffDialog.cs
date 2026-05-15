@@ -44,6 +44,7 @@ namespace Client.Scenes.Views
             List<ClientBuffInfo> buffs = MapObject.User.Buffs.ToList();
 
             Stats permStats = new Stats();
+            Stats rebirthStats = new Stats();
 
             for (int i = buffs.Count - 1; i >= 0; i--)
             {
@@ -58,6 +59,15 @@ namespace Client.Scenes.Views
 
                         buffs.Remove(buff);
                         break;
+
+                    case BuffType.Rebirth:
+                        if (buff.RemainingTime != TimeSpan.MaxValue) continue;
+
+                        rebirthStats.Add(buff.Stats);
+
+                        buffs.Remove(buff);
+                        break;
+
                     case BuffType.Ranking:
                     case BuffType.Developer:
                         buffs.Remove(buff);
@@ -66,8 +76,26 @@ namespace Client.Scenes.Views
             }
 
             if (permStats.Count > 0)
-                buffs.Add(new ClientBuffInfo { Index = 0, Stats = permStats, Type = BuffType.ItemBuffPermanent, RemainingTime = TimeSpan.MaxValue });
+            {
+                buffs.Add(new ClientBuffInfo
+                {
+                    Index = 0,
+                    Stats = permStats,
+                    Type = BuffType.ItemBuffPermanent,
+                    RemainingTime = TimeSpan.MaxValue
+                });
+            }
 
+            if (rebirthStats.Count > 0)
+            {
+                buffs.Add(new ClientBuffInfo
+                {
+                    Index = 0,
+                    Stats = rebirthStats,
+                    Type = BuffType.Rebirth,
+                    RemainingTime = TimeSpan.MaxValue
+                });
+            }
             buffs.Sort((x1, x2) => x2.RemainingTime.CompareTo(x1.RemainingTime));
 
             foreach (ClientBuffInfo buff in buffs)
@@ -241,6 +269,9 @@ namespace Client.Scenes.Views
                         break;
                     case BuffType.SuperiorMagicShield:
                         icon.Index = 161;
+                        break;
+                    case BuffType.Rebirth:
+                        icon.Index = 3630;
                         break;
                     default:
                         icon.Index = 73;
@@ -443,6 +474,9 @@ namespace Client.Scenes.Views
                 case BuffType.MagicWeakness:
                     text = $"Magic Weakness\n\n" +
                            $"Your Magic Resistance has been greatly reduced.\n";
+                    break;
+                case BuffType.Rebirth:
+                    text = $"Rebirth\n";
                     break;
                 default:
                     text = $"{buff.Type}\n";

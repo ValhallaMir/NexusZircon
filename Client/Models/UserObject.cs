@@ -45,6 +45,20 @@ namespace Client.Models
 
         #endregion
 
+        #region Rebirth
+        public int Rebirth
+        {
+            get { return _Rebirth; }
+            set
+            {
+                if (_Rebirth == value) return;
+
+                _Rebirth = value;
+            }
+        }
+        private int _Rebirth;
+        #endregion
+
         #region Level
         public override int Level
         {
@@ -296,6 +310,7 @@ namespace Client.Models
             CurrentFP = info.CurrentFP;
 
             Level = info.Level;
+            Rebirth = info.Rebirth;
             Experience = info.Experience;
 
             HairType = info.HairType;

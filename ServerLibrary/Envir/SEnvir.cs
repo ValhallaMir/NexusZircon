@@ -245,6 +245,7 @@ namespace Server.Envir
         public static DBCollection<SafeZoneInfo> SafeZoneInfoList;
         public static DBCollection<ItemInfo> ItemInfoList;
         public static DBCollection<RespawnInfo> RespawnInfoList;
+        public static DBCollection<RebirthInfo> RebirthInfoList;
         public static DBCollection<MagicInfo> MagicInfoList;
         public static DBCollection<CurrencyInfo> CurrencyInfoList;
 
@@ -452,6 +453,7 @@ namespace Server.Envir
             FishingInfoList = Session.GetCollection<FishingInfo>();
             DisciplineInfoList = Session.GetCollection<DisciplineInfo>();
             RespawnInfoList = Session.GetCollection<RespawnInfo>();
+            RebirthInfoList = Session.GetCollection<RebirthInfo>();
             MagicInfoList = Session.GetCollection<MagicInfo>();
             CurrencyInfoList = Session.GetCollection<CurrencyInfo>();
             FameInfoList = Session.GetCollection<FameInfo>();
@@ -1259,6 +1261,7 @@ namespace Server.Envir
             ItemInfoList = null;
             MonsterInfoList = null;
             RespawnInfoList = null;
+            RebirthInfoList = null;
             MagicInfoList = null;
             FishingInfoList = null;
             DisciplineInfoList = null;

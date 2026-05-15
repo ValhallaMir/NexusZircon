@@ -432,6 +432,7 @@ namespace Library.Network.ServerPackets
     public sealed class LevelChanged : Packet
     {
         public int Level { get; set; }
+        public int Rebirth { get; set; }
         public decimal Experience { get; set; }
         public decimal MaxExperience { get; set; }
     }

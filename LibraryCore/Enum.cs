@@ -253,6 +253,8 @@ namespace Library
 
         Fame = 19,
 
+        Rebirth = 20,
+
         //War
         Defiance = 100,
         Might = 101,

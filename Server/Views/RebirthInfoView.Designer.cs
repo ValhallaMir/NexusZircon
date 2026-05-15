@@ -29,15 +29,22 @@
         private void InitializeComponent()
         {
             DevExpress.XtraGrid.GridLevelNode gridLevelNode1 = new DevExpress.XtraGrid.GridLevelNode();
+            DevExpress.XtraGrid.GridLevelNode gridLevelNode2 = new DevExpress.XtraGrid.GridLevelNode();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RebirthInfoView));
-            InfoGridView = new DevExpress.XtraGrid.Views.Grid.GridView();
-            gridColumn6 = new DevExpress.XtraGrid.Columns.GridColumn();
-            gridColumn7 = new DevExpress.XtraGrid.Columns.GridColumn();
-            gridColumn9 = new DevExpress.XtraGrid.Columns.GridColumn();
+            RewardsGridView = new DevExpress.XtraGrid.Views.Grid.GridView();
+            colRewardItemName = new DevExpress.XtraGrid.Columns.GridColumn();
+            colRewardCount = new DevExpress.XtraGrid.Columns.GridColumn();
+            BenefitsGridView = new DevExpress.XtraGrid.Views.Grid.GridView();
+            colBenefitStatName = new DevExpress.XtraGrid.Columns.GridColumn();
+            colBenefitRate = new DevExpress.XtraGrid.Columns.GridColumn();
+            StatImageComboBox = new DevExpress.XtraEditors.Repository.RepositoryItemImageComboBox();
+            ItemInfoLookUpEdit = new DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit();
             RebirthGridControl = new DevExpress.XtraGrid.GridControl();
             RebirthGridView = new DevExpress.XtraGrid.Views.Grid.GridView();
             colTitle = new DevExpress.XtraGrid.Columns.GridColumn();
             colOrder = new DevExpress.XtraGrid.Columns.GridColumn();
+            colRequiredLevel = new DevExpress.XtraGrid.Columns.GridColumn();
+            colResetToLevel = new DevExpress.XtraGrid.Columns.GridColumn();
             colDescription = new DevExpress.XtraGrid.Columns.GridColumn();
             ribbon = new DevExpress.XtraBars.Ribbon.RibbonControl();
             SaveButton = new DevExpress.XtraBars.BarButtonItem();
@@ -46,69 +53,118 @@
             ribbonPage1 = new DevExpress.XtraBars.Ribbon.RibbonPage();
             ribbonPageGroup1 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             JsonGroup = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
-            ItemGridView = new DevExpress.XtraGrid.Views.Grid.GridView();
-            gridColumn10 = new DevExpress.XtraGrid.Columns.GridColumn();
-            gridColumn11 = new DevExpress.XtraGrid.Columns.GridColumn();
-            gridColumn13 = new DevExpress.XtraGrid.Columns.GridColumn();
-            ItemMemoEdit = new DevExpress.XtraEditors.Repository.RepositoryItemMemoExEdit();
-            ((System.ComponentModel.ISupportInitialize)InfoGridView).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)RewardsGridView).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)BenefitsGridView).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)StatImageComboBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)ItemInfoLookUpEdit).BeginInit();
             ((System.ComponentModel.ISupportInitialize)RebirthGridControl).BeginInit();
             ((System.ComponentModel.ISupportInitialize)RebirthGridView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ribbon).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)ItemGridView).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)ItemMemoEdit).BeginInit();
             SuspendLayout();
             // 
-            // InfoGridView
+            // RewardsGridView
             // 
-            InfoGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { gridColumn6, gridColumn7, gridColumn9 });
-            InfoGridView.DetailHeight = 475;
-            InfoGridView.GridControl = RebirthGridControl;
-            InfoGridView.LevelIndent = 0;
-            InfoGridView.Name = "InfoGridView";
-            InfoGridView.OptionsDetail.AllowExpandEmptyDetails = true;
-            InfoGridView.OptionsEditForm.PopupEditFormWidth = 1200;
-            InfoGridView.OptionsView.EnableAppearanceEvenRow = true;
-            InfoGridView.OptionsView.EnableAppearanceOddRow = true;
-            InfoGridView.OptionsView.NewItemRowPosition = DevExpress.XtraGrid.Views.Grid.NewItemRowPosition.Top;
-            InfoGridView.OptionsView.ShowButtonMode = DevExpress.XtraGrid.Views.Base.ShowButtonModeEnum.ShowAlways;
-            InfoGridView.OptionsView.ShowGroupPanel = false;
+            RewardsGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { colRewardItemName, colRewardCount });
+            RewardsGridView.DetailHeight = 475;
+            RewardsGridView.GridControl = RebirthGridControl;
+            RewardsGridView.Name = "RewardsGridView";
+            RewardsGridView.OptionsEditForm.PopupEditFormWidth = 1200;
+            RewardsGridView.OptionsView.EnableAppearanceEvenRow = true;
+            RewardsGridView.OptionsView.EnableAppearanceOddRow = true;
+            RewardsGridView.OptionsView.NewItemRowPosition = DevExpress.XtraGrid.Views.Grid.NewItemRowPosition.Top;
+            RewardsGridView.OptionsView.ShowButtonMode = DevExpress.XtraGrid.Views.Base.ShowButtonModeEnum.ShowAlways;
+            RewardsGridView.OptionsView.ShowGroupPanel = false;
             // 
-            // gridColumn6
+            // colRewardItemName
             // 
-            gridColumn6.Caption = "Title";
-            gridColumn6.FieldName = "Title";
-            gridColumn6.MinWidth = 25;
-            gridColumn6.Name = "gridColumn6";
-            gridColumn6.Visible = true;
-            gridColumn6.VisibleIndex = 0;
-            gridColumn6.Width = 96;
+            colRewardItemName.ColumnEdit = ItemInfoLookUpEdit;
+            colRewardItemName.Caption = "Item Name";
+            colRewardItemName.FieldName = "ItemName";
+            colRewardItemName.MinWidth = 25;
+            colRewardItemName.Name = "colRewardItemName";
+            colRewardItemName.Visible = true;
+            colRewardItemName.VisibleIndex = 0;
+            colRewardItemName.Width = 96;
             // 
-            // gridColumn7
+            // colRewardCount
             // 
-            gridColumn7.Caption = "Order";
-            gridColumn7.FieldName = "Order";
-            gridColumn7.MinWidth = 25;
-            gridColumn7.Name = "gridColumn7";
-            gridColumn7.Visible = true;
-            gridColumn7.VisibleIndex = 1;
-            gridColumn7.Width = 96;
+            colRewardCount.Caption = "Count";
+            colRewardCount.FieldName = "Count";
+            colRewardCount.MinWidth = 25;
+            colRewardCount.Name = "colRewardCount";
+            colRewardCount.Visible = true;
+            colRewardCount.VisibleIndex = 1;
+            colRewardCount.Width = 96;
             // 
-            // gridColumn9
+            // BenefitsGridView
             // 
-            gridColumn9.Caption = "Items";
-            gridColumn9.FieldName = "Items";
-            gridColumn9.MinWidth = 25;
-            gridColumn9.Name = "gridColumn9";
-            gridColumn9.Width = 96;
+            BenefitsGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { colBenefitStatName, colBenefitRate });
+            BenefitsGridView.DetailHeight = 475;
+            BenefitsGridView.GridControl = RebirthGridControl;
+            BenefitsGridView.Name = "BenefitsGridView";
+            BenefitsGridView.OptionsEditForm.PopupEditFormWidth = 1200;
+            BenefitsGridView.OptionsView.EnableAppearanceEvenRow = true;
+            BenefitsGridView.OptionsView.EnableAppearanceOddRow = true;
+            BenefitsGridView.OptionsView.NewItemRowPosition = DevExpress.XtraGrid.Views.Grid.NewItemRowPosition.Top;
+            BenefitsGridView.OptionsView.ShowButtonMode = DevExpress.XtraGrid.Views.Base.ShowButtonModeEnum.ShowAlways;
+            BenefitsGridView.OptionsView.ShowGroupPanel = false;
+            // 
+            // colBenefitStatName
+            // 
+            colBenefitStatName.ColumnEdit = StatImageComboBox;
+            colBenefitStatName.Caption = "Stat Name";
+            colBenefitStatName.FieldName = "StatName";
+            colBenefitStatName.MinWidth = 25;
+            colBenefitStatName.Name = "colBenefitStatName";
+            colBenefitStatName.Visible = true;
+            colBenefitStatName.VisibleIndex = 0;
+            colBenefitStatName.Width = 96;
+            // 
+            // colBenefitRate
+            // 
+            colBenefitRate.Caption = "Rate";
+            colBenefitRate.FieldName = "Rate";
+            colBenefitRate.MinWidth = 25;
+            colBenefitRate.Name = "colBenefitRate";
+            colBenefitRate.Visible = true;
+            colBenefitRate.VisibleIndex = 1;
+            colBenefitRate.Width = 96;
+            // 
+            // StatImageComboBox
+            // 
+            StatImageComboBox.AutoHeight = false;
+            StatImageComboBox.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            StatImageComboBox.Name = "StatImageComboBox";
+            // 
+            // ItemInfoLookUpEdit
+            // 
+            ItemInfoLookUpEdit.AutoHeight = false;
+            ItemInfoLookUpEdit.BestFitMode = DevExpress.XtraEditors.Controls.BestFitMode.BestFitResizePopup;
+            ItemInfoLookUpEdit.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[]
+            {
+                new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)
+            });
+            ItemInfoLookUpEdit.Columns.AddRange(new DevExpress.XtraEditors.Controls.LookUpColumnInfo[]
+            {
+                new DevExpress.XtraEditors.Controls.LookUpColumnInfo("Index", "Index"),
+                new DevExpress.XtraEditors.Controls.LookUpColumnInfo("ItemName", "Item Name"),
+                new DevExpress.XtraEditors.Controls.LookUpColumnInfo("ItemType", "Item Type"),
+                new DevExpress.XtraEditors.Controls.LookUpColumnInfo("Price", "Price"),
+                new DevExpress.XtraEditors.Controls.LookUpColumnInfo("StackSize", "Stack Size")
+            });
+            ItemInfoLookUpEdit.DisplayMember = "ItemName";
+            ItemInfoLookUpEdit.Name = "ItemInfoLookUpEdit";
+            ItemInfoLookUpEdit.NullText = "[Item is null]";
+            ItemInfoLookUpEdit.UseCtrlScroll = false;
             // 
             // RebirthGridControl
             // 
             RebirthGridControl.Dock = System.Windows.Forms.DockStyle.Fill;
             RebirthGridControl.EmbeddedNavigator.Margin = new System.Windows.Forms.Padding(4);
-            gridLevelNode1.LevelTemplate = InfoGridView;
+            gridLevelNode1.LevelTemplate = BenefitsGridView;
             gridLevelNode1.RelationName = "Benefits";
-            RebirthGridControl.LevelTree.Nodes.AddRange(new DevExpress.XtraGrid.GridLevelNode[] { gridLevelNode1 });
+            gridLevelNode2.LevelTemplate = RewardsGridView;
+            gridLevelNode2.RelationName = "Rewards";
             RebirthGridControl.Location = new System.Drawing.Point(0, 209);
             RebirthGridControl.MainView = RebirthGridView;
             RebirthGridControl.Margin = new System.Windows.Forms.Padding(4);
@@ -117,11 +173,13 @@
             RebirthGridControl.ShowOnlyPredefinedDetails = true;
             RebirthGridControl.Size = new System.Drawing.Size(2358, 463);
             RebirthGridControl.TabIndex = 2;
-            RebirthGridControl.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { RebirthGridView, ItemGridView, InfoGridView });
+            RebirthGridControl.LevelTree.Nodes.AddRange(new DevExpress.XtraGrid.GridLevelNode[] { gridLevelNode1, gridLevelNode2 });
+            RebirthGridControl.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] { StatImageComboBox, ItemInfoLookUpEdit });
+            RebirthGridControl.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { RebirthGridView, RewardsGridView, BenefitsGridView });
             // 
             // RebirthGridView
             // 
-            RebirthGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { colTitle, colOrder, colDescription });
+            RebirthGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { colTitle, colOrder, colRequiredLevel, colResetToLevel, colDescription });
             RebirthGridView.DetailHeight = 475;
             RebirthGridView.GridControl = RebirthGridControl;
             RebirthGridView.Name = "RebirthGridView";
@@ -132,6 +190,7 @@
             RebirthGridView.OptionsView.NewItemRowPosition = DevExpress.XtraGrid.Views.Grid.NewItemRowPosition.Top;
             RebirthGridView.OptionsView.ShowButtonMode = DevExpress.XtraGrid.Views.Base.ShowButtonModeEnum.ShowAlways;
             RebirthGridView.OptionsView.ShowGroupPanel = false;
+            RebirthGridView.OptionsBehavior.EditorShowMode = DevExpress.Utils.EditorShowMode.MouseDownFocused;
             // 
             // colTitle
             // 
@@ -154,6 +213,26 @@
             colOrder.VisibleIndex = 1;
             colOrder.Width = 96;
             // 
+            // colRequiredLevel
+            // 
+            colRequiredLevel.Caption = "Required Level";
+            colRequiredLevel.FieldName = "RequiredLevel";
+            colRequiredLevel.MinWidth = 25;
+            colRequiredLevel.Name = "colRequiredLevel";
+            colRequiredLevel.Visible = true;
+            colRequiredLevel.VisibleIndex = 2;
+            colRequiredLevel.Width = 96;
+            // 
+            // colResetToLevel
+            // 
+            colResetToLevel.Caption = "Reset to Level";
+            colResetToLevel.FieldName = "ResetToLevel";
+            colResetToLevel.MinWidth = 25;
+            colResetToLevel.Name = "colResetToLevel";
+            colResetToLevel.Visible = true;
+            colResetToLevel.VisibleIndex = 3;
+            colResetToLevel.Width = 96;
+            // 
             // colDescription
             // 
             colDescription.Caption = "Description";
@@ -161,7 +240,7 @@
             colDescription.MinWidth = 25;
             colDescription.Name = "colDescription";
             colDescription.Visible = true;
-            colDescription.VisibleIndex = 2;
+            colDescription.VisibleIndex = 4;
             colDescription.Width = 96;
             // 
             // ribbon
@@ -224,57 +303,6 @@
             JsonGroup.Name = "JsonGroup";
             JsonGroup.Text = "Json";
             // 
-            // ItemGridView
-            // 
-            ItemGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { gridColumn10, gridColumn11, gridColumn13 });
-            ItemGridView.DetailHeight = 475;
-            ItemGridView.GridControl = RebirthGridControl;
-            ItemGridView.Name = "ItemGridView";
-            ItemGridView.OptionsDetail.EnableMasterViewMode = false;
-            ItemGridView.OptionsEditForm.PopupEditFormWidth = 1200;
-            ItemGridView.OptionsView.EnableAppearanceEvenRow = true;
-            ItemGridView.OptionsView.EnableAppearanceOddRow = true;
-            ItemGridView.OptionsView.NewItemRowPosition = DevExpress.XtraGrid.Views.Grid.NewItemRowPosition.Top;
-            ItemGridView.OptionsView.ShowButtonMode = DevExpress.XtraGrid.Views.Base.ShowButtonModeEnum.ShowAlways;
-            ItemGridView.OptionsView.ShowGroupPanel = false;
-            // 
-            // gridColumn10
-            // 
-            gridColumn10.Caption = "Title";
-            gridColumn10.FieldName = "Title";
-            gridColumn10.MinWidth = 25;
-            gridColumn10.Name = "gridColumn10";
-            gridColumn10.Visible = true;
-            gridColumn10.VisibleIndex = 0;
-            gridColumn10.Width = 96;
-            // 
-            // gridColumn11
-            // 
-            gridColumn11.Caption = "Order";
-            gridColumn11.FieldName = "Order";
-            gridColumn11.MinWidth = 25;
-            gridColumn11.Name = "gridColumn11";
-            gridColumn11.Visible = true;
-            gridColumn11.VisibleIndex = 1;
-            gridColumn11.Width = 96;
-            // 
-            // gridColumn13
-            // 
-            gridColumn13.Caption = "Content";
-            gridColumn13.ColumnEdit = ItemMemoEdit;
-            gridColumn13.FieldName = "Content";
-            gridColumn13.MinWidth = 25;
-            gridColumn13.Name = "gridColumn13";
-            gridColumn13.Visible = true;
-            gridColumn13.VisibleIndex = 2;
-            gridColumn13.Width = 96;
-            // 
-            // ItemMemoEdit
-            // 
-            ItemMemoEdit.AutoHeight = false;
-            ItemMemoEdit.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
-            ItemMemoEdit.Name = "ItemMemoEdit";
-            // 
             // RebirthInfoView
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
@@ -286,12 +314,13 @@
             Name = "RebirthInfoView";
             Ribbon = ribbon;
             Text = "Rebirth";
-            ((System.ComponentModel.ISupportInitialize)InfoGridView).EndInit();
+            ((System.ComponentModel.ISupportInitialize)RewardsGridView).EndInit();
+            ((System.ComponentModel.ISupportInitialize)BenefitsGridView).EndInit();
+            ((System.ComponentModel.ISupportInitialize)StatImageComboBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)ItemInfoLookUpEdit).EndInit();
             ((System.ComponentModel.ISupportInitialize)RebirthGridControl).EndInit();
             ((System.ComponentModel.ISupportInitialize)RebirthGridView).EndInit();
             ((System.ComponentModel.ISupportInitialize)ribbon).EndInit();
-            ((System.ComponentModel.ISupportInitialize)ItemGridView).EndInit();
-            ((System.ComponentModel.ISupportInitialize)ItemMemoEdit).EndInit();
             ResumeLayout(false);
             PerformLayout();
 
@@ -308,17 +337,18 @@
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup JsonGroup;
         private DevExpress.XtraGrid.GridControl RebirthGridControl;
         private DevExpress.XtraGrid.Views.Grid.GridView RebirthGridView;
-        private DevExpress.XtraGrid.Views.Grid.GridView InfoGridView;
-        private DevExpress.XtraGrid.Views.Grid.GridView ItemGridView;
+        private DevExpress.XtraGrid.Views.Grid.GridView RewardsGridView;
+        private DevExpress.XtraGrid.Views.Grid.GridView BenefitsGridView;
         private DevExpress.XtraGrid.Columns.GridColumn colTitle;
         private DevExpress.XtraGrid.Columns.GridColumn colOrder;
+        private DevExpress.XtraGrid.Columns.GridColumn colRequiredLevel;
+        private DevExpress.XtraGrid.Columns.GridColumn colResetToLevel;
         private DevExpress.XtraGrid.Columns.GridColumn colDescription;
-        private DevExpress.XtraGrid.Columns.GridColumn gridColumn6;
-        private DevExpress.XtraGrid.Columns.GridColumn gridColumn7;
-        private DevExpress.XtraGrid.Columns.GridColumn gridColumn9;
-        private DevExpress.XtraGrid.Columns.GridColumn gridColumn10;
-        private DevExpress.XtraGrid.Columns.GridColumn gridColumn11;
-        private DevExpress.XtraGrid.Columns.GridColumn gridColumn13;
-        private DevExpress.XtraEditors.Repository.RepositoryItemMemoExEdit ItemMemoEdit;
+        private DevExpress.XtraGrid.Columns.GridColumn colRewardItemName;
+        private DevExpress.XtraGrid.Columns.GridColumn colRewardCount;
+        private DevExpress.XtraGrid.Columns.GridColumn colBenefitStatName;
+        private DevExpress.XtraGrid.Columns.GridColumn colBenefitRate;
+        private DevExpress.XtraEditors.Repository.RepositoryItemImageComboBox StatImageComboBox;
+        private DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit ItemInfoLookUpEdit;
     }
 }

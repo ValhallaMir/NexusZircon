@@ -801,7 +801,6 @@ namespace Client.Scenes
             StorageBox.LoadSettings();
             TradeBox.LoadSettings();
             CompanionBox.LoadSettings();
-            RebirthBox.LoadSettings();
             CommunicationBox.LoadSettings();
             RankingBox.LoadSettings();
             QuestBox.LoadSettings();

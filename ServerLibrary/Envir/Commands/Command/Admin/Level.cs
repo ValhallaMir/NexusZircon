@@ -30,4 +30,31 @@ namespace Server.Envir.Commands.Command.Admin
             player.LevelUp();
         }
     }
+
+    class RebirthLevel : AbstractParameterizedCommand<IAdminCommand>
+    {
+        public override string VALUE => "REBIRTHLEVEL";
+        public override int PARAMS_LENGTH => 2;
+
+        public override void Action(PlayerObject player, string[] vals)
+        {
+            int value;
+            if (vals.Length >= PARAMS_LENGTH + 1)
+            {
+                player = SEnvir.GetPlayerByCharacter(vals[1]);
+                if (player == null)
+                    throw new UserCommandException(string.Format("Could not find player: {0}", vals[1]));
+                if (!int.TryParse(vals[2], out value) || value < 0)
+                    ThrowNewInvalidParametersException();
+            }
+            else
+            {
+                if (vals.Length < PARAMS_LENGTH)
+                    ThrowNewInvalidParametersException();
+                if (!int.TryParse(vals[1], out value) || value < 0)
+                    ThrowNewInvalidParametersException();
+            }
+            player.RebirthLevelUp(value, true);
+        }
+    }
 }

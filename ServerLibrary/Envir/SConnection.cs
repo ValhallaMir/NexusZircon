@@ -1541,6 +1541,36 @@ namespace Server.Envir
             if (Stage != GameStage.Game) return;
             Player.MilestoneClaim(p);
         }
+
+        public void Process(C.RebirthRequest p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            RebirthInfo info = SEnvir.RebirthInfoList.Binding.FirstOrDefault(x => x.Order == p.RebirthIndex);
+
+            if (info == null)
+            {
+                ReceiveChat($"Rebirth Info was null (Server)", MessageType.System);
+                return;
+            }
+            if (Player.Level < info.RequiredLevel)
+            {
+                ReceiveChat($"You must be level {info.RequiredLevel} to rebirth.", MessageType.System);
+                return;
+            }
+            if (info.Order != Player.Character.Rebirth)
+            {
+                ReceiveChat($"You must complete the previous rebirth before rebirthing.", MessageType.System);
+                return;
+            }
+            if (!Player.InSafeZone)
+            {
+                ReceiveChat($"You must be in a safe zone to rebirth.", MessageType.System);
+                return;
+            }
+
+            Player.RebirthDialogLevelUp(p.RebirthIndex);
+        }
     }
 
     public enum GameStage

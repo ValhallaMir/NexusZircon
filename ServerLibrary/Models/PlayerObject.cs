@@ -788,6 +788,7 @@ namespace Server.Models
                 NameColour = NameColour,
 
                 Level = Level,
+                Rebirth = Character.Rebirth,
                 Class = Class,
                 Gender = Gender,
                 Location = CurrentLocation,
@@ -1921,29 +1922,20 @@ namespace Server.Models
 
         public void GainExperience(decimal amount, bool huntGold, int gainLevel = Int32.MaxValue, bool rateEffected = true)
         {
+            RebirthInfo currentRebirth = null;
+
+            if (Character.Rebirth > 0)
+                currentRebirth = SEnvir.RebirthInfoList.Binding.FirstOrDefault(x => x.Order == Character.Rebirth - 1);
+
+            if (currentRebirth != null && Level >= currentRebirth.RequiredLevel)
+                amount = 0;
+
             if (rateEffected)
             {
                 amount *= 1M + Stats[Stat.ExperienceRate] / 100M;
 
                 amount *= 1M + Stats[Stat.BaseExperienceRate] / 100M;
-
-                for (int i = 0; i < Character.Rebirth; i++)
-                    amount *= 0.5M;
             }
-
-            /*
-            if (Level >= 60)
-            {
-    
-                if (Level > gainLevel)
-                    amount -= Math.Min(amount, amount * Math.Min(0.9M, (Level - gainLevel) * 0.10M));
-            }
-            else
-            {
-                if (Level > gainLevel)
-                    amount -= Math.Min(amount, amount * Math.Min(0.3M, (Level - gainLevel) * 0.06M));
-            }
-            */
 
             if (amount == 0) return;
 
@@ -2001,7 +1993,7 @@ namespace Server.Models
             SetMP(Stats[Stat.Mana]);
             SetFP(CurrentFP);
 
-            Enqueue(new S.LevelChanged { Level = Level, Experience = Experience, MaxExperience = MaxExperience });
+            Enqueue(new S.LevelChanged { Level = Level, Rebirth = Character.Rebirth, Experience = Experience, MaxExperience = MaxExperience });
             Broadcast(new S.ObjectLeveled { ObjectID = ObjectID });
 
             SEnvir.RankingSort(Character);
@@ -2012,6 +2004,108 @@ namespace Server.Models
             LogMilestone(MilestoneType.Level, Level, true);
 
             ApplyGuildBuff();
+        }
+
+        public void RebirthLevelUp(int rebirth, bool forced = false)
+        {
+            if (!forced)
+            {
+                Level = 1;
+                Experience = Experience / 200;
+            }
+
+            Character.Rebirth = rebirth;
+            Character.SpentPoints = 0;
+            Character.HermitStats.Clear();
+
+            Enqueue(new S.LevelChanged { Level = Level, Rebirth = Character.Rebirth, Experience = Experience, MaxExperience = MaxExperience });
+            Broadcast(new S.ObjectLeveled { ObjectID = ObjectID });
+
+            LogMilestone(MilestoneType.Rebirth, rebirth, true);
+
+            if (Character.Discipline != null)
+            {
+                Character.Discipline.Delete();
+                Character.Discipline = null;
+
+                Enqueue(new S.DisciplineUpdate { Discipline = null });
+            }
+
+            RefreshStats();
+        }
+
+        public void RebirthDialogLevelUp(int rebirth)
+        {
+            RebirthInfo info = SEnvir.RebirthInfoList.Binding.FirstOrDefault(x => x.Order == rebirth);
+
+            Level = info.ResetToLevel;
+            Experience = Experience / 200;
+
+            Character.Rebirth = info.Order + 1;
+            Character.SpentPoints = 0;
+            Character.HermitStats.Clear();
+
+            Enqueue(new S.LevelChanged { Level = Level, Rebirth = Character.Rebirth, Experience = Experience, MaxExperience = MaxExperience });
+            Broadcast(new S.ObjectLeveled { ObjectID = ObjectID });
+
+            foreach (var itemReward in info.Rewards)
+            {
+                if (itemReward == null) continue;
+
+                ItemInfo itemInfo = itemReward.ItemName;
+
+                if (itemInfo == null) continue;
+
+                UserItem item = SEnvir.CreateFreshItem(new ItemCheck(itemInfo, itemReward.Count, UserItemFlags.Bound, TimeSpan.Zero));
+
+                GainItem(item);
+            }
+
+            Stats rebirthStats = new Stats();
+
+            foreach (var benefitReward in info.Benefits)
+            {
+                if (benefitReward == null) continue;
+
+                rebirthStats[benefitReward.StatName] += benefitReward.Rate;
+            }
+
+            if (rebirthStats.Count > 0)
+            {
+                BuffInfo existingRebirthBuff = Buffs.FirstOrDefault(x => x.Type == BuffType.Rebirth);
+
+                if (existingRebirthBuff != null)
+                {
+                    existingRebirthBuff.Stats.Add(rebirthStats);
+                    existingRebirthBuff.RemainingTime = TimeSpan.MaxValue;
+
+                    Enqueue(new S.BuffRemove { Index = existingRebirthBuff.Index });
+                    Enqueue(new S.BuffAdd { Buff = existingRebirthBuff.ToClientInfo() });
+
+                    RefreshStats();
+                }
+                else
+                {
+                    BuffAdd(BuffType.Rebirth, TimeSpan.MaxValue, rebirthStats, false, false, TimeSpan.Zero);
+                }
+            }
+
+            LogMilestone(MilestoneType.Rebirth, rebirth, true);
+
+            if (Character.Discipline != null)
+            {
+                Character.Discipline.Delete();
+                Character.Discipline = null;
+
+                Enqueue(new S.DisciplineUpdate { Discipline = null });
+            }
+
+            foreach (SConnection conn in SEnvir.Connections)
+            {
+                conn.ReceiveChat($"Congratulations to {Character.CharacterName} for reaching Rebirth {Character.Rebirth}!", MessageType.Announcement);
+            }
+
+                RefreshStats();
         }
 
         public void RefreshWeight()
@@ -2311,9 +2405,6 @@ namespace Server.Models
             Stats[Stat.Rebirth] = Character.Rebirth;
 
             Stats[Stat.Fame] = Character.Fame;
-
-            Stats[Stat.DropRate] += 20 * Stats[Stat.Rebirth];
-            Stats[Stat.GoldRate] += 20 * Stats[Stat.Rebirth];
 
             Enqueue(new S.StatsUpdate
             {
@@ -11911,12 +12002,12 @@ namespace Server.Models
             Level = 1;
             Experience = Experience / 200;
 
-            Enqueue(new S.LevelChanged { Level = Level, Experience = Experience, MaxExperience = MaxExperience });
-            Broadcast(new S.ObjectLeveled { ObjectID = ObjectID });
-
             Character.Rebirth = rebirth;
             Character.SpentPoints = 0;
             Character.HermitStats.Clear();
+
+            Enqueue(new S.LevelChanged { Level = Level, Rebirth = Character.Rebirth, Experience = Experience, MaxExperience = MaxExperience });
+            Broadcast(new S.ObjectLeveled { ObjectID = ObjectID });
 
             LogMilestone(MilestoneType.Rebirth, rebirth, true);
 
@@ -15302,7 +15393,7 @@ namespace Server.Models
 
                     foreach (PlayerObject player in SEnvir.Players)
                     {
-                        if (player.Character.Rebirth > 0 || player.Character.Level >= 86) continue;
+                        if (player == this) continue;
 
                         targets.Add(player);
                     }
