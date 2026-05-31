@@ -78,7 +78,7 @@ namespace Client.Scenes.Views
             Sort = true;
             DropShadow = true;
 
-            TitleLabel.Text = "Rebirth System";
+            TitleLabel.Text = "Rebirth";
             SetClientSize(new Size(500, 500));
 
             LeftPanel = new DXControl
