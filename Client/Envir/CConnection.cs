@@ -2183,6 +2183,9 @@ namespace Client.Envir
 
             //if (p.ToGrid == GridType.GuildStorage || p.FromGrid == GridType.GuildStorage)
             //    GameScene.Game.GuildPanel.StorageControl.ItemCount = GameScene.Game.GuildStorage.Count(x => x != null);
+
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
 
         public void Process(S.CurrencyChanged p)
@@ -2195,6 +2198,8 @@ namespace Client.Envir
 
             if (currency.Info.Type == CurrencyType.Gold)
                 DXSoundManager.Play(SoundIndex.GoldGained);
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
 
         public void Process(S.ItemChanged p)
@@ -2260,6 +2265,8 @@ namespace Client.Envir
                 fromCell.Item.Count = p.Link.Count;
 
             fromCell.RefreshItem();
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
         public void Process(S.ItemsChanged p)
         {
@@ -2323,6 +2330,8 @@ namespace Client.Envir
             }
 
             DXItemCell.SelectedCell = null;
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
 
         public void Process(S.ItemStatsChanged p)
@@ -2378,6 +2387,8 @@ namespace Client.Envir
             }
 
             fromCell.RefreshItem();
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
         public void Process(S.ItemStatsRefreshed p)
         {
@@ -2411,6 +2422,8 @@ namespace Client.Envir
             fromCell.Item.AddedStats = p.NewStats;
 
             fromCell.RefreshItem();
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
         public void Process(S.ItemDurability p)
         {
@@ -2450,6 +2463,8 @@ namespace Client.Envir
                 GameScene.Game.ReceiveChat(string.Format(CEnvir.Language.ItemDurabilityDrop, fromCell.Item.Info.ItemName), MessageType.System);
 
             fromCell.RefreshItem();
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
         public void Process(S.StatsUpdate p)
         {
@@ -2528,6 +2543,8 @@ namespace Client.Envir
                 fromCell.Item.Count -= p.Count;
 
             fromCell.RefreshItem();
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
 
         public void Process(S.ItemLock p)
@@ -2650,6 +2667,8 @@ namespace Client.Envir
 
             cell.Item = null;
             cell.RefreshItem();
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
 
         public void Process(S.ItemExperience p)
