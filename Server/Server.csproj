@@ -65,6 +65,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\CraftingRecipeInfoView.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Views\RebirthInfoView.cs">
       <SubType>Form</SubType>
     </Compile>

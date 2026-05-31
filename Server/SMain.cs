@@ -714,5 +714,10 @@ namespace Server
             public List<string> ExpandedGroups { get; set; } = new List<string>();
             public bool Maximized { get; set; }
         }
+
+        private void CraftingRecipeInfoButton_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
+        {
+            ShowView(typeof(CraftingRecipeInfoView));
+        }
     }
 }

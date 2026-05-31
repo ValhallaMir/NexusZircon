@@ -341,6 +341,9 @@ namespace Client.UserModels
         [Description("Rebirth Window")]
         RebirthWindow,
 
+        [Description("Crafting Window")]
+        CraftingWindow,
+
 
     }
 }

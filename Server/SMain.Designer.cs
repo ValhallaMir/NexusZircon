@@ -112,6 +112,7 @@
             barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
             barDockControlRight = new DevExpress.XtraBars.BarDockControl();
             InterfaceTimer = new System.Windows.Forms.Timer(components);
+            CraftingRecipeInfoButton = new DevExpress.XtraNavBar.NavBarItem();
             ((System.ComponentModel.ISupportInitialize)ribbonControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)navBarControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DManager).BeginInit();
@@ -205,7 +206,7 @@
             navBarControl1.ActiveGroup = navBarGroup1;
             navBarControl1.Dock = System.Windows.Forms.DockStyle.Left;
             navBarControl1.Groups.AddRange(new DevExpress.XtraNavBar.NavBarGroup[] { navBarGroup1, navBarGroup4, navBarGroup5, navBarGroup8, navBarGroup7, navBarGroup6, navBarGroup3 });
-            navBarControl1.Items.AddRange(new DevExpress.XtraNavBar.NavBarItem[] { LogNavButton, ChatLogButton, ConfigButton, MapInfoButton, MonsterInfoButton, ItemInfoButton, InstanceInfoButton, NPCInfoButton, NPCPageButton, MagicInfoButton, AccountInfoButton, CharacterInfoButton, MovementInfoButton, ItemInfoStatButton, MonsterInfoStatButton, SetInfoButton, StoreInfoButton, BaseStatButton, SafeZoneInfoButton, RespawnInfoButton, MapRegionButton, DropInfoButton, UserDropButton, QuestInfoButton, MilestoneInfoButton, CompanionInfoButton, EventInfoButton, CastleInfoButton, PaymentButton, StoreSalesButton, DiagnosticButton, OrphanDiagnosticsButton, ConquestStatsButton, UserMailButton, WeaponCraftInfoButton, CurrencyInfoButton, FishingInfoButton, FameInfoButton, DisciplineInfoButton, NPCDataButton, BundleInfoButton, LootBoxInfoButton, HelpInfoButton, RebirthInfoButton });
+            navBarControl1.Items.AddRange(new DevExpress.XtraNavBar.NavBarItem[] { LogNavButton, ChatLogButton, ConfigButton, MapInfoButton, MonsterInfoButton, ItemInfoButton, InstanceInfoButton, NPCInfoButton, NPCPageButton, MagicInfoButton, AccountInfoButton, CharacterInfoButton, MovementInfoButton, ItemInfoStatButton, MonsterInfoStatButton, SetInfoButton, StoreInfoButton, BaseStatButton, SafeZoneInfoButton, RespawnInfoButton, MapRegionButton, DropInfoButton, UserDropButton, QuestInfoButton, MilestoneInfoButton, CompanionInfoButton, EventInfoButton, CastleInfoButton, PaymentButton, StoreSalesButton, DiagnosticButton, OrphanDiagnosticsButton, ConquestStatsButton, UserMailButton, WeaponCraftInfoButton, CurrencyInfoButton, FishingInfoButton, FameInfoButton, DisciplineInfoButton, NPCDataButton, BundleInfoButton, LootBoxInfoButton, HelpInfoButton, RebirthInfoButton, CraftingRecipeInfoButton });
             navBarControl1.Location = new System.Drawing.Point(0, 209);
             navBarControl1.Margin = new System.Windows.Forms.Padding(4);
             navBarControl1.Name = "navBarControl1";
@@ -380,6 +381,7 @@
             // navBarGroup8
             // 
             navBarGroup8.Caption = "NPC";
+            navBarGroup8.Expanded = true;
             navBarGroup8.ImageOptions.LargeImage = (System.Drawing.Image)resources.GetObject("navBarGroup8.ImageOptions.LargeImage");
             navBarGroup8.ImageOptions.SmallImage = (System.Drawing.Image)resources.GetObject("navBarGroup8.ImageOptions.SmallImage");
             navBarGroup8.ItemLinks.AddRange(new DevExpress.XtraNavBar.NavBarItemLink[] { new DevExpress.XtraNavBar.NavBarItemLink(NPCInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(NPCPageButton), new DevExpress.XtraNavBar.NavBarItemLink(QuestInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(MilestoneInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(StoreInfoButton) });
@@ -424,9 +426,10 @@
             // navBarGroup7
             // 
             navBarGroup7.Caption = "Item";
+            navBarGroup7.Expanded = true;
             navBarGroup7.ImageOptions.LargeImage = (System.Drawing.Image)resources.GetObject("navBarGroup7.ImageOptions.LargeImage");
             navBarGroup7.ImageOptions.SmallImage = (System.Drawing.Image)resources.GetObject("navBarGroup7.ImageOptions.SmallImage");
-            navBarGroup7.ItemLinks.AddRange(new DevExpress.XtraNavBar.NavBarItemLink[] { new DevExpress.XtraNavBar.NavBarItemLink(ItemInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(ItemInfoStatButton), new DevExpress.XtraNavBar.NavBarItemLink(SetInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(WeaponCraftInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(BundleInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(LootBoxInfoButton) });
+            navBarGroup7.ItemLinks.AddRange(new DevExpress.XtraNavBar.NavBarItemLink[] { new DevExpress.XtraNavBar.NavBarItemLink(ItemInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(ItemInfoStatButton), new DevExpress.XtraNavBar.NavBarItemLink(SetInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(WeaponCraftInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(BundleInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(LootBoxInfoButton), new DevExpress.XtraNavBar.NavBarItemLink(CraftingRecipeInfoButton) });
             navBarGroup7.Name = "navBarGroup7";
             // 
             // ItemInfoButton
@@ -730,6 +733,13 @@
             InterfaceTimer.Interval = 1000;
             InterfaceTimer.Tick += InterfaceTimer_Tick;
             // 
+            // CraftingRecipeInfoButton
+            // 
+            CraftingRecipeInfoButton.Caption = "Crafting Recipes";
+            CraftingRecipeInfoButton.ImageOptions.SmallImage = (System.Drawing.Image)resources.GetObject("CraftingRecipeInfoButton.ImageOptions.SmallImage");
+            CraftingRecipeInfoButton.Name = "CraftingRecipeInfoButton";
+            CraftingRecipeInfoButton.LinkClicked += CraftingRecipeInfoButton_LinkClicked;
+            // 
             // SMain
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
@@ -841,6 +851,7 @@
         private DevExpress.XtraNavBar.NavBarItem BundleInfoButton;
         private DevExpress.XtraNavBar.NavBarItem LootBoxInfoButton;
         private DevExpress.XtraNavBar.NavBarItem RebirthInfoButton;
+        private DevExpress.XtraNavBar.NavBarItem CraftingRecipeInfoButton;
     }
 }
 

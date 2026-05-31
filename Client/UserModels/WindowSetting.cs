@@ -158,5 +158,6 @@ namespace Client.UserModels
         LootBoxBox,
         HelpBox,
         RebirthBox,
+        CraftingBox,
     }
 }

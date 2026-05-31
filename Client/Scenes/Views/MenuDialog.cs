@@ -10,7 +10,7 @@ namespace Client.Scenes.Views
 {
     public class MenuDialog : DXWindow
     {
-        public DXButton SettingsButton, HelpButton, GuildButton, StorageButton, RankingButton, CompanionButton, RebirthButton, LeaveButton;
+        public DXButton SettingsButton, HelpButton, GuildButton, StorageButton, RankingButton, CompanionButton, RebirthButton, CraftingButton, LeaveButton;
 
         public WindowSetting Settings;
         public override WindowType Type => WindowType.MenuBox;
@@ -157,9 +157,19 @@ namespace Client.Scenes.Views
             };
             RebirthButton.MouseClick += (o, e) => GameScene.Game.RebirthBox.Visible = !GameScene.Game.RebirthBox.Visible;
 
-            LeaveButton = new DXButton
+            CraftingButton = new DXButton
             {
                 Location = new Point(10, 250),
+                Size = new Size(100, DefaultHeight),
+                Parent = this,
+                Label = { Text = CEnvir.Language.MenuDialogCraftingButtonLabel },
+                Hint = string.Format(CEnvir.Language.MenuDialogCraftingButtonHint, CEnvir.GetKeyBindLabel(KeyBindAction.CraftingWindow)),
+            };
+            CraftingButton.MouseClick += (o, e) => GameScene.Game.CraftingBox.Visible = !GameScene.Game.CraftingBox.Visible;
+
+            LeaveButton = new DXButton
+            {
+                Location = new Point(10, 280),
                 Size = new Size(100, DefaultHeight),
                 Parent = this,
                 Label = { Text = CEnvir.Language.MenuDialogLeaveButtonLabel },

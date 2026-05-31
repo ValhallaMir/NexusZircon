@@ -246,6 +246,7 @@ namespace Server.Envir
         public static DBCollection<ItemInfo> ItemInfoList;
         public static DBCollection<RespawnInfo> RespawnInfoList;
         public static DBCollection<RebirthInfo> RebirthInfoList;
+        public static DBCollection<RecipeInfo> RecipeInfoList;
         public static DBCollection<MagicInfo> MagicInfoList;
         public static DBCollection<CurrencyInfo> CurrencyInfoList;
 
@@ -454,6 +455,7 @@ namespace Server.Envir
             DisciplineInfoList = Session.GetCollection<DisciplineInfo>();
             RespawnInfoList = Session.GetCollection<RespawnInfo>();
             RebirthInfoList = Session.GetCollection<RebirthInfo>();
+            RecipeInfoList = Session.GetCollection<RecipeInfo>();
             MagicInfoList = Session.GetCollection<MagicInfo>();
             CurrencyInfoList = Session.GetCollection<CurrencyInfo>();
             FameInfoList = Session.GetCollection<FameInfo>();

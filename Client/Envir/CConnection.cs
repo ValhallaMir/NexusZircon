@@ -2042,6 +2042,8 @@ namespace Client.Envir
             }
 
             GameScene.Game.AddItems(p.Items);
+
+            GameScene.Game.CraftingBox.UpdateUI();
         }
         public void Process(S.ItemMove p)
         {

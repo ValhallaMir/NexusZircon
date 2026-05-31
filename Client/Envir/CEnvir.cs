@@ -357,6 +357,7 @@ namespace Client.Envir
                     Globals.MilestoneInfoList = Session.GetCollection<MilestoneInfo>();
                     Globals.MilestoneTaskInfoList = Session.GetCollection<MilestoneInfoTask>();
                     Globals.RebirthInfoList = Session.GetCollection<RebirthInfo>();
+                    Globals.RecipeInfoList = Session.GetCollection<RecipeInfo>();
 
                     KeyBinds = Session.GetCollection<KeyBindInfo>();
                     WindowSettings = Session.GetCollection<WindowSetting>();
@@ -641,6 +642,11 @@ namespace Client.Envir
                     bind.Category = "Windows";
                     bind.Key1 = Keys.R;
                     bind.Control1 = true;
+                    break;
+                case KeyBindAction.CraftingWindow:
+                    bind.Category = "Windows";
+                    bind.Key1 = Keys.C;
+                    bind.Alt1 = true;
                     break;
                 case KeyBindAction.ChangeAttackMode:
                     bind.Category = "Functions";

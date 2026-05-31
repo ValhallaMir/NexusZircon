@@ -232,6 +232,7 @@ namespace Client.Scenes
         public BundleDialog BundleBox;
         public LootBoxDialog LootBoxBox;
         public RebirthDialog RebirthBox;
+        public CraftingDialog CraftingBox;
 
         public FishingDialog FishingBox;
         public FishingCatchDialog FishingCatchBox;
@@ -788,6 +789,12 @@ namespace Client.Scenes
                 Visible = false
             };
 
+            CraftingBox = new CraftingDialog
+            {
+                Parent = this,
+                Visible = false
+            };
+
             SetDefaultLocations();
 
             LoadChatTabs();
@@ -879,6 +886,8 @@ namespace Client.Scenes
             CompanionBox.Location = new Point((Size.Width - CompanionBox.Size.Width) / 2, (Size.Height - CompanionBox.Size.Height) / 2);
 
             RebirthBox.Location = new Point((Size.Width - RebirthBox.Size.Width) / 2, (Size.Height - RebirthBox.Size.Height) / 2);
+
+            CraftingBox.Location = new Point((Size.Width - CraftingBox.Size.Width) / 2, (Size.Height - CraftingBox.Size.Height) / 2);
 
             MonsterBox.Location = new Point((Size.Width - MonsterBox.Size.Width) / 2, 50);
 
@@ -1210,6 +1219,10 @@ namespace Client.Scenes
                     case KeyBindAction.RebirthWindow:
                         if (Observer) continue;
                         RebirthBox.Visible = !RebirthBox.Visible;
+                        break;
+                    case KeyBindAction.CraftingWindow:
+                        if (Observer) continue;
+                        CraftingBox.Visible = !CraftingBox.Visible;
                         break;
                     case KeyBindAction.ConfigWindow:
                         ConfigBox.Visible = !ConfigBox.Visible;

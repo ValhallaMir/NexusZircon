@@ -434,7 +434,12 @@ namespace Library
         Currency = 34,
         Bundle = 35,
         [Description("Loot Box")]
-        LootBox = 36
+        LootBox = 36,
+        [Description("Crafting Material")]
+        CraftingMaterial = 37,
+        [Description("Crafting Tool")]
+        CraftingTool = 38,
+
     }
 
     public enum MirAction : byte

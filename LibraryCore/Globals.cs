@@ -36,6 +36,7 @@ namespace Library
         public static DBCollection<MilestoneInfo> MilestoneInfoList;
         public static DBCollection<MilestoneInfoTask> MilestoneTaskInfoList;
         public static DBCollection<SystemModels.RebirthInfo> RebirthInfoList;
+        public static DBCollection<SystemModels.RecipeInfo> RecipeInfoList;
 
         public static Random Random = new Random();
 
