@@ -812,6 +812,7 @@ namespace Library.Network.ServerPackets
     public sealed class RankSearch : Packet
     {
         public RankInfo Rank { get; set; }
+        public int StartIndex { get; set; }
     }
 
     public sealed class StartObserver : Packet

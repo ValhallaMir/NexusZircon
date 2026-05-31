@@ -571,16 +571,36 @@ namespace Client.Scenes.Views
                     {
                         bool useOffset = false;
 
-                        if (animation > 0)
-                            useOffset = true;
+                        bool blend = false;
+                        if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
+                        {
+                            blend = cell.FrontAnimationBlend;
+                            int frameCount = cell.FrontAnimationCount;
+                            if (frameCount > 0)
+                            {
+                                index += Animation % frameCount;
+                            }
+                        }
 
-                        cell.FrontLibrary.Draw(index,
-                                            drawX,
-                                            drawY - s.Height,
-                                            Color.White,
-                                            useOffset,
-                                            1F,
-                                            ImageType.Image);
+                        Size s = cell.FrontLibrary.GetSize(index);
+
+                        bool cellSized = (s.Width == CellWidth && s.Height == CellHeight) ||
+                                         (s.Width == CellWidth * 2 && s.Height == CellHeight * 2);
+
+                        if (!cellSized)
+                        {
+                            if (!blend)
+                                cell.FrontLibrary.Draw(index, drawX, drawY - s.Height, Color.White, false, 1F, ImageType.Image);
+                            else
+                                cell.FrontLibrary.DrawBlend(index, drawX, drawY - s.Height, Color.White, false, 0.5F, ImageType.Image);
+                        }
+                        else
+                        {
+                            if (!blend)
+                                cell.FrontLibrary.Draw(index, drawX, drawY - CellHeight, Color.White, false, 1F, ImageType.Image);
+                            else
+                                cell.FrontLibrary.DrawBlend(index, drawX, drawY - CellHeight, Color.White, false, 0.5F, ImageType.Image);
+                        }
                     }
 
                     #endregion

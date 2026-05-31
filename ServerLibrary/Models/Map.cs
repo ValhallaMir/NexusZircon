@@ -675,7 +675,7 @@ namespace Server.Models
             {
                 if (region.RegionType != RegionType.Area) continue;
 
-                var points = region.GetPoints(Width);
+                IEnumerable<Point> points = region.PointList ?? (IEnumerable<Point>)region.GetPoints(Width);
 
                 foreach (Point sPoint in points)
                 {
@@ -687,10 +687,7 @@ namespace Server.Models
                         continue;
                     }
 
-                    if (source.Regions == null)
-                        source.Regions = new List<MapRegion>();
-
-                    source.Regions.Add(region);
+                    source.AddRegion(region);
                 }
             }
         }
@@ -955,6 +952,8 @@ namespace Server.Models
 
     public class Cell
     {
+        private static readonly List<MapRegion> EmptyRegions = new List<MapRegion>(0);
+
         public Point Location;
 
         public Map Map;
@@ -964,13 +963,21 @@ namespace Server.Models
 
         public List<MovementInfo> Movements;
 
-        public List<MapRegion> Regions = [];
+        public List<MapRegion> Regions = EmptyRegions;
 
         public List<QuestTask> QuestTasks;
 
         public Cell(Point location)
         {
             Location = location;
+        }
+
+        public void AddRegion(MapRegion region)
+        {
+            if (ReferenceEquals(Regions, EmptyRegions))
+                Regions = new List<MapRegion>();
+
+            Regions.Add(region);
         }
 
 
