@@ -3,6 +3,7 @@ using Client.Envir;
 using Client.Rendering;
 using Client.UserModels;
 using Library;
+using Mir.DiscordExtension;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -127,6 +128,10 @@ namespace Client.Scenes
 
             foreach (DXWindow window in DXWindow.Windows)
                 window.LoadSettings();
+
+            Program.discord.UpdateStage(StatusType.GameState, GameState.SelectingCharacter);
+            Program.discord.UpdateStage(StatusType.PlayerName, "Selecting a Character. ");
+            Program.discord.UpdateActivity();
         }
 
         #region Methods
@@ -555,6 +560,10 @@ namespace Client.Scenes
             private void LogOut()
             {
                 CEnvir.Enqueue(new C.Logout());
+
+                Program.discord.UpdateStage(StatusType.GameState, GameState.LoggingIn);
+                Program.discord.UpdateStage(StatusType.PlayerName, "Logging In. ");
+                Program.discord.UpdateActivity();
             }
             public void UpdateCharacters()
             {
@@ -579,6 +588,10 @@ namespace Client.Scenes
                 scene.CharacterBox.Visible = true;
                 scene.CharacterBox.CharacterNameTextBox.SetFocus();
                 scene.CharacterAnimation.Visible = false;
+
+                Program.discord.UpdateStage(StatusType.GameState, GameState.SelectingCharacter);
+                Program.discord.UpdateStage(StatusType.PlayerName, "Creating a new Character. ");
+                Program.discord.UpdateActivity();
             }
             private void DeleteButton_MouseClick(object sender, MouseEventArgs e)
             {
@@ -1277,6 +1290,10 @@ namespace Client.Scenes
                 Visible = false;
                 scene.SelectBox.Visible = true;
                 scene.CharacterAnimation.Visible = scene.SelectBox.CharacterList.Count > 0;
+
+                Program.discord.UpdateStage(StatusType.GameState, GameState.SelectingCharacter);
+                Program.discord.UpdateStage(StatusType.PlayerName, "Selecting a Character. ");
+                Program.discord.UpdateActivity();
             }
 
             private void TextBox_KeyPress(object sender, KeyPressEventArgs e)

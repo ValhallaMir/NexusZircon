@@ -5,6 +5,7 @@ using Client.Scenes.Views;
 using Client.UserModels;
 using Library;
 using Library.SystemModels;
+using Mir.DiscordExtension;
 using MirDB;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using C = Library.Network.ClientPackets;
 
@@ -4201,6 +4203,24 @@ namespace Client.Scenes
 
             foreach (ChatTab tab in ChatTab.Tabs)
                 tab.ReceiveChat(message, type, linkedItems);
+
+            if (message.StartsWith("Users Online:"))
+            {
+                Match match = Regex.Match(
+                    message,
+                    @"Users Online:\s*(\d+),\s*Observers Online:\s*(\d+)"
+                );
+
+                if (match.Success)
+                {
+                    int users = int.Parse(match.Groups[1].Value);
+                    int observers = int.Parse(match.Groups[2].Value);
+
+                    Program.discord.UpdateStage(StatusType.PlayerCount, users);
+                    Program.discord.UpdateStage(StatusType.ObserverCount, observers);
+                    Program.discord.UpdateActivity();
+                }
+            }
         }
         public void ReceiveChat(MessageAction action, params object[] args)
         {

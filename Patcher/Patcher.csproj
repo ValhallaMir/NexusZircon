@@ -28,10 +28,13 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
-    <PackageReference Include="System.Drawing.Common" Version="10.0.6" />
-    <PackageReference Include="System.Formats.Asn1" Version="10.0.6" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.6" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.6" />
-    <PackageReference Include="System.Text.Json" Version="10.0.6" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.8" />
+    <PackageReference Include="System.Formats.Asn1" Version="10.0.8" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.8" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.8" />
+    <PackageReference Include="System.Text.Json" Version="10.0.8" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LOM-DiscordActivity-master\Mir.DiscordExtension\Mir.DiscordExtension.csproj" />
   </ItemGroup>
 </Project>

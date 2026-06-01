@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Mir.DiscordExtension;
+using Mir.DiscordExtension.SDK;
 
 namespace Client
 {
@@ -17,9 +19,18 @@ namespace Client
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        public static DiscordsApp discord => DiscordsApp.GetApp();
         [STAThread]
         static void Main(string[] args)
         {
+            discord.ClientId = 1510799033327681838;
+            discord.StartFailure += DiscordOnStartFailure;
+            discord.Started += DiscordOnStarted;
+            discord.HasException += DiscordOnHasException;
+            discord.Stopped += DiscordOnStopped;
+            discord.StartApp();
+            discord.StartLoop();
+
             ConfigReader.Load(Assembly.GetAssembly(typeof(Config)));
 
             if (Config.SentryEnabled && !string.IsNullOrEmpty(Config.SentryDSN))
@@ -68,6 +79,35 @@ namespace Client
             CEnvir.Unload();
             RenderingPipelineManager.Shutdown();
             DXSoundManager.Unload();
+
+            discord.UpdateStage(StatusType.GameState, GameState.Launching);
+            discord.UpdateStage(StatusType.PlayerName, "Loading Game. ");
+            discord.UpdateActivity();
+        }
+
+        private static void DiscordOnActivityCallBack(object sender, EventArgs e)
+        {
+            Console.WriteLine($"Call back Received ({(Result)sender})");
+        }
+
+        private static void DiscordOnStopped(object sender, EventArgs e)
+        {
+            Console.WriteLine("Discord Stopped");
+        }
+
+        private static void DiscordOnHasException(object sender, EventArgs e)
+        {
+            Console.WriteLine(((Exception)sender));
+        }
+
+        private static void DiscordOnStarted(object sender, EventArgs e)
+        {
+            Console.WriteLine("Discord Started");
+        }
+
+        private static void DiscordOnStartFailure(object sender, EventArgs e)
+        {
+            Console.WriteLine($"Discord Start failed with {(byte)sender}");
         }
     }
 }

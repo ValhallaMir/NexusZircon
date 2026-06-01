@@ -46,6 +46,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibraryCore\LibraryCore.csproj" />
+    <ProjectReference Include="..\LOM-DiscordActivity-master\Mir.DiscordExtension\Mir.DiscordExtension.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Zircon.ico" />

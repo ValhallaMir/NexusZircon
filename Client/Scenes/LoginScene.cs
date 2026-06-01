@@ -4,6 +4,8 @@ using Client.Rendering;
 using Client.Scenes.Views;
 using Client.UserModels;
 using Library;
+using Mir.DiscordExtension;
+using Mir.DiscordExtension.SDK;
 using System;
 using System.Drawing;
 using System.Net.Sockets;
@@ -11,6 +13,7 @@ using System.Threading;
 using System.Windows.Forms;
 using C = Library.Network.ClientPackets;
 using Font = System.Drawing.Font;
+
 
 //Cleaned
 namespace Client.Scenes
@@ -315,6 +318,10 @@ namespace Client.Scenes
                         ConnectionBox.Dispose();
 
                     LoginBox.Visible = true;
+
+                    Program.discord.UpdateStage(StatusType.GameState, GameState.LoggingIn);
+                    Program.discord.UpdateStage(StatusType.PlayerName, "Logging In. ");
+                    Program.discord.UpdateActivity();
                 }
                 return;
             }
@@ -886,6 +893,10 @@ namespace Client.Scenes
                 Visible = false;
                 scene.AccountBox.Visible = true;
                 scene.AccountBox.EMailTextBox.SetFocus();
+
+                Program.discord.UpdateStage(StatusType.GameState, GameState.LoggingIn);
+                Program.discord.UpdateStage(StatusType.PlayerName, "Creating Account. ");
+                Program.discord.UpdateActivity();
             }
 
 
@@ -1446,6 +1457,10 @@ namespace Client.Scenes
                 Visible = false;
                 scene.LoginBox.Visible = true;
                 scene.LoginBox.EMailTextBox.SetFocus();
+
+                Program.discord.UpdateStage(StatusType.GameState, GameState.LoggingIn);
+                Program.discord.UpdateStage(StatusType.PlayerName, "Logging In. ");
+                Program.discord.UpdateActivity();
             }
 
             private void TextBox_KeyPress(object sender, KeyPressEventArgs e)

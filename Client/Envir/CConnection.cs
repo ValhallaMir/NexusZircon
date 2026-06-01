@@ -5,6 +5,7 @@ using Client.Scenes.Views;
 using Library;
 using Library.Network;
 using Library.SystemModels;
+using Mir.DiscordExtension;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -778,6 +779,11 @@ namespace Client.Envir
                         GameScene.Game.CompanionBox.RefreshFilter();
 
                         GameScene.Game.CharacterBox.UpdateDiscipline();
+
+                        Program.discord.UpdateStage(StatusType.GameState, GameState.Playing);
+                        Program.discord.UpdateStage(StatusType.PlayerName, $"{GameScene.Game.User.Name}");
+                        Program.discord.UpdateStage(StatusType.PlayerLevel, $"{GameScene.Game.User.Level}");
+                        Program.discord.UpdateActivity();
 
                         break;
                 }
@@ -1948,6 +1954,9 @@ namespace Client.Envir
             GameScene.Game.ReceiveChat(CEnvir.Language.LevelIncreased, MessageType.System);
 
             GameScene.Game.RebirthBox.UpdateUI();
+
+            Program.discord.UpdateStage(StatusType.PlayerLevel, $"{GameScene.Game.User.Level}");
+            Program.discord.UpdateActivity();
         }
 
         public void Process(S.GainedExperience p)

@@ -1020,6 +1020,19 @@ namespace Server.Models
 
             Connection.ReceiveChatWithObservers(con => con.Language.Welcome, MessageType.Announcement);
 
+            Connection.ReceiveChat(string.Format(Connection.Language.OnlineCount, SEnvir.Players.Count, SEnvir.Connections.Count(x => x.Stage == GameStage.Observer)), MessageType.Hint);
+
+            switch (Connection.Stage)
+            {
+                case GameStage.Game:
+                    if (Connection.Player.Character.Observable)
+                        Connection.ReceiveChat(string.Format(Connection.Language.ObserverCount, Connection.Observers.Count), MessageType.Hint);
+                    break;
+                case GameStage.Observer:
+                    Connection.ReceiveChat(string.Format(Connection.Language.ObserverCount, Connection.Observed.Observers.Count), MessageType.Hint);
+                    break;
+            }
+
             SendGuildInfo();
 
             if (Level > 0)
