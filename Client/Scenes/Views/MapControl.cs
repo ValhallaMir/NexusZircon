@@ -571,10 +571,10 @@ namespace Client.Scenes.Views
                     {
                         bool useOffset = false;
 
-                        bool blend = false;
+                        bool blend1 = false;
                         if (cell.FrontAnimationFrame > 1 && cell.FrontAnimationFrame < 255)
                         {
-                            blend = cell.FrontAnimationBlend;
+                            blend1 = cell.FrontAnimationBlend;
                             int frameCount = cell.FrontAnimationCount;
                             if (frameCount > 0)
                             {
@@ -582,21 +582,21 @@ namespace Client.Scenes.Views
                             }
                         }
 
-                        Size s = cell.FrontLibrary.GetSize(index);
+                        Size s1 = cell.FrontLibrary.GetSize(index);
 
-                        bool cellSized = (s.Width == CellWidth && s.Height == CellHeight) ||
-                                         (s.Width == CellWidth * 2 && s.Height == CellHeight * 2);
+                        bool cellSized = (s1.Width == CellWidth && s1.Height == CellHeight) ||
+                                         (s1.Width == CellWidth * 2 && s1.Height == CellHeight * 2);
 
                         if (!cellSized)
                         {
-                            if (!blend)
-                                cell.FrontLibrary.Draw(index, drawX, drawY - s.Height, Color.White, false, 1F, ImageType.Image);
+                            if (!blend1)
+                                cell.FrontLibrary.Draw(index, drawX, drawY - s1.Height, Color.White, false, 1F, ImageType.Image);
                             else
-                                cell.FrontLibrary.DrawBlend(index, drawX, drawY - s.Height, Color.White, false, 0.5F, ImageType.Image);
+                                cell.FrontLibrary.DrawBlend(index, drawX, drawY - s1.Height, Color.White, false, 0.5F, ImageType.Image);
                         }
                         else
                         {
-                            if (!blend)
+                            if (!blend1)
                                 cell.FrontLibrary.Draw(index, drawX, drawY - CellHeight, Color.White, false, 1F, ImageType.Image);
                             else
                                 cell.FrontLibrary.DrawBlend(index, drawX, drawY - CellHeight, Color.White, false, 0.5F, ImageType.Image);
