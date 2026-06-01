@@ -12,6 +12,7 @@
         LargeImageText,
         PlayerName,
         PlayerLevel,
+        PlayerRebirth,
         PlayerClass
     }
 }

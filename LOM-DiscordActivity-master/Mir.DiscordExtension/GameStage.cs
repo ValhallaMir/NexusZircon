@@ -25,6 +25,8 @@
         public string PlayersName => _playersName;
         private string _playersLevel;
         public string PlayerLevel => _playersLevel;
+        private string _playersRebirth;
+        public string PlayerRebirth => _playersRebirth;
         private string _playersClass;
         public string PlayersClass => _playersClass;
 
@@ -40,6 +42,7 @@
             _currentPartyCount = -1;
             _maxPartyCount = -1;
             _playersLevel = "0";
+            _playersRebirth = "0";
             _largeImage = string.Empty;
             _largeImageText = string.Empty;
             _smallImage = string.Empty;
@@ -82,6 +85,7 @@
         public void UpdateSmallImageText(string text) => _smallImageText = text;
         public void UpdatePlayerName(string text) => _playersName = text;
         public void UpdatePlayerLevel(string val) => _playersLevel = val;
+        public void UpdatePlayerRebirth(string val) => _playersRebirth = val;
         public void UpdatePlayersClass(string val) => _playersClass = val;
     }
 }

@@ -783,6 +783,7 @@ namespace Client.Envir
                         Program.discord.UpdateStage(StatusType.GameState, GameState.Playing);
                         Program.discord.UpdateStage(StatusType.PlayerName, $"{GameScene.Game.User.Name}");
                         Program.discord.UpdateStage(StatusType.PlayerLevel, $"{GameScene.Game.User.Level}");
+                        Program.discord.UpdateStage(StatusType.PlayerRebirth, $"{GameScene.Game.User.Rebirth}");
                         Program.discord.UpdateActivity();
 
                         break;
@@ -1956,6 +1957,7 @@ namespace Client.Envir
             GameScene.Game.RebirthBox.UpdateUI();
 
             Program.discord.UpdateStage(StatusType.PlayerLevel, $"{GameScene.Game.User.Level}");
+            Program.discord.UpdateStage(StatusType.PlayerRebirth, $"{GameScene.Game.User.Rebirth}");
             Program.discord.UpdateActivity();
         }
 

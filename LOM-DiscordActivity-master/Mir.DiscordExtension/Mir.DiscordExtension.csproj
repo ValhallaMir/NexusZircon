@@ -40,6 +40,10 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
+  <Target Name="CopyDiscordSocialBridge" AfterTargets="Build">
+    <Copy SourceFiles="..\..\Client\DiscordSocialBridge.dll" DestinationFolder="..\..\Client\netstandard2.1" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="..\..\Client\discord_partner_sdk.dll" DestinationFolder="..\..\Client\netstandard2.1" SkipUnchangedFiles="true" />
+  </Target>
   <ItemGroup>
     <Folder Include="Resources\" />
   </ItemGroup>
