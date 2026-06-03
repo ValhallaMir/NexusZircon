@@ -792,15 +792,22 @@ namespace Client.Rendering.SharpDXD3D9
 
             screen = string.IsNullOrEmpty(screen?.DeviceName)
                 ? RenderingPipelineManager.GetSelectedScreen()
-                : DisplayModeManager.GetScreenByDeviceName(screen.DeviceName, RenderingPipelineManager.GetSelectedScreen());
+                : DisplayModeManager.GetScreenByDeviceName(
+                    screen.DeviceName,
+                    RenderingPipelineManager.GetSelectedScreen());
 
             Size size = DXControl.ActiveScene?.Size ?? Config.GameSize;
+
             if (!Config.FullScreen && CEnvir.Target.ClientSize != size)
                 CEnvir.Target.ClientSize = size;
 
-            GdiRectangle bounds = RenderingPipelineManager.GetMonitorDisplayBounds(screen.DeviceName, screen.Bounds);
-            int x = bounds.X + (bounds.Width - CEnvir.Target.Width) / 2;
-            int y = bounds.Y + (bounds.Height - CEnvir.Target.Height) / 2;
+            // Use WinForms/logical bounds for Form.Location positioning.
+            GdiRectangle bounds = screen.Bounds;
+
+            int x = bounds.Left + (bounds.Width - CEnvir.Target.Width) / 2;
+            int y = bounds.Top + (bounds.Height - CEnvir.Target.Height) / 2;
+
+            CEnvir.Target.StartPosition = FormStartPosition.Manual;
             CEnvir.Target.Location = new GdiPoint(x, y);
         }
 

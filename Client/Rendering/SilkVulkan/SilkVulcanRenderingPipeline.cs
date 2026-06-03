@@ -344,12 +344,24 @@ namespace Client.Rendering.SilkVulkan
 
             Screen selectedScreen = GetSelectedScreen();
 
+            selectedScreen = string.IsNullOrEmpty(selectedScreen?.DeviceName)
+                ? GetSelectedScreen()
+                : DisplayModeManager.GetScreenByDeviceName(
+                    selectedScreen.DeviceName,
+                    GetSelectedScreen());
+
             if (!force && !Config.FullScreen && !Config.Borderless && IsWindowOnScreen(selectedScreen))
                 return;
 
-            Rectangle bounds = RenderingPipelineManager.GetMonitorDisplayBounds(selectedScreen);
-            int x = bounds.X + (bounds.Width - _context.RenderTarget.Width) / 2;
-            int y = bounds.Y + (bounds.Height - _context.RenderTarget.Height) / 2;
+            if (!Config.FullScreen && _context.RenderTarget.ClientSize != Config.GameSize)
+                _context.RenderTarget.ClientSize = Config.GameSize;
+
+            // Windowed Form positioning must use WinForms/logical bounds.
+            Rectangle bounds = selectedScreen.Bounds;
+
+            int x = bounds.Left + (bounds.Width - _context.RenderTarget.Width) / 2;
+            int y = bounds.Top + (bounds.Height - _context.RenderTarget.Height) / 2;
+
             _context.RenderTarget.StartPosition = FormStartPosition.Manual;
             _context.RenderTarget.Location = new Point(x, y);
         }
@@ -2886,11 +2898,13 @@ namespace Client.Rendering.SilkVulkan
 
         private bool IsWindowOnScreen(Screen screen)
         {
-            if (screen == null)
+            if (screen == null || _context?.RenderTarget == null)
                 return false;
 
             Rectangle currentBounds = _context.RenderTarget.Bounds;
-            Rectangle screenBounds = RenderingPipelineManager.GetMonitorDisplayBounds(screen);
+
+            // Use WinForms/logical bounds for windowed checks.
+            Rectangle screenBounds = screen.Bounds;
 
             return screenBounds.IntersectsWith(currentBounds);
         }

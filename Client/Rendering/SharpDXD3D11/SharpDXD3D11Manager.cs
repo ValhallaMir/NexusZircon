@@ -27,6 +27,8 @@ using DrawingBitmap = System.Drawing.Bitmap;
 using DrawingInterpolationMode = System.Drawing.Drawing2D.InterpolationMode;
 using DrawingPixelFormat = System.Drawing.Imaging.PixelFormat;
 using Factory = SharpDX.DXGI.Factory1;
+using GdiRectangle = System.Drawing.Rectangle;
+using GdiPoint = System.Drawing.Point;
 
 namespace Client.Rendering.SharpDXD3D11
 {
@@ -281,17 +283,23 @@ namespace Client.Rendering.SharpDXD3D11
 
             screen = string.IsNullOrEmpty(screen?.DeviceName)
                 ? RenderingPipelineManager.GetSelectedScreen()
-                : DisplayModeManager.GetScreenByDeviceName(screen.DeviceName, RenderingPipelineManager.GetSelectedScreen());
+                : DisplayModeManager.GetScreenByDeviceName(
+                    screen.DeviceName,
+                    RenderingPipelineManager.GetSelectedScreen());
 
             Size size = DXControl.ActiveScene?.Size ?? Config.GameSize;
+
             if (!Config.FullScreen && CEnvir.Target.ClientSize != size)
                 CEnvir.Target.ClientSize = size;
 
-            Rectangle bounds = RenderingPipelineManager.GetMonitorDisplayBounds(screen);
-            int x = Math.Max(bounds.X, bounds.X + (bounds.Width - CEnvir.Target.Width) / 2);
-            int y = Math.Max(bounds.Y, bounds.Y + (bounds.Height - CEnvir.Target.Height) / 2);
+            // Use WinForms/logical bounds for Form.Location positioning.
+            GdiRectangle bounds = screen.Bounds;
+
+            int x = bounds.Left + (bounds.Width - CEnvir.Target.Width) / 2;
+            int y = bounds.Top + (bounds.Height - CEnvir.Target.Height) / 2;
+
             CEnvir.Target.StartPosition = FormStartPosition.Manual;
-            CEnvir.Target.Location = new Point(x, y);
+            CEnvir.Target.Location = new GdiPoint(x, y);
         }
 
         private static Point? CaptureCursorOffset(Screen screen)
