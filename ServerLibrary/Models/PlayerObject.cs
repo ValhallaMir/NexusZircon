@@ -13,6 +13,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 using C = Library.Network.ClientPackets;
 using S = Library.Network.ServerPackets;
@@ -48,6 +49,11 @@ namespace Server.Models
             set { Character.CurrentLocation = value; }
         }
 
+
+        public bool DiscordLinked
+        {
+            get { return Character.Account.DiscordID > 0; }
+        }
         public MirGender Gender => Character.Gender;
         public MirClass Class => Character.Class;
 
@@ -952,6 +958,7 @@ namespace Server.Models
             BuffRemove(BuffType.Ranking);
             BuffRemove(BuffType.Castle);
             BuffRemove(BuffType.Veteran);
+            BuffRemove(BuffType.Discord);
             BuffRemove(BuffType.ElementalHurricane);
             BuffRemove(BuffType.SuperiorMagicShield);
             BuffRemove(BuffType.ElementalSwords);
@@ -1135,6 +1142,14 @@ namespace Server.Models
 
 
             Enqueue(new S.FortuneUpdate { Fortunes = Character.Account.Fortunes.Select(x => x.ToClientInfo()).ToList() });
+
+            DiscordLibrary.DiscordApp.PlayerConnected(Name, SEnvir.Players.Count());
+
+            if (DiscordLinked)
+            {
+                DiscordLibrary.DiscordApp.UpdatePlayerNickname(Name, Character.Account.DiscordID);
+                BuffAdd(BuffType.Discord, TimeSpan.MaxValue, new Stats { [Stat.ExperienceRate] = 50, [Stat.GoldRate] = 5, [Stat.DropRate] = 5 }, false, false, TimeSpan.Zero);
+            }
         }
         public void SetUpObserver(SConnection con)
         {
@@ -1440,6 +1455,7 @@ namespace Server.Models
             base.OnDespawned();
 
             SEnvir.Players.Remove(this);
+            DiscordLibrary.DiscordApp.PlayerDisconnected(Name, SEnvir.Players.Count());
         }
 
         public override void CleanUp()
@@ -1626,6 +1642,46 @@ namespace Server.Models
                         default: continue;
                     }
                 }
+            }
+            else if (text.StartsWith("!#"))
+            {
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    Connection.ReceiveChat($"Message cannot be empty.", MessageType.System);
+                    return;
+                }
+
+                if (!DiscordLinked)
+                {
+                    Connection.ReceiveChat($"Your account must be linked to Discord to use this feature. Use @Link to link your accounts.", MessageType.System);
+                    return;
+                }
+
+                if (SEnvir.Now < Character.Account.DiscordShoutExpiry && !Character.Account.TempAdmin)
+                {
+                    Connection.ReceiveChat(string.Format("You cannot Global/Discord shout for another {0} seconds.", Math.Ceiling((Character.Account.DiscordShoutExpiry - SEnvir.Now).TotalSeconds)), MessageType.System);
+                    return;
+                }
+
+                Character.Account.DiscordShoutExpiry = SEnvir.Now.AddSeconds(10);
+
+                text = String.Format("(Discord) {0}: {1}", Name, text.Remove(0, 2), SEnvir.Players, linkedItems);
+
+                foreach (SConnection con in SEnvir.Connections)
+                {
+                    switch (con.Stage)
+                    {
+                        case GameStage.Game:
+                        case GameStage.Observer:
+                            if (SEnvir.IsBlocking(Character.Account, con.Account)) continue;
+
+                            con.ReceiveChat(text, MessageType.Discord, linkedItems);
+                            break;
+                        default: continue;
+                    }
+                }
+
+                DiscordLibrary.DiscordApp.GlobalMessage((int)Class, (int)Gender, Name, text);
             }
             else if (text.StartsWith("!"))
             {

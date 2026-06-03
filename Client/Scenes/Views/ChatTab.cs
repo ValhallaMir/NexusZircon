@@ -354,6 +354,9 @@ namespace Client.Scenes.Views
                 case MessageType.Combat:
                     if (!Panel.GainsCheckBox.Checked) return;
                     break;
+                case MessageType.Discord:
+                    if (!Panel.DiscordCheckBox.Checked) return;
+                    break;
                 case MessageType.ObserverChat:
                     if (!Panel.ObserverCheckBox.Checked) return;
                     break;
@@ -385,6 +388,7 @@ namespace Client.Scenes.Views
                 case MessageType.Group:
                 case MessageType.ObserverChat:
                 case MessageType.Guild:
+                case MessageType.Discord:
                     label.MouseUp += (o, e) =>
                     {
                         string[] parts = label.Text.Split(':', ' ');
@@ -541,6 +545,10 @@ namespace Client.Scenes.Views
                 case MessageType.Guild:
                     label.BackColour = GetBackColour(Config.GuildTextBackColour);
                     label.ForeColour = Config.GuildTextForeColour;
+                    break;
+                case MessageType.Discord:
+                    label.BackColour = GetBackColour(Config.DiscordTextBackColour);
+                    label.ForeColour = Config.DiscordTextForeColour;
                     break;
                 case MessageType.Debug:
                     label.BackColour = Color.SkyBlue;

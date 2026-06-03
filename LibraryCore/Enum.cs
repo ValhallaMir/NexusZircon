@@ -255,6 +255,8 @@ namespace Library
 
         Rebirth = 20,
 
+        Discord = 21,
+
         //War
         Defiance = 100,
         Might = 101,
@@ -536,7 +538,8 @@ namespace Library
         Combat,
         ObserverChat,
         Guild,
-        Debug
+        Debug,
+        Discord,
     }
 
     public enum NPCDialogType

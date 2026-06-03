@@ -208,6 +208,7 @@ namespace Client.Envir.Translations
         public override string CommonControlConfigWindowColoursTabSystemTextLabel { get; set; } = "System Text";
         public override string CommonControlConfigWindowColoursTabGainsTextLabel { get; set; } = "Gains Text";
         public override string CommonControlConfigWindowColoursTabAnnouncementsLabel { get; set; } = "Announcements";
+        public override string CommonControlConfigWindowColoursTabDiscordLabel { get; set; } = "Discord Text";
         public override string CommonControlConfigWindowColoursTabResetColoursButtonLabel { get; set; } = "Reset All";
         public override string CommonControlConfigWindowTargetColoursTabMonsterLowLabel { get; set; } = "Monster (Low)";
         public override string CommonControlConfigWindowTargetColoursTabMonsterSameLabel { get; set; } = "Monster (Same)";
@@ -416,6 +417,7 @@ namespace Client.Envir.Translations
         public override string ChatOptionsPanelHintTextLabel { get; set; } = "Hint Text:";
         public override string ChatOptionsPanelSystemTextLabel { get; set; } = "System Text:";
         public override string ChatOptionsPanelGainsTextLabel { get; set; } = "Gains Text:";
+        public override string ChatOptionsPanelDiscordTextLabel { get; set; } = "Discord Text:";
         public override string ChatOptionsPanelRemoveLabel { get; set; } = "Remove";
 
         public override string ChatTextBoxOptionsButtonLabel { get; set; } = "Options";

@@ -3,6 +3,7 @@ using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Repository;
 using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraGrid.Views.Grid;
+using DiscordLibrary;
 using Library;
 using Library.SystemModels;
 using MirDB;
@@ -29,6 +30,8 @@ namespace Server
         public List<Control> Windows = new List<Control>();
         public static Session Session;
         private static readonly string CacheFilePath = Path.Combine(Application.StartupPath, "Server.cache.json");
+
+        public static DiscordApp discordApp => DiscordApp.GetApp();
 
         public SMain()
         {
@@ -114,6 +117,8 @@ namespace Server
             UpdateInterface();
 
             Application.Idle += Application_Idle;
+
+            discordApp.Run();
         }
 
         private void Application_Idle(object sender, EventArgs e)
@@ -248,6 +253,7 @@ namespace Server
                 InterfaceTimer.Enabled = true;
                 SEnvir.StartServer();
                 UpdateInterface();
+                DiscordApp.ServerOnline();
             }
             catch (Exception ex)
             {
@@ -259,6 +265,7 @@ namespace Server
         {
             SEnvir.Started = false;
             UpdateInterface();
+            DiscordApp.ServerOffline();
         }
 
         private void LogNavButton_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)

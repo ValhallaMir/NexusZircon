@@ -962,6 +962,7 @@ namespace Client.Scenes
                     pSetting.HintChat = tab.Panel.HintCheckBox.Checked;
                     pSetting.SystemChat = tab.Panel.SystemCheckBox.Checked;
                     pSetting.GainsChat = tab.Panel.GainsCheckBox.Checked;
+                    pSetting.DiscordChat = tab.Panel.DiscordCheckBox.Checked;
                 }
             }
         }
@@ -1014,6 +1015,7 @@ namespace Client.Scenes
                     tab.Panel.HintCheckBox.Checked = tab.Settings.HintChat;
                     tab.Panel.SystemCheckBox.Checked = tab.Settings.SystemChat;
                     tab.Panel.GainsCheckBox.Checked = tab.Settings.GainsChat;
+                    tab.Panel.DiscordCheckBox.Checked = tab.Settings.DiscordChat;
                 }
 
                 foreach (ChatTab tab in ChatTab.Tabs)

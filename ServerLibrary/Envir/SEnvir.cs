@@ -1,4 +1,5 @@
-﻿using Library;
+﻿using DiscordLibrary;
+using Library;
 using Library.Network;
 using Library.SystemModels;
 using MirDB;
@@ -4069,6 +4070,33 @@ namespace Server.Envir
             for (int i = 0; i < CharacterInfoList.Count; i++)
                 if (CharacterInfoList[i].Index == index)
                     return CharacterInfoList[i];
+
+            return null;
+        }
+
+        public static AccountInfo FindAccountByDiscordCode(ushort linkCode, ulong discordId)
+        {
+            for (int i = 0; i < AccountInfoList.Count; i++)
+            {
+                AccountInfo account = AccountInfoList[i];
+
+                if (account.DiscordLinkCode != linkCode) continue;
+                if (account.DiscordLinkCodeExpiry != default && account.DiscordLinkCodeExpiry < Now) continue;
+
+                account.DiscordID = discordId;
+                account.DiscordLinkCode = 0;
+                account.DiscordLinkCodeExpiry = default;
+                return account;
+            }
+
+            return null;
+        }
+
+        public static AccountInfo GetAccountByDiscordID(ulong discordId)
+        {
+            for (int i = 0; i < AccountInfoList.Count; i++)
+                if (AccountInfoList[i].DiscordID == discordId)
+                    return AccountInfoList[i];
 
             return null;
         }

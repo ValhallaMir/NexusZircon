@@ -119,6 +119,9 @@ namespace Client.Scenes.Views
                     case BuffType.Veteran:
                         icon.Index = 171;
                         break;
+                    case BuffType.Discord:
+                        icon.Index = 3372;
+                        break;
                     case BuffType.Brown:
                         icon.Index = 229;
                         break;
@@ -308,6 +311,10 @@ namespace Client.Scenes.Views
                 case BuffType.Observable:
                     text = $"Observable\n\n" +
                            $"You are allowing people to watch you play.\n";
+                    break;
+                case BuffType.Discord:
+                    text = $"Discord Buff\n\n" +
+                           $"You have linked your account to our Discord server.\n";
                     break;
                 case BuffType.Veteran:
                     text = $"Veteran\n";

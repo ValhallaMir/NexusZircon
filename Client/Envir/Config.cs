@@ -104,6 +104,7 @@ namespace Client.Envir
         public static Color SystemTextForeColour { get; set; } = Color.Red;
         public static Color GainsTextForeColour { get; set; } = Color.GreenYellow;
         public static Color AnnouncementTextForeColour { get; set; } = Color.DarkBlue;
+        public static Color DiscordTextForeColour { get; set; } = Color.White;
 
         public static Color LocalTextBackColour { get; set; } = Color.FromArgb(0, 0, 0, 0);
         public static Color GMWhisperInTextBackColour { get; set; } = Color.FromArgb(200, 255, 255, 255);
@@ -118,6 +119,7 @@ namespace Client.Envir
         public static Color SystemTextBackColour { get; set; } = Color.FromArgb(200, 255, 255, 255);
         public static Color GainsTextBackColour { get; set; } = Color.FromArgb(0, 0, 0, 0);
         public static Color AnnouncementTextBackColour { get; set; } = Color.FromArgb(200, 255, 255, 255);
+        public static Color DiscordTextBackColour { get; set; } = Color.FromArgb(0, 0, 0, 0);
 
         [ConfigSection("Target Colours")]
         public static Color TargetMonsterLowLevelColour { get; set; } = Color.LimeGreen;

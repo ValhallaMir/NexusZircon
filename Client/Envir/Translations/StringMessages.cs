@@ -206,6 +206,7 @@ namespace Client.Envir.Translations
         public abstract string CommonControlConfigWindowColoursTabSystemTextLabel { get; set; }
         public abstract string CommonControlConfigWindowColoursTabGainsTextLabel { get; set; }
         public abstract string CommonControlConfigWindowColoursTabAnnouncementsLabel { get; set; }
+        public abstract string CommonControlConfigWindowColoursTabDiscordLabel { get; set; }
         public abstract string CommonControlConfigWindowColoursTabResetColoursButtonLabel { get; set; }
         public abstract string CommonControlConfigWindowTargetColoursTabMonsterLowLabel { get; set; }
         public abstract string CommonControlConfigWindowTargetColoursTabMonsterSameLabel { get; set; }
@@ -413,6 +414,7 @@ namespace Client.Envir.Translations
         public abstract string ChatOptionsPanelHintTextLabel { get; set; }
         public abstract string ChatOptionsPanelSystemTextLabel { get; set; }
         public abstract string ChatOptionsPanelGainsTextLabel { get; set; }
+        public abstract string ChatOptionsPanelDiscordTextLabel { get; set; }
         public abstract string ChatOptionsPanelRemoveLabel { get; set; }
 
         public abstract string ChatTextBoxOptionsButtonLabel { get; set; }

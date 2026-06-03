@@ -429,6 +429,21 @@ namespace Server.DBModels
         }
         private DateTime _GlobalTime;
 
+        public DateTime DiscordShoutExpiry
+        {
+            get { return _DiscordTime; }
+            set
+            {
+                if (_DiscordTime == value) return;
+
+                var oldValue = _DiscordTime;
+                _DiscordTime = value;
+
+                OnChanged(oldValue, value, "DiscordTime");
+            }
+        }
+        private DateTime _DiscordTime;
+
         public HorseType Horse
         {
             get { return _Horse; }
@@ -549,6 +564,51 @@ namespace Server.DBModels
             }
         }
         private bool _Observer;
+
+        public ulong DiscordID
+        {
+            get { return _DiscordID; }
+            set
+            {
+                if (_DiscordID == value) return;
+
+                var oldValue = _DiscordID;
+                _DiscordID = value;
+
+                OnChanged(oldValue, value, "DiscordID");
+            }
+        }
+        private ulong _DiscordID;
+
+        public ushort DiscordLinkCode
+        {
+            get { return _DiscordLinkCode; }
+            set
+            {
+                if (_DiscordLinkCode == value) return;
+
+                var oldValue = _DiscordLinkCode;
+                _DiscordLinkCode = value;
+
+                OnChanged(oldValue, value, "DiscordLinkCode");
+            }
+        }
+        private ushort _DiscordLinkCode;
+
+        public DateTime DiscordLinkCodeExpiry
+        {
+            get { return _DiscordLinkCodeExpiry; }
+            set
+            {
+                if (_DiscordLinkCodeExpiry == value) return;
+
+                var oldValue = _DiscordLinkCodeExpiry;
+                _DiscordLinkCodeExpiry = value;
+
+                OnChanged(oldValue, value, "DiscordLinkCodeExpiry");
+            }
+        }
+        private DateTime _DiscordLinkCodeExpiry;
 
         public bool TempAdmin;
 

@@ -207,6 +207,7 @@ namespace Client.Envir.Translations
         public override string CommonControlConfigWindowColoursTabSystemTextLabel { get; set; } = "系统文字";
         public override string CommonControlConfigWindowColoursTabGainsTextLabel { get; set; } = "Gains Text";
         public override string CommonControlConfigWindowColoursTabAnnouncementsLabel { get; set; } = "公告";
+        public override string CommonControlConfigWindowColoursTabDiscordLabel { get; set; } = "Discord Text";
         public override string CommonControlConfigWindowColoursTabResetColoursButtonLabel { get; set; } = "重置所有";
         public override string CommonControlConfigWindowTargetColoursTabMonsterLowLabel { get; set; } = "Monster (Low)";
         public override string CommonControlConfigWindowTargetColoursTabMonsterSameLabel { get; set; } = "Monster (Same)";
@@ -415,6 +416,7 @@ namespace Client.Envir.Translations
         public override string ChatOptionsPanelHintTextLabel { get; set; } = "提示文字:";
         public override string ChatOptionsPanelSystemTextLabel { get; set; } = "系统文字:";
         public override string ChatOptionsPanelGainsTextLabel { get; set; } = "经验文字:";
+        public override string ChatOptionsPanelDiscordTextLabel { get; set; } = "Discord Text:";
         public override string ChatOptionsPanelRemoveLabel { get; set; } = "移除";
 
         public override string ChatTextBoxOptionsButtonLabel { get; set; } = "选项";

@@ -94,7 +94,7 @@ namespace Client.Scenes.Views
                 Label = { Text = Mode.ToString() },
                 Parent = this,
             };
-            ChatModeButton.MouseClick += (o, e) => Mode = (ChatMode)(((int)(Mode) + 1) % 7);
+            ChatModeButton.MouseClick += (o, e) => Mode = (ChatMode)(((int)(Mode) + 1) % 8);
 
             OptionsButton = new DXButton
             {
@@ -265,6 +265,9 @@ namespace Client.Scenes.Views
                     case ChatMode.Observer:
                         TextBox.TextBox.Text = @"#";
                         break;
+                    case ChatMode.Discord:
+                        TextBox.TextBox.Text = @"!#";
+                        break;
                 }
 
             TextBox.SetFocus();
@@ -342,6 +345,7 @@ namespace Client.Scenes.Views
         Shout,
         Global,
         Observer,
+        Discord
     }
 
     public class Message

@@ -276,5 +276,20 @@ namespace Client.UserModels
             }
         }
         private bool _GainsChat;
+
+        public bool DiscordChat
+        {
+            get { return _DiscordChat; }
+            set
+            {
+                if (_DiscordChat == value) return;
+
+                var oldValue = _DiscordChat;
+                _DiscordChat = value;
+
+                OnChanged(oldValue, value, "DiscordChat");
+            }
+        }
+        private bool _DiscordChat;
     }
 }

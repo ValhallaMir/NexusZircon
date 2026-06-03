@@ -42,7 +42,7 @@ namespace Client.Controls
         private DXNumberBox PortBox;
 
         //Chat
-        public DXColourControlPair LocalColourBox, GMWhisperInColourBox, WhisperInColourBox, WhisperOutColourBox, GroupColourBox, GuildColourBox, ShoutColourBox, GlobalColourBox, ObserverColourBox, HintColourBox, SystemColourBox, GainsColourBox, AnnouncementColourBox;
+        public DXColourControlPair LocalColourBox, GMWhisperInColourBox, WhisperInColourBox, WhisperOutColourBox, GroupColourBox, GuildColourBox, ShoutColourBox, GlobalColourBox, ObserverColourBox, HintColourBox, SystemColourBox, GainsColourBox, AnnouncementColourBox, DiscordColourBox;
         public DXButton ResetColoursButton;
 
         //Target Outline Colours
@@ -151,6 +151,7 @@ namespace Client.Controls
             SystemColourBox.ForeColourControl.BackColour = Config.SystemTextForeColour;
             GainsColourBox.ForeColourControl.BackColour = Config.GainsTextForeColour;
             AnnouncementColourBox.ForeColourControl.BackColour = Config.AnnouncementTextForeColour;
+            DiscordColourBox.ForeColourControl.BackColour = Config.DiscordTextForeColour;
 
             LocalColourBox.BackColourControl.BackColour = Config.LocalTextBackColour;
             GMWhisperInColourBox.BackColourControl.BackColour = Config.GMWhisperInTextBackColour;
@@ -165,6 +166,7 @@ namespace Client.Controls
             SystemColourBox.BackColourControl.BackColour = Config.SystemTextBackColour;
             GainsColourBox.BackColourControl.BackColour = Config.GainsTextBackColour;
             AnnouncementColourBox.BackColourControl.BackColour = Config.AnnouncementTextBackColour;
+            DiscordColourBox.BackColourControl.BackColour = Config.DiscordTextBackColour;
 
             TargetMonsterLowLevelColourBox.BackColour = Config.TargetMonsterLowLevelColour;
             TargetMonsterSameLevelColourBox.BackColour = Config.TargetMonsterSameLevelColour;
@@ -1022,6 +1024,11 @@ namespace Client.Controls
             AnnouncementColourBox.BackColourPairChanged += (o, e) => Config.AnnouncementTextBackColour = AnnouncementColourBox.BackColourControl.BackColour;
             uiColoursSection.AddControl(CEnvir.Language.CommonControlConfigWindowColoursTabAnnouncementsLabel, AnnouncementColourBox);
 
+            DiscordColourBox = new DXColourControlPair();
+            DiscordColourBox.ForeColourPairChanged += (o, e) => Config.DiscordTextForeColour = DiscordColourBox.ForeColourControl.BackColour;
+            DiscordColourBox.BackColourPairChanged += (o, e) => Config.DiscordTextBackColour = DiscordColourBox.BackColourControl.BackColour;
+            uiColoursSection.AddControl(CEnvir.Language.CommonControlConfigWindowColoursTabDiscordLabel, DiscordColourBox);
+
             ResetColoursButton = new DXButton
             {
                 Size = new Size(80, SmallButtonHeight),
@@ -1031,6 +1038,7 @@ namespace Client.Controls
             ResetColoursButton.MouseClick += (o, e) =>
             {
                 LocalColourBox.ForeColourControl.BackColour = Color.White;
+                DiscordColourBox.ForeColourControl.BackColour = Color.White;
                 GMWhisperInColourBox.ForeColourControl.BackColour = Color.Red;
                 WhisperInColourBox.ForeColourControl.BackColour = Color.Cyan;
                 WhisperOutColourBox.ForeColourControl.BackColour = Color.Aquamarine;
@@ -1045,6 +1053,7 @@ namespace Client.Controls
                 AnnouncementColourBox.ForeColourControl.BackColour = Color.DarkBlue;
 
                 LocalColourBox.BackColourControl.BackColour = Color.FromArgb(0, 0, 0, 0);
+                DiscordColourBox.BackColourControl.BackColour = Color.FromArgb(0, 0, 0, 0);
                 GMWhisperInColourBox.BackColourControl.BackColour = Color.FromArgb(255, 255, 255, 255);
                 WhisperInColourBox.BackColourControl.BackColour = Color.FromArgb(0, 0, 0, 0);
                 WhisperOutColourBox.BackColourControl.BackColour = Color.FromArgb(0, 0, 0, 0);
@@ -1587,7 +1596,15 @@ namespace Client.Controls
                     AnnouncementColourBox = null;
                 }
 
-                
+                if (DiscordColourBox != null)
+                {
+                    if (!DiscordColourBox.IsDisposed)
+                        DiscordColourBox.Dispose();
+
+                    DiscordColourBox = null;
+                }
+
+
                 #endregion
 
                 #region Target Colours

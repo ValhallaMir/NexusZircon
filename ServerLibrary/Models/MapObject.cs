@@ -1430,6 +1430,7 @@ namespace Server.Models
                 case BuffType.Castle:
                 case BuffType.Guild:
                 case BuffType.Veteran:
+                case BuffType.Discord:
                 case BuffType.Fame:
                     info.IsTemporary = true;
                     break;
